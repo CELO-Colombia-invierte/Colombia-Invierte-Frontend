@@ -1,0 +1,8 @@
+{
+  "name": "colombia-invierte",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
+
