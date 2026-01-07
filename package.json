@@ -8,9 +8,19 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss}\"",
+    "cap:add": "npx cap add",
+    "cap:sync": "npx cap sync",
+    "cap:copy": "npx cap copy",
+    "cap:open:ios": "npx cap open ios",
+    "cap:open:android": "npx cap open android",
+    "cap:run:ios": "pnpm build && npx cap sync && npx cap open ios",
+    "cap:run:android": "pnpm build && npx cap sync && npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^5.5.0",
+    "@capacitor/core": "^5.5.0",
+    "@capacitor/ios": "^5.5.0",
     "@ionic/react": "^7.7.0",
     "@ionic/react-router": "^7.7.0",
     "ionicons": "^7.2.0",

@@ -14,7 +14,6 @@ dist-ssr
 *.swp
 *.swo
 *~
-capacitor.config.ts
 ios
 android
 .pnpm-store
