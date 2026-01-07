@@ -14,6 +14,7 @@ export default defineConfig({
       '@/utils': resolve(__dirname, './src/utils'),
       '@/types': resolve(__dirname, './src/types'),
     },
+    dedupe: ['history'],
   },
   build: {
     rollupOptions: {
@@ -29,6 +30,16 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    host: true,
+    allowedHosts: [
+      '.ngrok-free.app',
+      '.ngrok.io',
+      '.ngrok.app',
+    ],
+    hmr: {
+      clientPort: 5173,
+    },
+    cors: true,
   },
 });
 

@@ -1,0 +1,123 @@
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.splash-screen.hidden {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.splash-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;
+  height: 150%;
+  display: flex;
+  flex-direction: column;
+  transform: rotate(-15deg);
+  transform-origin: center;
+  left: -25%;
+  top: -25%;
+}
+
+.splash-band {
+  flex: 1;
+  position: relative;
+}
+
+.splash-band-yellow {
+  background: linear-gradient(135deg, #FCD116 0%, #FCD116 100%);
+  flex: 1;
+}
+
+.splash-band-blue {
+  background: linear-gradient(135deg, #003893 0%, #003893 100%);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.splash-band-red {
+  background: linear-gradient(135deg, #CE1126 0%, #CE1126 100%);
+  flex: 1;
+}
+
+.splash-title {
+  text-align: center;
+  z-index: 10;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(15deg);
+  width: 100%;
+}
+
+.splash-title-line {
+  color: #ffffff;
+  font-family: 'Coolvetica', 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  display: block;
+}
+
+.splash-loader {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+}
+
+.splash-spinner-wrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.splash-spinner {
+  --color: #ffffff;
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.splash-spinner-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #CE1126;
+  border-radius: 50%;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .splash-title-line {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .splash-title-line {
+    font-size: 3rem;
+  }
+}
+

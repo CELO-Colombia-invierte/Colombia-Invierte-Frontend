@@ -1,3 +1,4 @@
+import React from 'react';
 import { IonButton, IonButtonProps } from '@ionic/react';
 
 export const Button: React.FC<IonButtonProps> = (props) => {

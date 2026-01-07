@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   IonContent,
   IonHeader,
@@ -5,7 +6,6 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { Suspense } from 'react';
 
 const HomePage: React.FC = () => {
   return (
@@ -21,11 +21,9 @@ const HomePage: React.FC = () => {
             <IonTitle size="large">Colombia Invierte</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <Suspense fallback={<div>Cargando...</div>}>
-          <div className="ion-padding">
-            <h1>Bienvenido</h1>
-          </div>
-        </Suspense>
+        <div className="ion-padding">
+          <h1>Bienvenido</h1>
+        </div>
       </IonContent>
     </IonPage>
   );
