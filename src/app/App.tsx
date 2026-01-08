@@ -1,22 +1,64 @@
 import React, { Suspense } from 'react';
-import { Redirect, Route } from 'react-router-dom';
-import {
-  IonApp,
-  IonRouterOutlet,
-  setupIonicReact,
-} from '@ionic/react';
+import { Redirect, Route, useLocation } from 'react-router-dom';
+import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { routes } from '@/routes';
 import { SplashScreen, LoadingScreen } from '@/components/layout';
 import { OnboardingCarousel } from '@/components/onboarding';
+import { BottomNavBar } from '@/components/navigation/bottomNavBar/BottomNavBar';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
 
 setupIonicReact();
 
+const MainContent: React.FC = () => {
+  const location = useLocation();
+  const hideNavBar = location.pathname.startsWith('/mensajes/');
+
+  return (
+    <>
+      <IonRouterOutlet>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+              }}
+            >
+              Cargando...
+            </div>
+          }
+        >
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              exact={route.exact}
+              path={route.path}
+              component={route.component}
+            />
+          ))}
+          <Redirect exact from="/" to="/home" />
+        </Suspense>
+      </IonRouterOutlet>
+      {!hideNavBar && (
+        <BottomNavBar
+          onCentralButtonClick={() => console.log('Central button clicked!')}
+        />
+      )}
+    </>
+  );
+};
+
 const AppContent: React.FC = () => {
   const { showSplash, showLoading, loadingProgress, isReady } = useSplash();
-  const { showOnboarding, isLoading: onboardingLoading, completeOnboarding } = useOnboarding();
+  const {
+    showOnboarding,
+    isLoading: onboardingLoading,
+    completeOnboarding,
+  } = useOnboarding();
 
   if (showSplash) {
     return <SplashScreen />;
@@ -34,19 +76,7 @@ const AppContent: React.FC = () => {
     return (
       <IonApp>
         <IonReactRouter>
-          <IonRouterOutlet>
-            <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Cargando...</div>}>
-              {routes.map((route) => (
-                <Route
-                  key={route.path}
-                  exact={route.exact}
-                  path={route.path}
-                  component={route.component}
-                />
-              ))}
-              <Redirect exact from="/" to="/home" />
-            </Suspense>
-          </IonRouterOutlet>
+          <MainContent />
         </IonReactRouter>
       </IonApp>
     );
@@ -58,4 +88,3 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => <AppContent />;
 
 export default App;
-

@@ -1,0 +1,54 @@
+.new-project-card {
+  border-radius: 20px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #f5f5f5;
+}
+
+.new-project-card:hover {
+  background-color: #ebebeb;
+  border-color: #b0b0b0;
+  transform: translateY(-2px);
+}
+
+.new-project-card:active {
+  transform: translateY(0);
+}
+
+.new-project-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-project-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.new-project-card:hover .new-project-card-icon {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.new-project-card-icon ion-icon {
+  font-size: 28px;
+  color: #999;
+}
+
+.new-project-card-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+}

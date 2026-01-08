@@ -1,0 +1,173 @@
+.portfolio-card {
+  border-radius: 20px;
+  padding: 20px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-card-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+}
+
+.portfolio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.portfolio-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portfolio-card-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.portfolio-card-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.portfolio-card-badge.positive {
+  background-color: #d4f4dd;
+  color: #0d8a3a;
+}
+
+.portfolio-card-badge.negative {
+  background-color: #ffe4e4;
+  color: #d32f2f;
+}
+
+.portfolio-card-period {
+  font-size: 13px;
+  color: #666;
+  font-weight: 400;
+}
+
+.portfolio-card-participants {
+  margin: 12px 0;
+}
+
+.portfolio-card-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.portfolio-card-avatar,
+.portfolio-card-avatar-more {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-left: -12px;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.portfolio-card-avatar:first-child {
+  margin-left: 0;
+  z-index: 3;
+}
+
+.portfolio-card-avatar:nth-child(2) {
+  z-index: 2;
+}
+
+.portfolio-card-avatar:nth-child(3) {
+  z-index: 1;
+}
+
+.portfolio-card:hover .portfolio-card-avatar,
+.portfolio-card:hover .portfolio-card-avatar-more {
+  transform: translateX(4px);
+}
+
+.portfolio-card-avatar-more {
+  background-color: #f0f0f0;
+  color: #666;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.portfolio-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.portfolio-card-amount-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.portfolio-card-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+}
+
+.portfolio-card-description {
+  font-size: 12px;
+  color: #666;
+  font-weight: 400;
+}
+
+.portfolio-card-emoji {
+  font-size: 36px;
+  line-height: 1;
+}
+
+/* Tokenization card layout */
+.portfolio-card-tokenization-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.portfolio-card-amount-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.portfolio-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.portfolio-card-badge-wrapper {
+  display: flex;
+}
