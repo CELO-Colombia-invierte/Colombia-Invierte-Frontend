@@ -1,0 +1,19 @@
+:global([class*="header"]),
+:global([class*="Header"]),
+:global([class*="title"]),
+:global([class*="Title"]),
+:global([class*="header"] *),
+:global([class*="Header"] *),
+:global([class*="title"] *),
+:global([class*="Title"] *),
+:global([data-theme="dark"] [class*="header"]),
+:global([data-theme="dark"] [class*="Header"]),
+:global([data-theme="dark"] [class*="title"]),
+:global([data-theme="dark"] [class*="Title"]),
+:global([data-theme="dark"] [class*="header"] *),
+:global([data-theme="dark"] [class*="Header"] *),
+:global([data-theme="dark"] [class*="title"] *),
+:global([data-theme="dark"] [class*="Title"] *) {
+  font-weight: 700 !important;
+}
+

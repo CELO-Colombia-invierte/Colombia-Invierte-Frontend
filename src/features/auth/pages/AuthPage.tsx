@@ -1,23 +1,17 @@
-import React from 'react';
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import React, { useState } from 'react';
+import { IonContent, IonPage } from '@ionic/react';
+import { SignInModal } from '@/components/auth';
+import './AuthPage.css';
 
 const AuthPage: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Autenticación</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-        <div className="ion-padding">
-          <h1>Autenticación</h1>
+    <IonPage className="auth-page">
+      <IonContent fullscreen className="auth-content">
+        <div className="auth-background" />
+        <div className="auth-container">
+          <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
       </IonContent>
     </IonPage>
