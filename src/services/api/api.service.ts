@@ -10,7 +10,8 @@ class ApiService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retry = true
   ): Promise<ApiResponse<T>> {
     const token = authService.getToken();
     const headers: HeadersInit = {
@@ -27,6 +28,19 @@ class ApiService {
         ...options,
         headers,
       });
+
+      if (response.status === 401 && retry) {
+        try {
+          await authService.refreshToken();
+          return this.request<T>(endpoint, options, false);
+        } catch (refreshError) {
+          authService.clearAuth();
+          throw {
+            message: 'Session expired',
+            status: 401,
+          } as ApiError;
+        }
+      }
 
       if (!response.ok) {
         const error: ApiError = {
@@ -62,6 +76,13 @@ class ApiService {
   async put<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async patch<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
       body: JSON.stringify(body),
     });
   }

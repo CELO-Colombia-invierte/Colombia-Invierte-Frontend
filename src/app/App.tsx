@@ -11,6 +11,7 @@ import { createThirdwebClient } from 'thirdweb';
 import { routes } from '@/routes';
 import { SplashScreen, LoadingScreen } from '@/components/layout';
 import { OnboardingCarousel } from '@/components/onboarding';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { useAuth } from '@/hooks/use-auth';
@@ -27,14 +28,21 @@ const AppRouter: React.FC = () => {
   return (
     <IonRouterOutlet>
       <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Cargando...</div>}>
-        {routes.map((route) => (
-          <Route
-            key={route.path}
-            exact={route.exact}
-            path={route.path}
-            component={route.component}
-          />
-        ))}
+        <Route
+          exact
+          path="/auth"
+          component={routes.find(r => r.path === '/auth')?.component}
+        />
+        {routes
+          .filter(route => route.path !== '/auth')
+          .map((route) => (
+            <ProtectedRoute
+              key={route.path}
+              exact={route.exact}
+              path={route.path}
+              component={route.component}
+            />
+          ))}
         <Route
           exact
           path="/"

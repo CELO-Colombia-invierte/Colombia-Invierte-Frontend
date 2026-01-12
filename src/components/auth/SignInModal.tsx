@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { ConnectEmbed } from 'thirdweb/react';
 import { useActiveAccount } from 'thirdweb/react';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { defineChain } from 'thirdweb/chains';
 import { thirdwebClient } from '@/app/App';
+import { useAuth } from '@/hooks/use-auth';
 import './SignInModal.css';
 
 const celo = defineChain({
@@ -24,6 +25,7 @@ interface SignInModalProps {
 
 export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => {
   const account = useActiveAccount();
+  const { verifyThirdweb, isLoading } = useAuth();
 
   const wallets = useMemo(() => [
     inAppWallet({
@@ -34,10 +36,30 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
     createWallet('io.metamask')
   ], []);
 
+  useEffect(() => {
+    const handleVerify = async () => {
+      if (account?.address) {
+        try {
+          await verifyThirdweb({
+            address: account.address,
+            chain_id: celo.id,
+          });
+          onClose();
+        } catch (error) {
+          console.error('Error verifying account:', error);
+        }
+      }
+    };
+
+    if (account?.address) {
+      handleVerify();
+    }
+  }, [account?.address, verifyThirdweb, onClose]);
+
   if (!isOpen) return null;
 
   const handleConnect = () => {
-    if (account) {
+    if (account?.address && !isLoading) {
       onClose();
     }
   };
