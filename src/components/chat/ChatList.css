@@ -1,0 +1,16 @@
+.chat-list {
+  background-color: #fff;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-list-empty {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.chat-list-empty p {
+  margin: 0;
+  font-size: 16px;
+  color: #999;
+}

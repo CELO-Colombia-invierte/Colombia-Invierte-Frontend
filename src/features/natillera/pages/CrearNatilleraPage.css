@@ -1,0 +1,201 @@
+.ion-page-light {
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #2d3748;
+  --ion-text-color-rgb: 45, 55, 72;
+}
+
+.crear-natillera-page {
+  --background: #ffffff;
+  background: #ffffff !important;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-back-button,
+.header-close-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.header-back-button:hover,
+.header-close-button:hover {
+  background: #f7fafc;
+}
+
+.header-back-button ion-icon {
+  font-size: 24px;
+  color: #2d3748;
+}
+
+.header-close-button ion-icon {
+  font-size: 32px;
+  color: #e53e3e;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.progress-section {
+  padding: 24px 20px;
+  background: #ffffff;
+}
+
+.progress-bar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+.progress-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #cbd5e0;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: #4a90e2;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+}
+
+.progress-line {
+  position: absolute;
+  left: 8px;
+  height: 3px;
+  background: #4a90e2;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  border-radius: 2px;
+  max-width: calc(100% - 16px);
+}
+
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: #e2e8f0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+  border-radius: 2px;
+}
+
+.step-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.step-counter {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a90e2;
+}
+
+.form-container {
+  background: #ffffff;
+  min-height: calc(100vh - 180px);
+  padding-bottom: 180px;
+}
+
+.form-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  z-index: 99;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.btn-primary {
+  background: #4a90e2;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #357abd;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #2d3748;
+  border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .form-actions {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}

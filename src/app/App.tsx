@@ -4,6 +4,7 @@ import {
   IonApp,
   IonRouterOutlet,
   setupIonicReact,
+  IonIcon,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { ThirdwebProvider } from 'thirdweb/react';
@@ -12,6 +13,8 @@ import { defineChain } from 'thirdweb/chains';
 import { routes } from '@/routes';
 import { SplashScreen, LoadingScreen } from '@/components/layout';
 import { OnboardingCarousel } from '@/components/onboarding';
+import { BottomNavBar } from '@/components/navigation/bottomNavBar/BottomNavBar';
+import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { useAuth } from '@/hooks/use-auth';
@@ -111,4 +114,3 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => <AppContent />;
 
 export default App;
-
