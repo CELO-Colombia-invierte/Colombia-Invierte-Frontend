@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import { ConnectEmbed } from 'thirdweb/react';
 import { useActiveAccount } from 'thirdweb/react';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
@@ -25,7 +25,19 @@ interface SignInModalProps {
 
 export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => {
   const account = useActiveAccount();
-  const { verifyThirdweb, isLoading } = useAuth();
+  const { verifyThirdweb, isLoading, isAuthenticated } = useAuth();
+  const verifyingRef = useRef(false);
+  const lastAddressRef = useRef<string | null>(null);
+  const verifyThirdwebRef = useRef(verifyThirdweb);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    verifyThirdwebRef.current = verifyThirdweb;
+  }, [verifyThirdweb]);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   const wallets = useMemo(() => [
     inAppWallet({
@@ -37,24 +49,37 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
   ], []);
 
   useEffect(() => {
+    if (isAuthenticated) {
+      onCloseRef.current();
+      return;
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!account?.address || isAuthenticated) return;
+    if (verifyingRef.current) return;
+    if (lastAddressRef.current === account.address) return;
+
     const handleVerify = async () => {
-      if (account?.address) {
-        try {
-          await verifyThirdweb({
-            address: account.address,
-            chain_id: celo.id,
-          });
-          onClose();
-        } catch (error) {
-          console.error('Error verifying account:', error);
-        }
+      verifyingRef.current = true;
+      lastAddressRef.current = account.address!;
+
+      try {
+        await verifyThirdwebRef.current({
+          address: account.address!,
+          chain_id: celo.id,
+        });
+        onCloseRef.current();
+      } catch (error) {
+        console.error('Error verifying account:', error);
+        lastAddressRef.current = null;
+      } finally {
+        verifyingRef.current = false;
       }
     };
 
-    if (account?.address) {
-      handleVerify();
-    }
-  }, [account?.address, verifyThirdweb, onClose]);
+    handleVerify();
+  }, [account?.address, isAuthenticated]);
 
   if (!isOpen) return null;
 

@@ -15,6 +15,7 @@ export const useAuth = () => {
   }, []);
 
   const verifyThirdweb = useCallback(async (data: ThirdwebVerifyRequest) => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       const response = await authService.verifyThirdweb(data);
@@ -24,14 +25,16 @@ export const useAuth = () => {
         refreshToken: response.refresh_token,
         isAuthenticated: true,
       });
-      history.push('/home');
+      setTimeout(() => {
+        history.push('/home');
+      }, 100);
       return response;
     } catch (error) {
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [history]);
+  }, [history, isLoading]);
 
   const login = useCallback(async (data: LoginRequest) => {
     setIsLoading(true);
