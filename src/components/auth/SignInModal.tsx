@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { ConnectEmbed } from 'thirdweb/react';
 import { useActiveAccount } from 'thirdweb/react';
-import { createThirdwebClient } from 'thirdweb';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { defineChain } from 'thirdweb/chains';
+import { thirdwebClient } from '@/app/App';
 import './SignInModal.css';
 
 const celo = defineChain({
@@ -24,12 +24,6 @@ interface SignInModalProps {
 
 export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => {
   const account = useActiveAccount();
-  
-  const client = useMemo(() => {
-    return createThirdwebClient({
-      clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || 'd0723b13ad08e9e6a2e45a381a1f2a81'
-    });
-  }, []);
 
   const wallets = useMemo(() => [
     inAppWallet({
@@ -72,7 +66,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
   };
 
   const connectEmbedProps = {
-    client,
+    client: thirdwebClient,
     wallets,
     chain: celo,
     theme: 'dark' as const,

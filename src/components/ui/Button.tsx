@@ -1,7 +1,7 @@
 import React from 'react';
-import { IonButton, IonButtonProps } from '@ionic/react';
+import { IonButton } from '@ionic/react';
 
-export const Button: React.FC<IonButtonProps> = (props) => {
+export const Button: React.FC<React.ComponentProps<typeof IonButton>> = (props) => {
   return <IonButton {...props} />;
 };
 

@@ -8,7 +8,6 @@ import {
 import { IonReactRouter } from '@ionic/react-router';
 import { ThirdwebProvider } from 'thirdweb/react';
 import { createThirdwebClient } from 'thirdweb';
-import { defineChain } from 'thirdweb/chains';
 import { routes } from '@/routes';
 import { SplashScreen, LoadingScreen } from '@/components/layout';
 import { OnboardingCarousel } from '@/components/onboarding';
@@ -18,15 +17,8 @@ import { useAuth } from '@/hooks/use-auth';
 
 setupIonicReact();
 
-const celo = defineChain({
-  id: 42220,
-  name: 'Celo',
-  nativeCurrency: {
-    name: 'Celo',
-    symbol: 'CELO',
-    decimals: 18,
-  },
-  rpc: 'https://forno.celo.org',
+export const thirdwebClient = createThirdwebClient({
+  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || ''
 });
 
 const AppRouter: React.FC = () => {
@@ -90,12 +82,8 @@ const AppContent: React.FC = () => {
   }
 
   if (isReady) {
-    const client = createThirdwebClient({
-      clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || 'd0723b13ad08e9e6a2e45a381a1f2a81'
-    });
-
     return (
-      <ThirdwebProvider client={client}>
+      <ThirdwebProvider>
         <IonApp>
           <IonReactRouter>
             <OnboardingWrapper />
