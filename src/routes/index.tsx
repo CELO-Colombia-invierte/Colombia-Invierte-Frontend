@@ -3,10 +3,22 @@ import { lazy } from 'react';
 
 const HomePage = lazy(() => import('@/features/home/pages/HomePage'));
 const AuthPage = lazy(() => import('@/features/auth/pages/AuthPage'));
-const InversionesPage = lazy(
-  () => import('@/features/inversiones/pages/InversionesPage')
+const PortafolioPage = lazy(
+  () => import('@/features/portafolio/pages/PortafolioPage')
+);
+const MensajesPage = lazy(
+  () => import('@/features/mensajes/pages/MensajesPage')
+);
+const ChatConversationPage = lazy(
+  () => import('@/features/mensajes/pages/ChatConversationPage')
 );
 const PerfilPage = lazy(() => import('@/features/perfil/pages/PerfilPage'));
+const CrearNatilleraPage = lazy(
+  () => import('@/features/natillera/pages/CrearNatilleraPage')
+);
+const CrearTokenizacionPage = lazy(
+  () => import('@/features/tokenizacion/pages/CrearTokenizacionPage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -20,8 +32,18 @@ export const routes: RouteConfig[] = [
     exact: true,
   },
   {
-    path: '/inversiones',
-    component: InversionesPage,
+    path: '/portafolio',
+    component: PortafolioPage,
+    exact: true,
+  },
+  {
+    path: '/mensajes',
+    component: MensajesPage,
+    exact: true,
+  },
+  {
+    path: '/mensajes/:userId',
+    component: ChatConversationPage,
     exact: true,
   },
   {
@@ -29,5 +51,14 @@ export const routes: RouteConfig[] = [
     component: PerfilPage,
     exact: true,
   },
+  {
+    path: '/crear-natillera',
+    component: CrearNatilleraPage,
+    exact: true,
+  },
+  {
+    path: '/crear-tokenizacion',
+    component: CrearTokenizacionPage,
+    exact: true,
+  },
 ];
-

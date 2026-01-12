@@ -1,0 +1,7 @@
+.home-page-content {
+  --background: #f8f9fa;
+}
+
+.home-page-content::part(scroll) {
+  padding-bottom: 80px;
+}

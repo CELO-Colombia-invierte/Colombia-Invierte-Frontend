@@ -1,0 +1,7 @@
+.portafolio-page-content {
+  --background: #fff;
+}
+
+.portafolio-page-content::part(scroll) {
+  padding-bottom: 80px;
+}

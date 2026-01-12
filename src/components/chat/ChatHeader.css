@@ -1,0 +1,98 @@
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.chat-header-back,
+.chat-header-menu {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.chat-header-back:hover,
+.chat-header-menu:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.chat-header-back ion-icon,
+.chat-header-menu ion-icon {
+  font-size: 24px;
+  color: #000;
+}
+
+.chat-header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  position: relative;
+}
+
+.chat-header-avatar,
+.chat-header-avatar-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chat-header-avatar-placeholder {
+  background: linear-gradient(135deg, #FCD116 0%, #003893 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.chat-header-online-indicator {
+  position: absolute;
+  left: 32px;
+  top: 32px;
+  width: 12px;
+  height: 12px;
+  background-color: #0d8a3a;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.chat-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.chat-header-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-header-location {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

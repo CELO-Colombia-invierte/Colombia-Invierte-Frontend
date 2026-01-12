@@ -1,0 +1,9 @@
+.chat-conversation-page {
+  --background: #fff;
+}
+
+.chat-conversation-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
