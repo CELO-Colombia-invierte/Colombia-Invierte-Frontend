@@ -1,4 +1,4 @@
-import { ApiResponse, ApiError } from '@/types';
+import { ApiResponse, ApiError } from '@/types/api';
 import { authService } from '../auth';
 
 class ApiService {
@@ -19,7 +19,7 @@ class ApiService {
     };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers['Authorization' as keyof HeadersInit & string] = `Bearer ${token}`;
     }
 
     try {
