@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { Redirect, Route, useHistory } from 'react-router-dom';
+import React, { Suspense, useEffect } from 'react';
+import { Redirect, Route, useHistory, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonRouterOutlet,
@@ -24,6 +24,14 @@ export const thirdwebClient = createThirdwebClient({
 
 const AppRouter: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const history = useHistory();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (isAuthenticated && location.pathname === '/auth') {
+      history.replace('/home');
+    }
+  }, [isAuthenticated, location.pathname, history]);
 
   return (
     <IonRouterOutlet>

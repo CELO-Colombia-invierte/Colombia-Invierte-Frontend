@@ -19,15 +19,14 @@ export const useAuth = () => {
     setIsLoading(true);
     try {
       const response = await authService.verifyThirdweb(data);
-      setAuthState({
+      const newAuthState = {
         user: response.user,
         token: response.access_token,
         refreshToken: response.refresh_token,
         isAuthenticated: true,
-      });
-      setTimeout(() => {
-        history.push('/home');
-      }, 100);
+      };
+      setAuthState(newAuthState);
+      history.push('/home');
       return response;
     } catch (error) {
       throw error;
