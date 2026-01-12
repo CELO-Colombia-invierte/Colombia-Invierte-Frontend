@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { authService } from '@/services/auth';
-import { AuthState, ThirdwebVerifyRequest, LoginRequest } from '@/types';
+import { AuthState, ThirdwebVerifyRequest, LoginRequest, User } from '@/types';
 
 export const useAuth = () => {
   const history = useHistory();
@@ -105,7 +105,7 @@ export const useAuth = () => {
     }
   }, []);
 
-  const updateMe = useCallback(async (data: Partial<AuthState['user']>) => {
+  const updateMe = useCallback(async (data: Partial<User>) => {
     try {
       const user = await authService.updateMe(data);
       setAuthState(prev => ({
