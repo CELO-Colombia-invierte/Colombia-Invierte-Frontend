@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { authService } from '../auth';
 import {
-  Message,
+
   SendMessageSocketPayload,
   TypingIndicatorSocketPayload,
   JoinConversationSocketPayload,

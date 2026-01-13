@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { chatWebSocketService } from '@/services/chat';
 import {
-  Message,
+
   NewMessageSocketEvent,
   UserTypingSocketEvent,
   UserStoppedTypingSocketEvent,
