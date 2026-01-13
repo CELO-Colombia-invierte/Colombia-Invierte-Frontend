@@ -1,0 +1,7 @@
+.mensajes-page-content {
+  --background: #fff;
+}
+
+.mensajes-page-content::part(scroll) {
+  padding-bottom: 80px;
+}

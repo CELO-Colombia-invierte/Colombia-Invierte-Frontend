@@ -1,17 +1,21 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Redirect, Route, useHistory, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonRouterOutlet,
   setupIonicReact,
+  IonIcon,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { ThirdwebProvider } from 'thirdweb/react';
 import { createThirdwebClient } from 'thirdweb';
+import { walletOutline, businessOutline } from 'ionicons/icons';
 import { routes } from '@/routes';
 import { SplashScreen, LoadingScreen } from '@/components/layout';
 import { OnboardingCarousel } from '@/components/onboarding';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { BottomNavBar } from '@/components/navigation/bottomNavBar/BottomNavBar';
+import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { useAuth } from '@/hooks/use-auth';
@@ -19,8 +23,88 @@ import { useAuth } from '@/hooks/use-auth';
 setupIonicReact();
 
 export const thirdwebClient = createThirdwebClient({
-  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || ''
+  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || '',
 });
+
+const MainContent: React.FC = () => {
+  const location = useLocation();
+  const history = useHistory();
+  const hideNavBar =
+    location.pathname.startsWith('/mensajes/') ||
+    location.pathname === '/crear-natillera' ||
+    location.pathname === '/crear-tokenizacion';
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const modalOptions = [
+    {
+      id: 'crear-natillera',
+      title: 'Crear Natillera',
+      description: 'Crea un proyecto de ahorro colectivo',
+      icon: <IonIcon icon={walletOutline} />,
+      onClick: () => {
+        history.push('/crear-natillera');
+      },
+    },
+    {
+      id: 'crear-tokenizacion',
+      title: 'Crear Tokenización',
+      description: 'Tokeniza un activo o proyecto',
+      icon: <IonIcon icon={businessOutline} />,
+      onClick: () => {
+        history.push('/crear-tokenizacion');
+      },
+    },
+  ];
+
+  return (
+    <>
+      <IonRouterOutlet>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+              }}
+            >
+              Cargando...
+            </div>
+          }
+        >
+          <Route
+            exact
+            path="/auth"
+            component={routes.find((r) => r.path === '/auth')?.component}
+          />
+          {routes
+            .filter((route) => route.path !== '/auth')
+            .map((route) => (
+              <ProtectedRoute
+                key={route.path}
+                exact={route.exact}
+                path={route.path}
+                component={route.component}
+              />
+            ))}
+          <Route exact path="/" render={() => <Redirect to="/home" />} />
+        </Suspense>
+      </IonRouterOutlet>
+      {!hideNavBar && (
+        <>
+          <BottomNavBar onCentralButtonClick={() => setIsModalOpen(true)} />
+          <BottomSlideModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            options={modalOptions}
+            title="¿Qué deseas hacer?"
+          />
+        </>
+      )}
+    </>
+  );
+};
 
 const AppRouter: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -33,37 +117,7 @@ const AppRouter: React.FC = () => {
     }
   }, [isAuthenticated, location.pathname, history]);
 
-  return (
-    <IonRouterOutlet>
-      <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Cargando...</div>}>
-        <Route
-          exact
-          path="/auth"
-          component={routes.find(r => r.path === '/auth')?.component}
-        />
-        {routes
-          .filter(route => route.path !== '/auth')
-          .map((route) => (
-            <ProtectedRoute
-              key={route.path}
-              exact={route.exact}
-              path={route.path}
-              component={route.component}
-            />
-          ))}
-        <Route
-          exact
-          path="/"
-          render={() => {
-            if (!isAuthenticated) {
-              return <Redirect to="/auth" />;
-            }
-            return <Redirect to="/home" />;
-          }}
-        />
-      </Suspense>
-    </IonRouterOutlet>
-  );
+  return <MainContent />;
 };
 
 const OnboardingWrapper: React.FC = () => {
@@ -76,7 +130,18 @@ const OnboardingWrapper: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Cargando...</div>;
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+        }}
+      >
+        Cargando...
+      </div>
+    );
   }
 
   if (showOnboarding) {
@@ -115,4 +180,3 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => <AppContent />;
 
 export default App;
-

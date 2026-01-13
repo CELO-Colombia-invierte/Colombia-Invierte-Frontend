@@ -1,0 +1,31 @@
+.investment-list {
+  background-color: #fff;
+  margin-top: 8px;
+}
+
+.investment-list-header {
+  padding: 20px 20px 12px;
+}
+
+.investment-list-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #000;
+}
+
+.investment-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.investment-list-empty {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.investment-list-empty p {
+  margin: 0;
+  font-size: 16px;
+  color: #999;
+}

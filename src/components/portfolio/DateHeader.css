@@ -1,0 +1,19 @@
+.date-header {
+  padding: 16px 20px;
+  background-color: #fff;
+}
+
+.date-header-date {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #999;
+  font-weight: 400;
+}
+
+.date-header-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+  line-height: 1.2;
+}
