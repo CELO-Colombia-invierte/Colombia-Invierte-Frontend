@@ -16,6 +16,9 @@ const PerfilPage = lazy(() => import('@/features/perfil/pages/PerfilPage'));
 const CrearNatilleraPage = lazy(
   () => import('@/features/natillera/pages/CrearNatilleraPage')
 );
+const JoinNatilleraPage = lazy(
+  () => import('@/features/natillera/pages/JoinNatilleraPage')
+);
 const CrearTokenizacionPage = lazy(
   () => import('@/features/tokenizacion/pages/CrearTokenizacionPage')
 );
@@ -57,6 +60,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/crear-natillera',
     component: CrearNatilleraPage,
+    exact: true,
+  },
+  {
+    path: '/natillera/:slug',
+    component: JoinNatilleraPage,
     exact: true,
   },
   {
