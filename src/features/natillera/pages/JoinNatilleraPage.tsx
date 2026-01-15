@@ -32,7 +32,7 @@ const JoinNatilleraPage: React.FC = () => {
   const loadNatillera = async () => {
     try {
       setLoading(true);
-      console.log(slug, 3232);
+      // console.log(slug, 3232);
       const data = await natilleraService.findOne(slug);
       setNatillera(data);
     } catch (error: any) {
