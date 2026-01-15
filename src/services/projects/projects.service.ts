@@ -1,40 +1,26 @@
-import { apiService } from '../api';
-import { ProjectMapper } from '@/mappers/ProjectMapper';
-import { ProjectsResponseDto, ProjectDto } from '@/dtos/projects';
-import { Project } from '@/models/Project.model';
-
-interface GetProjectsParams {
-  page?: number;
-  limit?: number;
-  type?: 'NATILLERA' | 'TOKENIZATION';
-  visibility?: 'PUBLIC' | 'PRIVATE';
-  owner?: boolean;
-}
+import { apiService } from "../api/api.service";
+import { Project } from "@/models/projects/project.model";
+import { CreateProjectDto, UpdateProjectDto } from "@/models/projects/project-dto.model";
 
 class ProjectsService {
-  async getProjects(params?: GetProjectsParams): Promise<Project[]> {
-    const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.set('page', params.page.toString());
-    if (params?.limit) queryParams.set('limit', params.limit.toString());
-    if (params?.type) queryParams.set('type', params.type);
-    if (params?.visibility) queryParams.set('visibility', params.visibility);
-    if (params?.owner) queryParams.set('owner', 'true');
-
-    const endpoint = `/projects${queryParams.toString() ? `?${queryParams}` : ''}`;
-    const response = await apiService.get<ProjectsResponseDto>(endpoint);
-
-    if (response.data) {
-      return ProjectMapper.fromDtoArray(response.data.projects);
-    }
-    throw new Error('No data received from projects');
+  async create(data: CreateProjectDto): Promise<Project> {
+    const response = await apiService.post<Project>("/projects", data);
+    return response.data;
   }
 
-  async getProject(id: string): Promise<Project> {
-    const response = await apiService.get<ProjectDto>(`/projects/${id}`);
-    if (response.data) {
-      return ProjectMapper.fromDto(response.data);
-    }
-    throw new Error('No data received from project');
+  async findAll(): Promise<Project[]> {
+    const response = await apiService.get<Project[]>("/projects");
+    return response.data;
+  }
+
+  async findOne(id: string): Promise<Project> {
+    const response = await apiService.get<Project>(`/projects/${id}`);
+    return response.data;
+  }
+
+  async update(id: string, data: UpdateProjectDto): Promise<Project> {
+    const response = await apiService.patch<Project>(`/projects/${id}`, data);
+    return response.data;
   }
 }
 
