@@ -9,7 +9,8 @@ import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
-import { natilleraService } from '@/services/natillera';
+import { projectsService } from '@/services/projects';
+import { Project, ProjectType, Currency, ProjectVisibility } from '@/models/projects';
 import './CrearNatilleraPage.css';
 
 interface FormData {
@@ -36,7 +37,7 @@ const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
-  const [createdNatillera, setCreatedNatillera] = useState<any>(null);
+  const [createdNatillera, setCreatedNatillera] = useState<Project | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -96,17 +97,18 @@ const CrearNatilleraPage: React.FC = () => {
         name: formData.nombreProyecto,
         description_rich: formData.descripcion,
         highlights_rich: formData.aspectosDestacados,
-        visibility: formData.privacidad as 'PUBLIC' | 'PRIVATE',
-        financial_details: {
+        visibility: formData.privacidad as ProjectVisibility,
+        type: ProjectType.NATILLERA,
+        natillera_details: {
           monthly_fee_amount: parseFloat(formData.valorCuota),
-          monthly_fee_currency: formData.moneda as 'COP' | 'USD',
+          monthly_fee_currency: formData.moneda as Currency,
           expected_annual_return_pct: parseFloat(formData.rendimiento),
           duration_months: parseInt(formData.cantidadMeses),
           payment_deadline_at: paymentDate.toISOString(),
         },
       };
 
-      const result = await natilleraService.create(natilleraData);
+      const result = await projectsService.create(natilleraData);
       setCreatedNatillera(result);
       setShowSuccess(true);
       

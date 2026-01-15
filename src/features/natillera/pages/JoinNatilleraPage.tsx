@@ -10,9 +10,12 @@ import {
 import { useHistory, useParams } from 'react-router-dom';
 import { checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import {
-  natilleraService,
-  natilleraMembershipService,
-} from '@/services/natillera';
+  projectsService,
+  projectMembershipService,
+} from '@/services/projects';
+import { Project } from '@/models/projects';
+import { JoinProjectResponse } from '@/models/membership';
+
 
 const JoinNatilleraPage: React.FC = () => {
   const history = useHistory();
@@ -20,10 +23,11 @@ const JoinNatilleraPage: React.FC = () => {
   const [present] = useIonToast();
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
-  const [natillera, setNatillera] = useState<any>(null);
+  const [natillera, setNatillera] = useState<Project | null>(null);
   const [error, setError] = useState<string>('');
   const [joined, setJoined] = useState(false);
-  const [joinResponse, setJoinResponse] = useState<any>(null);
+  const [redirecting, setRedirecting] = useState(false);
+  const [joinResponse, setJoinResponse] = useState<JoinProjectResponse | null>(null);
 
   useEffect(() => {
     loadNatillera();
@@ -32,8 +36,20 @@ const JoinNatilleraPage: React.FC = () => {
   const loadNatillera = async () => {
     try {
       setLoading(true);
-      console.log(slug, 3232);
-      const data = await natilleraService.findOne(slug);
+      const data = await projectsService.findOne(slug);
+
+      const token = localStorage.getItem('colombia_invierte_auth_token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log(data, payload);
+
+        if (payload.sub === data.owner_user_id) {
+          setRedirecting(true);
+          history.push(`/natillera/${data.id}`);
+          return;
+        }
+      }
+
       setNatillera(data);
     } catch (error: any) {
       setError(error.message || 'No se pudo cargar la natillera');
@@ -45,19 +61,19 @@ const JoinNatilleraPage: React.FC = () => {
   const handleJoin = async () => {
     try {
       setJoining(true);
-      const response = await natilleraMembershipService.join(natillera.id);
+      const response = await projectMembershipService.join(natillera!.id);
       setJoinResponse(response);
       setJoined(true);
 
       if (response.position?.status === 'PENDING') {
         await present({
-          message: `Solicitud enviada. El anfitrión debe aprobar tu ingreso a "${natillera.name}"`,
+          message: `Solicitud enviada. El anfitrión debe aprobar tu ingreso a "${natillera!.name}"`,
           duration: 4000,
           color: 'warning',
         });
       } else {
         await present({
-          message: `Te uniste exitosamente a la natillera "${natillera.name}"`,
+          message: `Te uniste exitosamente a la natillera "${natillera!.name}"`,
           duration: 3000,
           color: 'success',
         });
@@ -75,19 +91,19 @@ const JoinNatilleraPage: React.FC = () => {
 
   const handleGoToNatillera = () => {
     if (natillera?.id) {
-      history.push(`/natillera/${natillera.id}`);
+      history.push(`/natillera/${natillera!.id}`);
     } else {
       history.push('/portafolio');
     }
   };
 
-  if (loading) {
+  if (loading || redirecting) {
     return (
       <IonPage>
         <IonContent className="ion-padding ion-text-center">
           <div style={{ marginTop: '50%' }}>
             <IonSpinner name="crescent" />
-            <p>Cargando natillera...</p>
+            <p>{redirecting ? "Redirigiendo..." : "Cargando natillera..."}</p>
           </div>
         </IonContent>
       </IonPage>
@@ -115,7 +131,7 @@ const JoinNatilleraPage: React.FC = () => {
   }
 
   if (joined) {
-    const isPending = joinResponse?.status === 'PENDING';
+    const isPending = joinResponse?.position?.status === 'PENDING';
 
     return (
       <IonPage>
