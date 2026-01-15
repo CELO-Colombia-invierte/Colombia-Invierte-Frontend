@@ -1,51 +1,57 @@
 import { apiService } from '../api';
+import { Conversation } from '@/models/Conversation.model';
+import { Message, MessageAttachment } from '@/models/Message.model';
+import { ConversationMapper } from '@/mappers/ConversationMapper';
+import { MessageMapper } from '@/mappers/MessageMapper';
 import {
-  Conversation,
-  Message,
-  CreateConversationRequest,
-  CreateMessageRequest,
-  PresignMessageAttachmentRequest,
-  PresignMessageAttachmentResponse,
-  AddAttachmentRequest,
-  MessageAttachment,
-} from '@/types/chat';
+  ConversationResponseDto,
+  MessageResponseDto,
+  PresignMessageAttachmentRequestDto,
+  PresignMessageAttachmentResponseDto,
+  AddMessageAttachmentRequestDto,
+  MessageAttachmentDto,
+} from '@/dtos/chat/ChatResponse.dto';
 
 class ChatApiService {
   async getConversations(): Promise<Conversation[]> {
-    const response = await apiService.get<Conversation[]>('/conversations');
-    return response.data;
+    const response =
+      await apiService.get<ConversationResponseDto[]>('/conversations');
+    return ConversationMapper.fromDtoArray(response.data);
   }
 
   async createConversation(
-    data: CreateConversationRequest
+    type: 'DIRECT' | 'GROUP',
+    memberIds: string[]
   ): Promise<Conversation> {
-    const response = await apiService.post<Conversation>('/conversations', data);
-    return response.data;
+    const requestData = ConversationMapper.toCreateRequest(type, memberIds);
+    const response = await apiService.post<ConversationResponseDto>(
+      '/conversations',
+      requestData
+    );
+    return ConversationMapper.fromDto(response.data);
   }
 
   async getMessages(conversationId: string): Promise<Message[]> {
-    const response = await apiService.get<Message[]>(
+    const response = await apiService.get<MessageResponseDto[]>(
       `/conversations/${conversationId}/messages`
     );
-    return response.data;
+    return MessageMapper.fromDtoArray(response.data);
   }
 
-  async sendMessage(
-    conversationId: string,
-    data: CreateMessageRequest
-  ): Promise<Message> {
-    const response = await apiService.post<Message>(
+  async sendMessage(conversationId: string, text: string): Promise<Message> {
+    const requestData = MessageMapper.toSendRequest(text);
+    const response = await apiService.post<MessageResponseDto>(
       `/conversations/${conversationId}/messages`,
-      data
+      requestData
     );
-    return response.data;
+    return MessageMapper.fromDto(response.data);
   }
 
   async presignAttachment(
     conversationId: string,
-    data: PresignMessageAttachmentRequest
-  ): Promise<PresignMessageAttachmentResponse> {
-    const response = await apiService.post<PresignMessageAttachmentResponse>(
+    data: PresignMessageAttachmentRequestDto
+  ): Promise<PresignMessageAttachmentResponseDto> {
+    const response = await apiService.post<PresignMessageAttachmentResponseDto>(
       `/conversations/${conversationId}/messages/presign`,
       data
     );
@@ -69,13 +75,13 @@ class ChatApiService {
   async addAttachment(
     conversationId: string,
     messageId: string,
-    data: AddAttachmentRequest
+    data: AddMessageAttachmentRequestDto
   ): Promise<MessageAttachment> {
-    const response = await apiService.post<MessageAttachment>(
+    const response = await apiService.post<MessageAttachmentDto>(
       `/conversations/${conversationId}/messages/${messageId}/attachments`,
       data
     );
-    return response.data;
+    return MessageMapper.attachmentFromDto(response.data);
   }
 
   async uploadMessageAttachment(

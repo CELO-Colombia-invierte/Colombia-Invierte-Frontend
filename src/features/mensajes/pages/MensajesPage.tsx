@@ -102,7 +102,7 @@ const MensajesPage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="mensajes-page-content">
-        <HomeHeader userName={user?.name || 'Carolina Machado'} />
+        <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
         <ChatList users={filteredUsers} onUserClick={handleUserClick} />
       </IonContent>

@@ -23,7 +23,10 @@ interface SignInModalProps {
   onClose: () => void;
 }
 
-export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => {
+export const SignInModal: React.FC<SignInModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const account = useActiveAccount();
   const { verifyThirdweb, isLoading, isAuthenticated } = useAuth();
   const verifyingRef = useRef(false);
@@ -39,14 +42,17 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
     onCloseRef.current = onClose;
   }, [onClose]);
 
-  const wallets = useMemo(() => [
-    inAppWallet({
-      auth: {
-        options: ['email', 'phone', 'google', 'apple', 'facebook', 'passkey']
-      }
-    }),
-    createWallet('io.metamask')
-  ], []);
+  const wallets = useMemo(
+    () => [
+      inAppWallet({
+        auth: {
+          options: ['email', 'phone', 'google', 'apple', 'facebook', 'passkey'],
+        },
+      }),
+      createWallet('io.metamask'),
+    ],
+    []
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -69,6 +75,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
           address: account.address!,
           chain_id: celo.id,
         });
+
+        // Cerrar modal - la navegación la maneja use-auth hook
         onCloseRef.current();
       } catch (error) {
         console.error('Error verifying account:', error);
@@ -123,10 +131,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
     header: {
       title: 'COLOMBIA INVIERTE',
       titleIcon: getLogoPath(),
-      iconSize: getIconSize()
-    }
+      iconSize: getIconSize(),
+    },
   };
 
   return <ConnectEmbed {...(connectEmbedProps as any)} />;
 };
-

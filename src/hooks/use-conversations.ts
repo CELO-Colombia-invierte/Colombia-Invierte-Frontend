@@ -1,13 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { chatApiService } from '@/services/chat';
-import { Conversation, ConversationType } from '@/types/chat';
+import { Conversation, ConversationType } from '@/models/Conversation.model';
+import { ConversationMapper } from '@/mappers/ConversationMapper';
 
 interface UseConversationsReturn {
   conversations: Conversation[];
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
-  createConversation: (type: ConversationType, memberIds: string[]) => Promise<Conversation | null>;
+  createConversation: (
+    type: ConversationType,
+    memberIds: string[]
+  ) => Promise<Conversation | null>;
 }
 
 export const useConversations = (): UseConversationsReturn => {
@@ -20,26 +24,35 @@ export const useConversations = (): UseConversationsReturn => {
       setLoading(true);
       setError(null);
       const data = await chatApiService.getConversations();
-      setConversations(data);
+
+      const sorted = ConversationMapper.sortByLastMessage(data);
+      setConversations(sorted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch conversations');
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch conversations'
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
   const createConversation = useCallback(
-    async (type: ConversationType, memberIds: string[]): Promise<Conversation | null> => {
+    async (
+      type: ConversationType,
+      memberIds: string[]
+    ): Promise<Conversation | null> => {
       try {
         setError(null);
-        const newConversation = await chatApiService.createConversation({
+        const newConversation = await chatApiService.createConversation(
           type,
-          member_ids: memberIds,
-        });
+          memberIds
+        );
         setConversations((prev) => [newConversation, ...prev]);
         return newConversation;
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create conversation');
+        setError(
+          err instanceof Error ? err.message : 'Failed to create conversation'
+        );
         return null;
       }
     },

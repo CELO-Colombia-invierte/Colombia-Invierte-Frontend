@@ -1,0 +1,17 @@
+.settings-section {
+  margin-bottom: 32px;
+}
+
+.settings-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+  padding: 0 20px;
+}
+
+.settings-section-content {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}

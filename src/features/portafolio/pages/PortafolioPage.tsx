@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import { useAuth } from '@/hooks/use-auth';
+import { useProjects } from '@/hooks/use-projects';
 import { PortfolioProject } from '@/types';
 import { HomeHeader } from '@/components/home';
 import {
@@ -12,49 +13,45 @@ import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
+  const { projects: projectsData, fetchProjects } = useProjects();
 
-  const [projects] = useState<PortfolioProject[]>([
-    {
-      id: '1',
-      name: 'Natillera 01',
-      type: 'natillera',
-      changePercentage: 15.16,
+  useEffect(() => {
+    fetchProjects({ owner: true });
+  }, [fetchProjects]);
+
+  const gradients = {
+    natillera: [
+      'linear-gradient(135deg, #E568DB 0%, #A855F7 100%)',
+      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+      'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
+    ],
+    tokenization: [
+      'linear-gradient(135deg, #FCD116 0%, #F59E0B 100%)',
+      'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+      'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
+    ],
+  };
+
+  const projects: PortfolioProject[] = projectsData.map((project, index) => {
+    const isNatillera = project.type === 'NATILLERA';
+    const gradientList = isNatillera
+      ? gradients.natillera
+      : gradients.tokenization;
+
+    return {
+      id: project.id,
+      name: project.name,
+      type: isNatillera ? 'natillera' : 'tokenizacion',
+      changePercentage: project.natilleraDetails?.rendimientoAnual || 0,
       period: 'Anual',
-      participants: 5,
-      avatars: ['🇨🇴', '👤', '👤'],
-      gradient: 'linear-gradient(135deg, #E568DB 0%, #A855F7 100%)',
-    },
-    {
-      id: '2',
-      name: 'Natillera 02',
-      type: 'natillera',
-      changePercentage: 159,
-      period: 'Anual',
-      participants: 4,
-      avatars: ['🇨🇴', '👤', '👤'],
-      gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-    },
-    {
-      id: '3',
-      name: 'Tokenización Inmobiliaria',
-      type: 'tokenizacion',
-      amount: 15642.4,
-      description: 'Tokenización Inmobiliaria',
-      changePercentage: 7.86,
-      emoji: '🏠',
-      gradient: 'linear-gradient(135deg, #FCD116 0%, #F59E0B 100%)',
-    },
-    {
-      id: '4',
-      name: 'Tokenización de automóvil',
-      type: 'tokenizacion',
-      amount: 28389.21,
-      description: 'Tokenización de automóvil',
-      changePercentage: -2.13,
-      emoji: '🚙',
-      gradient: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-    },
-  ]);
+      participants: 0,
+      avatars: [],
+      gradient: gradientList[index % gradientList.length],
+      amount: project.tokenizationDetails?.assetValue,
+      description: project.description || undefined,
+      emoji: isNatillera ? undefined : '🏠',
+    };
+  });
 
   const handleProjectClick = (project: PortfolioProject) => {
     console.log('Project clicked:', project);
@@ -67,7 +64,7 @@ const PortafolioPage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="portafolio-page-content">
-        <HomeHeader userName={user?.name || 'Carolina Machado'} />
+        <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
         <DateHeader />
         <PortfolioGrid projects={projects} onProjectClick={handleProjectClick}>
           <NewProjectCard onClick={handleNewProject} />

@@ -1,7 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { authService } from '@/services/auth';
-import { AuthState, ThirdwebVerifyRequest, LoginRequest, User } from '@/types';
+import type { AuthState } from '@/services/auth';
+import {
+  ThirdwebVerifyRequestDto,
+  LoginRequestDto,
+  UpdateUserRequestDto,
+} from '@/dtos/auth/AuthResponse.dto';
 
 export const useAuth = () => {
   const history = useHistory();
@@ -14,64 +19,77 @@ export const useAuth = () => {
     setAuthState(authService.getAuth());
   }, []);
 
-  const verifyThirdweb = useCallback(async (data: ThirdwebVerifyRequest) => {
-    if (isLoading) return;
-    setIsLoading(true);
+  const verifyThirdweb = useCallback(
+    async (data: ThirdwebVerifyRequestDto) => {
+      if (isLoading) return;
+      setIsLoading(true);
+      try {
+        const response = await authService.verifyThirdweb(data);
+        const newAuthState: AuthState = {
+          user: response.user,
+          token: response.access_token,
+          refreshToken: response.refresh_token,
+          isAuthenticated: true,
+        };
+        setAuthState(newAuthState);
+
+
+        setTimeout(() => {
+          window.location.href = '/home';
+        }, 400);
+
+        return response;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [history, isLoading]
+  );
+
+  const login = useCallback(
+    async (data: LoginRequestDto) => {
+      setIsLoading(true);
+      try {
+        const response = await authService.login(data);
+        const newAuthState: AuthState = {
+          user: response.user,
+          token: response.access_token,
+          refreshToken: response.refresh_token,
+          isAuthenticated: true,
+        };
+        setAuthState(newAuthState);
+        setTimeout(() => {
+          window.location.href = '/home';
+        }, 400);
+
+        return response;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [history]
+  );
+
+  const refreshToken = useCallback(async () => {
     try {
-      const response = await authService.verifyThirdweb(data);
-      const newAuthState = {
+      const response = await authService.refreshToken();
+      const newAuthState: AuthState = {
         user: response.user,
         token: response.access_token,
         refreshToken: response.refresh_token,
         isAuthenticated: true,
       };
       setAuthState(newAuthState);
-      history.push('/home');
-      return response;
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [history, isLoading]);
-
-  const login = useCallback(async (data: LoginRequest) => {
-    setIsLoading(true);
-    try {
-      const response = await authService.login(data);
-      setAuthState({
-        user: response.user,
-        token: response.access_token,
-        refreshToken: response.refresh_token,
-        isAuthenticated: true,
-      });
-      history.push('/home');
-      return response;
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [history]);
-
-  const refreshToken = useCallback(async () => {
-    try {
-      const response = await authService.refreshToken();
-      setAuthState({
-        user: response.user,
-        token: response.access_token,
-        refreshToken: response.refresh_token,
-        isAuthenticated: true,
-      });
       return response;
     } catch (error) {
       authService.clearAuth();
-      setAuthState({
+      const emptyAuthState: AuthState = {
         user: null,
         token: null,
         refreshToken: null,
         isAuthenticated: false,
-      });
+      };
+      setAuthState(emptyAuthState);
       throw error;
     }
   }, []);
@@ -80,12 +98,13 @@ export const useAuth = () => {
     setIsLoading(true);
     try {
       await authService.logout();
-      setAuthState({
+      const emptyAuthState: AuthState = {
         user: null,
         token: null,
         refreshToken: null,
         isAuthenticated: false,
-      });
+      };
+      setAuthState(emptyAuthState);
       history.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);
@@ -95,29 +114,21 @@ export const useAuth = () => {
   }, [history]);
 
   const getMe = useCallback(async () => {
-    try {
-      const user = await authService.getMe();
-      setAuthState(prev => ({
-        ...prev,
-        user,
-      }));
-      return user;
-    } catch (error) {
-      throw error;
-    }
+    const user = await authService.getMe();
+    setAuthState((prev) => ({
+      ...prev,
+      user,
+    }));
+    return user;
   }, []);
 
-  const updateMe = useCallback(async (data: Partial<User>) => {
-    try {
-      const user = await authService.updateMe(data);
-      setAuthState(prev => ({
-        ...prev,
-        user,
-      }));
-      return user;
-    } catch (error) {
-      throw error;
-    }
+  const updateMe = useCallback(async (data: UpdateUserRequestDto) => {
+    const user = await authService.updateMe(data);
+    setAuthState((prev) => ({
+      ...prev,
+      user,
+    }));
+    return user;
   }, []);
 
   return {
@@ -131,4 +142,3 @@ export const useAuth = () => {
     updateMe,
   };
 };
-

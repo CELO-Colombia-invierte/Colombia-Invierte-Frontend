@@ -1,7 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useMessages } from './use-messages';
 import { useChatWebSocket } from './use-chat-websocket';
-import { Message } from '@/types/chat';
+import { useAuth } from './use-auth';
+import { Message } from '@/models/Message.model';
+import { MessageMapper } from '@/mappers/MessageMapper';
+import type { MessageResponseDto } from '@/dtos/chat/ChatResponse.dto';
 
 interface UseChatReturn {
   messages: Message[];
@@ -16,6 +19,7 @@ interface UseChatReturn {
 }
 
 export const useChat = (conversationId: string): UseChatReturn => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
 
@@ -26,13 +30,22 @@ export const useChat = (conversationId: string): UseChatReturn => {
     sendMessage: sendHttpMessage,
   } = useMessages(conversationId);
 
-  const { connected, sendMessage: sendWsMessage, typing, stopTyping: wsStopTyping, markAsRead: wsMarkAsRead } = useChatWebSocket({
+  const {
+    connected,
+    sendMessage: sendWsMessage,
+    typing,
+    stopTyping: wsStopTyping,
+    markAsRead: wsMarkAsRead,
+  } = useChatWebSocket({
     onNewMessage: (event) => {
       if (event.conversationId === conversationId) {
+        const messageDto = event.message as unknown as MessageResponseDto;
+        const messageModel = MessageMapper.fromDto(messageDto);
+
         setMessages((prev) => {
-          const exists = prev.some((m) => m.id === event.message.id);
+          const exists = prev.some((m) => m.id === messageModel.id);
           if (exists) return prev;
-          return [...prev, event.message];
+          return [...prev, messageModel];
         });
       }
     },
@@ -58,13 +71,15 @@ export const useChat = (conversationId: string): UseChatReturn => {
 
   const sendMessage = useCallback(
     async (text: string) => {
+      if (!user) return;
+
       if (connected) {
         sendWsMessage(conversationId, text);
       } else {
-        await sendHttpMessage(text);
+        await sendHttpMessage(text, user);
       }
     },
-    [connected, conversationId, sendWsMessage, sendHttpMessage]
+    [connected, conversationId, sendWsMessage, sendHttpMessage, user]
   );
 
   const startTyping = useCallback(() => {

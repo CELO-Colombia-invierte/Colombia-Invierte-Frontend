@@ -1,0 +1,65 @@
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 56px;
+}
+
+.settings-toggle:last-child {
+  border-bottom: none;
+}
+
+.settings-toggle-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  padding-right: 16px;
+}
+
+.settings-toggle-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.settings-toggle-description {
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
+  line-height: 1.4;
+}
+
+.settings-toggle-switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  background: #e9e9ea;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.settings-toggle-switch-active {
+  background: #1a1a1a;
+}
+
+.settings-toggle-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.settings-toggle-switch-active .settings-toggle-switch-knob {
+  transform: translateX(20px);
+}

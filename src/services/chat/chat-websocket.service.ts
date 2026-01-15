@@ -1,7 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { authService } from '../auth';
 import {
-
   SendMessageSocketPayload,
   TypingIndicatorSocketPayload,
   JoinConversationSocketPayload,
@@ -17,6 +16,7 @@ import {
 } from '@/types/chat';
 
 type EventCallback<T> = (data: T) => void;
+type GenericEventCallback = (...args: any[]) => void;
 
 class ChatWebSocketService {
   private socket: Socket | null = null;
@@ -73,9 +73,7 @@ class ChatWebSocketService {
     this.socket?.on('messageRead', callback);
   }
 
-  onNewConversation(
-    callback: EventCallback<NewConversationSocketEvent>
-  ): void {
+  onNewConversation(callback: EventCallback<NewConversationSocketEvent>): void {
     this.socket?.on('newConversation', callback);
   }
 
@@ -83,9 +81,9 @@ class ChatWebSocketService {
     this.socket?.on('error', callback);
   }
 
-  offEvent(eventName: string, callback?: Function): void {
+  offEvent(eventName: string, callback?: GenericEventCallback): void {
     if (callback) {
-      this.socket?.off(eventName, callback as any);
+      this.socket?.off(eventName, callback);
     } else {
       this.socket?.off(eventName);
     }

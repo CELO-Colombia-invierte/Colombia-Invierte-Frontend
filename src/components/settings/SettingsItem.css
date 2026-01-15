@@ -1,0 +1,62 @@
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 56px;
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-item-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.settings-item-clickable:active {
+  background-color: #f9f9f9;
+}
+
+.settings-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.settings-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #666;
+  font-size: 20px;
+}
+
+.settings-item-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.settings-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-item-value {
+  font-size: 16px;
+  font-weight: 400;
+  color: #666;
+}
+
+.settings-item-chevron {
+  font-size: 20px;
+  color: #999;
+}

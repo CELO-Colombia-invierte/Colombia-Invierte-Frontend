@@ -54,8 +54,9 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   };
 
   const activeIndex = getActiveTabIndex();
+  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 430;
+
   const calculateTabPosition = () => {
-    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 430;
     const tabWidth = screenWidth / 5;
 
     const positions = [
@@ -66,11 +67,16 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
     ];
 
     const position = positions[activeIndex] || positions[0];
-    return Math.min(Math.max(position, 50), screenWidth - 50);
+    const calculatedPosition = Math.min(
+      Math.max(position, 50),
+      screenWidth - 50
+    );
+
+    // Validar que el resultado sea un número válido
+    return isNaN(calculatedPosition) ? tabWidth * 0.5 : calculatedPosition;
   };
 
   const activePosition = calculateTabPosition();
-  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 430;
   const firstHalf = tabs.slice(0, 2);
   const secondHalf = tabs.slice(2);
 

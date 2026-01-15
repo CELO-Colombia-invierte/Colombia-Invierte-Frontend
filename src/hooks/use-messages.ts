@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { chatApiService } from '@/services/chat';
-import { Message } from '@/types/chat';
+import { Message } from '@/models/Message.model';
+import { User } from '@/models/User.model';
+import { MessageMapper } from '@/mappers/MessageMapper';
 
 interface UseMessagesReturn {
   messages: Message[];
   loading: boolean;
   error: string | null;
-  sendMessage: (text: string) => Promise<Message | null>;
+  sendMessage: (text: string, currentUser: User) => Promise<Message | null>;
   uploadAttachment: (messageId: string, file: File) => Promise<void>;
 }
 
@@ -31,17 +33,43 @@ export const useMessages = (conversationId: string): UseMessagesReturn => {
   }, [conversationId]);
 
   const sendMessage = useCallback(
-    async (text: string): Promise<Message | null> => {
+    async (text: string, currentUser: User): Promise<Message | null> => {
       if (!conversationId) return null;
+
+      // Crear mensaje optimista
+      const optimisticMessage = MessageMapper.createOptimistic(
+        text,
+        conversationId,
+        currentUser
+      );
+      setMessages((prev) => [...prev, optimisticMessage]);
 
       try {
         setError(null);
-        const newMessage = await chatApiService.sendMessage(conversationId, {
-          body_text: text,
-        });
-        setMessages((prev) => [...prev, newMessage]);
-        return newMessage;
+        const sentMessage = await chatApiService.sendMessage(
+          conversationId,
+          text
+        );
+
+        // Reemplazar mensaje optimista con el real
+        setMessages((prev) =>
+          MessageMapper.replaceOptimistic(
+            prev,
+            optimisticMessage.id,
+            sentMessage
+          )
+        );
+
+        return sentMessage;
       } catch (err) {
+        // Marcar mensaje como fallido
+        const failedMessage = MessageMapper.markOptimisticAsFailed(
+          optimisticMessage,
+          err instanceof Error ? err.message : 'Failed to send message'
+        );
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMessage.id ? failedMessage : m))
+        );
         setError(err instanceof Error ? err.message : 'Failed to send message');
         return null;
       }
@@ -61,7 +89,9 @@ export const useMessages = (conversationId: string): UseMessagesReturn => {
           file
         );
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to upload attachment');
+        setError(
+          err instanceof Error ? err.message : 'Failed to upload attachment'
+        );
         throw err;
       }
     },

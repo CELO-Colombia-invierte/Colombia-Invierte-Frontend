@@ -1,0 +1,35 @@
+
+export interface UserDto {
+  id: string;
+  email?: string;
+  username?: string;
+  display_name?: string;
+  avatar?: string;
+  avatar_asset_id?: string;
+  verified?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuthResponseDto {
+  access_token: string;
+  refresh_token: string;
+  user: UserDto;
+}
+
+export interface LoginRequestDto {
+  email: string;
+  password: string;
+}
+
+export interface ThirdwebVerifyRequestDto {
+  address: string;
+  chain_id: number;
+}
+
+export interface UpdateUserRequestDto {
+  email?: string;
+  username?: string;
+  display_name?: string;
+  avatar_asset_id?: string;
+}

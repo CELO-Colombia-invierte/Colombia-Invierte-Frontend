@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
-import { ChatUser, Message } from '@/types';
+import { ChatUser } from '@/types';
+import { Message } from '@/models/Message.model';
 import { ChatHeader, MessageList, MessageInput } from '@/components/chat';
+import { useAuth } from '@/hooks/use-auth';
 import './ChatConversationPage.css';
 
 const ChatConversationPage: React.FC = () => {
   const history = useHistory();
   const { userId } = useParams<{ userId: string }>();
+  const { user } = useAuth();
 
   const [currentUser] = useState<ChatUser>({
     id: userId,
@@ -18,20 +21,20 @@ const ChatConversationPage: React.FC = () => {
   });
 
   const [messages, setMessages] = useState<Message[]>([
-    {
+    new Message({
       id: '1',
+      conversationId: 'conv-1',
+      senderId: userId,
       text: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters.',
-      timestamp: '6.30 pm',
-      isMine: false,
-      userId: userId,
-    },
-    {
+      createdAt: new Date(Date.now() - 3600000),
+    }),
+    new Message({
       id: '2',
+      conversationId: 'conv-1',
+      senderId: user?.id || 'me',
       text: 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour,',
-      timestamp: '6.34 pm',
-      isMine: true,
-      userId: 'me',
-    },
+      createdAt: new Date(Date.now() - 3000000),
+    }),
   ]);
 
   const handleBack = () => {
@@ -43,19 +46,15 @@ const ChatConversationPage: React.FC = () => {
   };
 
   const handleSendMessage = (text: string) => {
-    const newMessage: Message = {
+    if (!user) return;
+
+    const newMessage = new Message({
       id: Date.now().toString(),
+      conversationId: 'conv-1',
+      senderId: user.id,
       text,
-      timestamp: new Date()
-        .toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        })
-        .toLowerCase(),
-      isMine: true,
-      userId: 'me',
-    };
+      createdAt: new Date(),
+    });
     setMessages([...messages, newMessage]);
   };
 
@@ -68,7 +67,7 @@ const ChatConversationPage: React.FC = () => {
             onBack={handleBack}
             onMenuClick={handleMenuClick}
           />
-          <MessageList messages={messages} />
+          <MessageList messages={messages} currentUserId={user?.id || ''} />
           <MessageInput onSend={handleSendMessage} />
         </div>
       </IonContent>

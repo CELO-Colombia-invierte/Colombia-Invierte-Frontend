@@ -19,6 +19,9 @@ const CrearNatilleraPage = lazy(
 const CrearTokenizacionPage = lazy(
   () => import('@/features/tokenizacion/pages/CrearTokenizacionPage')
 );
+const ConfiguracionPage = lazy(
+  () => import('@/features/configuracion/pages/ConfiguracionPage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -59,6 +62,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/crear-tokenizacion',
     component: CrearTokenizacionPage,
+    exact: true,
+  },
+  {
+    path: '/configuracion',
+    component: ConfiguracionPage,
     exact: true,
   },
 ];

@@ -1,7 +1,29 @@
 import { storageService } from '../storage';
 import { apiService } from '../api';
-import { AuthState, User, ThirdwebVerifyRequest, LoginRequest, AuthResponse } from '@/types';
 import { sanitizeObject } from '@/utils/sanitization';
+import { User } from '@/models/User.model';
+import { UserMapper } from '@/mappers/UserMapper';
+import {
+  AuthResponseDto,
+  ThirdwebVerifyRequestDto,
+  LoginRequestDto,
+  UpdateUserRequestDto,
+  UserDto,
+} from '@/dtos/auth/AuthResponse.dto';
+
+// Tipos exportados para el servicio
+export type AuthState = {
+  user: User | null;
+  token: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+};
+
+export type AuthResponse = {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+};
 
 class AuthService {
   private readonly tokenKey = 'auth_token';
@@ -9,10 +31,17 @@ class AuthService {
   private readonly userKey = 'auth_user';
 
   setAuth(token: string, refreshToken: string, user: User): void {
-    const sanitizedUser = sanitizeObject(user);
+    const sanitizedUser = sanitizeObject(user.toJSON());
     storageService.setItem(this.tokenKey, token);
     storageService.setItem(this.refreshTokenKey, refreshToken);
     storageService.setItem(this.userKey, JSON.stringify(sanitizedUser));
+
+    // Log para debugging
+    console.log('🔐 AUTH INFO:', {
+      token,
+      refreshToken,
+      user: sanitizedUser,
+    });
   }
 
   getAuth(): AuthState {
@@ -30,7 +59,8 @@ class AuthService {
     }
 
     try {
-      const user = JSON.parse(userStr) as User;
+      const userData = JSON.parse(userStr);
+      const user = new User(userData);
       return {
         user,
         token,
@@ -61,20 +91,46 @@ class AuthService {
     return storageService.getItem(this.refreshTokenKey);
   }
 
-  async verifyThirdweb(data: ThirdwebVerifyRequest): Promise<AuthResponse> {
-    const response = await apiService.post<AuthResponse>('/auth/thirdweb/verify', data);
+  async verifyThirdweb(data: ThirdwebVerifyRequestDto): Promise<AuthResponse> {
+    const response = await apiService.post<AuthResponseDto>(
+      '/auth/thirdweb/verify',
+      data
+    );
     if (response.data) {
-      this.setAuth(response.data.access_token, response.data.refresh_token, response.data.user);
+      const user = UserMapper.fromAuthResponse(response.data);
+      this.setAuth(
+        response.data.access_token,
+        response.data.refresh_token,
+        user
+      );
+      return {
+        access_token: response.data.access_token,
+        refresh_token: response.data.refresh_token,
+        user,
+      };
     }
-    return response.data;
+    throw new Error('No data received from verify');
   }
 
-  async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await apiService.post<AuthResponse>('/auth/login', data);
+  async login(data: LoginRequestDto): Promise<AuthResponse> {
+    const response = await apiService.post<AuthResponseDto>(
+      '/auth/login',
+      data
+    );
     if (response.data) {
-      this.setAuth(response.data.access_token, response.data.refresh_token, response.data.user);
+      const user = UserMapper.fromAuthResponse(response.data);
+      this.setAuth(
+        response.data.access_token,
+        response.data.refresh_token,
+        user
+      );
+      return {
+        access_token: response.data.access_token,
+        refresh_token: response.data.refresh_token,
+        user,
+      };
     }
-    return response.data;
+    throw new Error('No data received from login');
   }
 
   async refreshToken(): Promise<AuthResponse> {
@@ -82,11 +138,23 @@ class AuthService {
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-    const response = await apiService.post<AuthResponse>('/auth/refresh', { refresh_token: refreshToken });
+    const response = await apiService.post<AuthResponseDto>('/auth/refresh', {
+      refresh_token: refreshToken,
+    });
     if (response.data) {
-      this.setAuth(response.data.access_token, response.data.refresh_token, response.data.user);
+      const user = UserMapper.fromAuthResponse(response.data);
+      this.setAuth(
+        response.data.access_token,
+        response.data.refresh_token,
+        user
+      );
+      return {
+        access_token: response.data.access_token,
+        refresh_token: response.data.refresh_token,
+        user,
+      };
     }
-    return response.data;
+    throw new Error('No data received from refresh');
   }
 
   async logout(): Promise<void> {
@@ -100,21 +168,30 @@ class AuthService {
   }
 
   async getMe(): Promise<User> {
-    const response = await apiService.get<User>('/me');
+    const response = await apiService.get<UserDto>('/me');
     if (response.data) {
-      storageService.setItem(this.userKey, JSON.stringify(sanitizeObject(response.data)));
+      const user = UserMapper.fromDto(response.data);
+      storageService.setItem(
+        this.userKey,
+        JSON.stringify(sanitizeObject(user.toJSON()))
+      );
+      return user;
     }
-    return response.data;
+    throw new Error('No data received from getMe');
   }
 
-  async updateMe(data: Partial<User>): Promise<User> {
-    const response = await apiService.patch<User>('/me', data);
+  async updateMe(data: UpdateUserRequestDto): Promise<User> {
+    const response = await apiService.patch<UserDto>('/me', data);
     if (response.data) {
-      storageService.setItem(this.userKey, JSON.stringify(sanitizeObject(response.data)));
+      const user = UserMapper.fromDto(response.data);
+      storageService.setItem(
+        this.userKey,
+        JSON.stringify(sanitizeObject(user.toJSON()))
+      );
+      return user;
     }
-    return response.data;
+    throw new Error('No data received from updateMe');
   }
 }
 
 export const authService = new AuthService();
-
