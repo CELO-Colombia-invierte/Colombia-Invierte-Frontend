@@ -8,6 +8,8 @@ import { Step2FinancialInfo } from '../components/Step2FinancialInfo';
 import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
+import { useIonToast, useIonLoading } from '@ionic/react';
+import { natilleraService } from '@/services/natillera';
 import './CrearNatilleraPage.css';
 
 interface FormData {
@@ -32,6 +34,9 @@ interface Document {
 
 const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
+  const [present] = useIonToast();
+  const [presentLoading, dismissLoading] = useIonLoading();
+  const [createdNatillera, setCreatedNatillera] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -40,12 +45,12 @@ const CrearNatilleraPage: React.FC = () => {
     descripcion: '',
     aspectosDestacados: '',
     valorCuota: '',
-    moneda: 'USD',
+    moneda: 'COP',
     rendimiento: '',
     cantidadMeses: '',
     fechaPago: '',
     horaPago: '12:00',
-    privacidad: 'Privado',
+    privacidad: 'PRIVATE',
     invitarAmigos: '',
   });
   const [documents, setDocuments] = useState<Document[]>([
@@ -77,8 +82,48 @@ const CrearNatilleraPage: React.FC = () => {
     }
   };
 
-  const handleCreateNatillera = () => {
-    setShowSuccess(true);
+  const handleCreateNatillera = async () => {
+    try {
+      await presentLoading({ message: 'Creando natillera...' });
+
+      const paymentDate = new Date(formData.fechaPago);
+      if (formData.horaPago) {
+        const [hours, minutes] = formData.horaPago.split(':');
+        paymentDate.setHours(parseInt(hours), parseInt(minutes));
+      }
+
+      const natilleraData = {
+        name: formData.nombreProyecto,
+        description_rich: formData.descripcion,
+        highlights_rich: formData.aspectosDestacados,
+        visibility: formData.privacidad as 'PUBLIC' | 'PRIVATE',
+        financial_details: {
+          monthly_fee_amount: parseFloat(formData.valorCuota),
+          monthly_fee_currency: formData.moneda as 'COP' | 'USD',
+          expected_annual_return_pct: parseFloat(formData.rendimiento),
+          duration_months: parseInt(formData.cantidadMeses),
+          payment_deadline_at: paymentDate.toISOString(),
+        },
+      };
+
+      const result = await natilleraService.create(natilleraData);
+      setCreatedNatillera(result);
+      setShowSuccess(true);
+      
+      await present({
+        message: 'Natillera creada exitosamente',
+        duration: 2000,
+        color: 'success',
+      });
+    } catch (error: any) {
+      await present({
+        message: error.message || 'Error al crear la natillera',
+        duration: 3000,
+        color: 'danger',
+      });
+    } finally {
+      await dismissLoading();
+    }
   };
 
   const handleFieldChange = (field: string, value: string) => {
@@ -97,12 +142,23 @@ const CrearNatilleraPage: React.FC = () => {
   };
 
   const handleCopyLink = () => {
-    const link = 'https://colombiainvierte.com/natil...';
-    navigator.clipboard.writeText(link);
+    if (createdNatillera?.share_slug) {
+      const link = `${window.location.origin}/natillera/${createdNatillera.share_slug}`;
+      navigator.clipboard.writeText(link);
+      present({
+        message: 'Link copiado al portapapeles',
+        duration: 2000,
+        color: 'success',
+      });
+    }
   };
 
   const handleFinish = () => {
-    history.push('/portafolio');
+    if (createdNatillera?.id) {
+      history.push(`/natillera/${createdNatillera.id}`);
+    } else {
+      history.push('/portafolio');
+    }
   };
 
   const getProgressWidth = () => {
@@ -185,7 +241,7 @@ const CrearNatilleraPage: React.FC = () => {
               aspectosDestacados={formData.aspectosDestacados}
               privacidad={formData.privacidad}
               invitarAmigos={formData.invitarAmigos}
-              shareLink="https://colombiainvierte.com/natil..."
+              shareLink={createdNatillera?.share_slug ? `${window.location.origin}/natillera/${createdNatillera.share_slug}` : ""}
               onPrivacidadChange={(value) =>
                 handleFieldChange('privacidad', value)
               }
