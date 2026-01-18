@@ -71,8 +71,6 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
       Math.max(position, 50),
       screenWidth - 50
     );
-
-    // Validar que el resultado sea un número válido
     return isNaN(calculatedPosition) ? tabWidth * 0.5 : calculatedPosition;
   };
 
@@ -82,7 +80,8 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
 
   return (
     <nav className="bottom-navbar">
-      <svg
+      {/* SVG con animación de curvatura - Temporalmente comentado */}
+      {/* <svg
         className="navbar-svg-background"
         viewBox={`0 0 ${screenWidth} 80`}
         preserveAspectRatio="none"
@@ -123,7 +122,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
             damping: 20,
           }}
         />
-      </svg>
+      </svg> */}
 
       <div className="navbar-content">
         {firstHalf.map((tab) => (
