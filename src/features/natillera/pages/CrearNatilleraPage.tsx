@@ -10,7 +10,14 @@ import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
 import { projectsService } from '@/services/projects';
-import { Project, ProjectType, Currency, ProjectVisibility } from '@/models/projects';
+import {
+  Project,
+  ProjectType,
+  Currency,
+  ProjectVisibility,
+  ProjectImage,
+  ProjectDocument,
+} from '@/models/projects';
 import './CrearNatilleraPage.css';
 
 interface FormData {
@@ -37,9 +44,21 @@ const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
-  const [createdNatillera, setCreatedNatillera] = useState<Project | null>(null);
+  const [createdNatillera, setCreatedNatillera] = useState<Project | null>(
+    null
+  );
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Archivos seleccionados (en memoria, no subidos)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedDocuments, setSelectedDocuments] = useState<
+    {
+      id: string;
+      file: File;
+      motivo: string;
+    }[]
+  >([]);
   const [formData, setFormData] = useState<FormData>({
     tipoProyecto: 'Natillera',
     nombreProyecto: '',
@@ -85,8 +104,17 @@ const CrearNatilleraPage: React.FC = () => {
 
   const handleCreateNatillera = async () => {
     try {
+      console.log(' INICIANDO CREACIÓN DE NATILLERA ');
+      console.log(' Datos del formulario:', formData);
+      console.log(' Imagen seleccionada:', selectedImage?.name);
+      console.log(
+        'Documentos seleccionados:',
+        selectedDocuments.map((d) => d.file.name)
+      );
+
       await presentLoading({ message: 'Creando natillera...' });
 
+      // 1. Preparar datos de la natillera
       const paymentDate = new Date(formData.fechaPago);
       if (formData.horaPago) {
         const [hours, minutes] = formData.horaPago.split(':');
@@ -108,23 +136,78 @@ const CrearNatilleraPage: React.FC = () => {
         },
       };
 
-      const result = await projectsService.create(natilleraData);
-      setCreatedNatillera(result);
+      const project = await projectsService.create(natilleraData);
+      console.log(' Proyecto creado:', project);
+      console.log(' Project ID:', project.id);
+      console.log(
+        ' Creado por:',
+        project.owner_user?.display_name || project.owner_user?.username
+      );
+
+      const projectId = project.id;
+
+      // 2. Subir imagen si existe
+      if (selectedImage) {
+        await dismissLoading();
+        await presentLoading({ message: 'Subiendo imagen miniatura...' });
+        console.log(' Subiendo imagen:', selectedImage.name);
+
+        const uploadedImage = await projectsService.uploadImage(
+          projectId,
+          selectedImage,
+          true,
+          'Miniatura de la natillera'
+        );
+        console.log(' Imagen subida:', uploadedImage);
+      }
+
+      // 3. Subir documentos si existen
+      if (selectedDocuments.length > 0) {
+        for (let i = 0; i < selectedDocuments.length; i++) {
+          const doc = selectedDocuments[i];
+          await dismissLoading();
+          await presentLoading({
+            message: `Subiendo documento ${i + 1}/${selectedDocuments.length}...`,
+          });
+          console.log(` Subiendo documento ${i + 1}:`, doc.file.name);
+
+          const uploadedDoc = await projectsService.uploadDocument(
+            projectId,
+            doc.file,
+            doc.motivo,
+            'GENERAL',
+            doc.motivo
+          );
+          console.log(`Documento ${i + 1} subido:`, uploadedDoc);
+        }
+      }
+
+      // 4. Éxito
+      setCreatedNatillera(project);
       setShowSuccess(true);
-      
+
+      await dismissLoading();
       await present({
         message: 'Natillera creada exitosamente',
         duration: 2000,
         color: 'success',
       });
+
+      console.log(' NATILLERA CREADA EXITOSAMENTE ');
+      console.log(' Resumen:');
+      console.log('   Nombre:', project.name);
+      console.log('   ID:', project.id);
+      console.log('   Creador:', project.owner_user?.display_name);
+      console.log('   Imagen subida:', selectedImage ? 'Sí' : 'No');
+      console.log('   Documentos subidos:', selectedDocuments.length);
     } catch (error: any) {
+      console.error('❌ Error al crear natillera:', error);
+      await dismissLoading();
       await present({
         message: error.message || 'Error al crear la natillera',
         duration: 3000,
         color: 'danger',
       });
-    } finally {
-      await dismissLoading();
     }
   };
 
@@ -221,9 +304,10 @@ const CrearNatilleraPage: React.FC = () => {
               )}
               {currentStep === 3 && (
                 <Step3Content
-                  documents={documents}
-                  onAddDocument={handleAddDocument}
-                  onUpdateDocument={handleUpdateDocument}
+                  onImageSelected={setSelectedImage}
+                  onDocumentsChanged={setSelectedDocuments}
+                  selectedImage={selectedImage}
+                  selectedDocuments={selectedDocuments}
                 />
               )}
               {currentStep === 4 && (
@@ -232,6 +316,9 @@ const CrearNatilleraPage: React.FC = () => {
                   userName="UserName"
                   description={formData.descripcion}
                   aspectosDestacados={formData.aspectosDestacados}
+                  formData={formData}
+                  selectedImage={selectedImage}
+                  selectedDocuments={selectedDocuments}
                 />
               )}
             </>
@@ -243,7 +330,11 @@ const CrearNatilleraPage: React.FC = () => {
               aspectosDestacados={formData.aspectosDestacados}
               privacidad={formData.privacidad}
               invitarAmigos={formData.invitarAmigos}
-              shareLink={createdNatillera?.share_slug ? `${window.location.origin}/natillera/${createdNatillera.share_slug}` : ""}
+              shareLink={
+                createdNatillera?.share_slug
+                  ? `${window.location.origin}/natillera/${createdNatillera.share_slug}`
+                  : ''
+              }
               onPrivacidadChange={(value) =>
                 handleFieldChange('privacidad', value)
               }

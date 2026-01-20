@@ -29,6 +29,7 @@ class AuthService {
   private readonly tokenKey = 'auth_token';
   private readonly refreshTokenKey = 'auth_refresh_token';
   private readonly userKey = 'auth_user';
+  private hasLoggedSession = false;
 
   setAuth(token: string, refreshToken: string, user: User): void {
     const sanitizedUser = sanitizeObject(user.toJSON());
@@ -61,6 +62,8 @@ class AuthService {
     try {
       const userData = JSON.parse(userStr);
       const user = new User(userData);
+
+ 
       return {
         user,
         token,
@@ -113,12 +116,30 @@ class AuthService {
   }
 
   async login(data: LoginRequestDto): Promise<AuthResponse> {
+    // console.log(' === INICIANDO LOGIN ===');
+    // console.log(' Email:', data.email);
+
     const response = await apiService.post<AuthResponseDto>(
       '/auth/login',
       data
     );
     if (response.data) {
       const user = UserMapper.fromAuthResponse(response.data);
+
+      // console.log(' === LOGIN EXITOSO ===');
+      // console.log(' TOKEN:', response.data.access_token);
+      // console.log(' REFRESH TOKEN:', response.data.refresh_token);
+      // console.log(' USUARIO:', {
+      //   id: user.id,
+      //   username: user.username,
+      //   email: user.email,
+      //   displayName: user.displayName,
+      //   isVerified: user.isVerified,
+      //   roles: user.roles,
+      // });
+      // console.log('📋 USER COMPLETO:', user.toJSON());
+      // console.log('======================');
+
       this.setAuth(
         response.data.access_token,
         response.data.refresh_token,

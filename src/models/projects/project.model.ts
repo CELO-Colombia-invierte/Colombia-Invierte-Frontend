@@ -62,14 +62,40 @@ export interface TokenFaq {
   sort_order: number;
 }
 
+export interface MediaAsset {
+  id: string;
+  owner_user_id: string;
+  url: string;
+  original_name: string;
+  mime_type: string;
+  size_bytes: number;
+  width?: number;
+  height?: number;
+  created_at: string;
+}
+
 export interface ProjectDocument {
   id: string;
   project_id: string;
   asset_id: string;
+  asset?: MediaAsset;
   title: string;
-  description?: string;
+  kind?: 'GENERAL' | 'CONTENT' | 'IMPORTANT';
+  purpose?: string;
   sort_order: number;
   created_at: string;
+}
+
+export interface ProjectImage {
+  id: string;
+  project_id: string;
+  asset_id: string;
+  asset?: MediaAsset;
+  is_primary: boolean;
+  alt_text: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Project {
