@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useRef } from 'react';
 import { ConnectEmbed } from 'thirdweb/react';
-import { useActiveAccount, useProfiles } from 'thirdweb/react';
-import { inAppWallet, createWallet } from 'thirdweb/wallets';
+import { useActiveAccount } from 'thirdweb/react';
+import { inAppWallet, createWallet, getUserEmail } from 'thirdweb/wallets';
 import { defineChain } from 'thirdweb/chains';
 import { thirdwebClient } from '@/app/App';
 import { useAuth } from '@/hooks/use-auth';
@@ -28,7 +28,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   onClose,
 }) => {
   const account = useActiveAccount();
-  const { data: profiles } = useProfiles({ client: thirdwebClient });
   const { verifyThirdweb, isLoading, isAuthenticated } = useAuth();
   const verifyingRef = useRef(false);
   const lastAddressRef = useRef<string | null>(null);
@@ -75,23 +74,22 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         console.log('🔐 THIRDWEB ACCOUNT INFO:', {
           address: account.address,
           accountKeys: Object.keys(account),
-          accountObject: account,
         });
 
-        console.log('👤 USER PROFILES:', {
-          profiles: profiles,
-          profilesCount: profiles?.length,
-          firstProfile: profiles?.[0],
-          email: profiles?.[0]?.details?.email,
-        });
-
-        const userEmail = profiles?.[0]?.details?.email;
-
-        console.log('📧 EMAIL EXTRAÍDO:', userEmail);
+        let userEmail: string | undefined;
+        
+        try {
+          userEmail = await getUserEmail({ client: thirdwebClient });
+          console.log('📧 EMAIL FROM getUserEmail:', userEmail);
+        } catch (emailError) {
+          console.error('Error getting email:', emailError);
+        }
 
         await verifyThirdwebRef.current({
-          address: account.address!,
+          wallet_address: account.address!,
+          thirdweb_user_id: account.address!,
           chain_id: celo.id,
+          email: userEmail,
         });
 
         onCloseRef.current();

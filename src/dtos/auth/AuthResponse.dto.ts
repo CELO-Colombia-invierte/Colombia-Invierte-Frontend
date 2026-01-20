@@ -23,8 +23,11 @@ export interface LoginRequestDto {
 }
 
 export interface ThirdwebVerifyRequestDto {
-  address: string;
+  wallet_address: string;
+  thirdweb_user_id: string;
   chain_id: number;
+  email?: string;
+  display_name?: string;
 }
 
 export interface UpdateUserRequestDto {
