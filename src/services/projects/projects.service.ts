@@ -1,40 +1,128 @@
-import { apiService } from '../api';
-import { ProjectMapper } from '@/mappers/ProjectMapper';
-import { ProjectsResponseDto, ProjectDto } from '@/dtos/projects';
-import { Project } from '@/models/Project.model';
-
-interface GetProjectsParams {
-  page?: number;
-  limit?: number;
-  type?: 'NATILLERA' | 'TOKENIZATION';
-  visibility?: 'PUBLIC' | 'PRIVATE';
-  owner?: boolean;
-}
+import { apiService } from '../api/api.service';
+import { authService } from '../auth/auth.service';
+import {
+  Project,
+  ProjectImage,
+  ProjectDocument,
+} from '@/models/projects/project.model';
+import {
+  CreateProjectDto,
+  UpdateProjectDto,
+} from '@/models/projects/project-dto.model';
 
 class ProjectsService {
-  async getProjects(params?: GetProjectsParams): Promise<Project[]> {
-    const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.set('page', params.page.toString());
-    if (params?.limit) queryParams.set('limit', params.limit.toString());
-    if (params?.type) queryParams.set('type', params.type);
-    if (params?.visibility) queryParams.set('visibility', params.visibility);
-    if (params?.owner) queryParams.set('owner', 'true');
-
-    const endpoint = `/projects${queryParams.toString() ? `?${queryParams}` : ''}`;
-    const response = await apiService.get<ProjectsResponseDto>(endpoint);
-
-    if (response.data) {
-      return ProjectMapper.fromDtoArray(response.data.projects);
-    }
-    throw new Error('No data received from projects');
+  async create(data: CreateProjectDto): Promise<Project> {
+    const response = await apiService.post<Project>('/projects', data);
+    return response.data;
   }
 
-  async getProject(id: string): Promise<Project> {
-    const response = await apiService.get<ProjectDto>(`/projects/${id}`);
-    if (response.data) {
-      return ProjectMapper.fromDto(response.data);
+  async findAll(): Promise<Project[]> {
+    const response = await apiService.get<Project[]>('/projects');
+    return response.data;
+  }
+
+  async findOne(id: string): Promise<Project> {
+    const response = await apiService.get<Project>(`/projects/${id}`);
+    return response.data;
+  }
+
+  async update(id: string, data: UpdateProjectDto): Promise<Project> {
+    const response = await apiService.patch<Project>(`/projects/${id}`, data);
+    return response.data;
+  }
+
+  // ============= MÉTODOS PARA IMÁGENES =============
+
+  async uploadImage(
+    projectId: string,
+    file: File,
+    isPrimary: boolean = false,
+    altText?: string,
+    sortOrder: number = 0
+  ): Promise<ProjectImage> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('is_primary', String(isPrimary));
+    if (altText) formData.append('alt_text', altText);
+    formData.append('sort_order', String(sortOrder));
+
+    const token = authService.getToken();
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/projects/${projectId}/images/upload`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload image');
     }
-    throw new Error('No data received from project');
+
+    const result = await response.json();
+    return result.data;
+  }
+
+  async getImages(projectId: string): Promise<ProjectImage[]> {
+    const response = await apiService.get<ProjectImage[]>(
+      `/projects/${projectId}/images`
+    );
+    return response.data;
+  }
+
+  async deleteImage(projectId: string, imageId: string): Promise<void> {
+    await apiService.delete(`/projects/${projectId}/images/${imageId}`);
+  }
+
+  // ============= MÉTODOS PARA DOCUMENTOS =============
+
+  async uploadDocument(
+    projectId: string,
+    file: File,
+    title: string,
+    kind: 'GENERAL' | 'CONTENT' | 'IMPORTANT' = 'GENERAL',
+    purpose?: string
+  ): Promise<ProjectDocument> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', title);
+    formData.append('kind', kind);
+    if (purpose) formData.append('purpose', purpose);
+
+    const token = authService.getToken();
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/projects/${projectId}/documents/upload`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload document');
+    }
+
+    const result = await response.json();
+    return result.data;
+  }
+
+  async getDocuments(projectId: string): Promise<ProjectDocument[]> {
+    const response = await apiService.get<ProjectDocument[]>(
+      `/projects/${projectId}/documents`
+    );
+    return response.data;
+  }
+
+  async deleteDocument(projectId: string, docId: string): Promise<void> {
+    await apiService.delete(`/projects/${projectId}/documents/${docId}`);
   }
 }
 

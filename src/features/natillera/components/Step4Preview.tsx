@@ -2,11 +2,29 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './StepStyles.css';
 
+interface FormData {
+  tipoProyecto: string;
+  nombreProyecto: string;
+  descripcion: string;
+  aspectosDestacados: string;
+  valorCuota: string;
+  moneda: string;
+  rendimiento: string;
+  cantidadMeses: string;
+  fechaPago: string;
+  horaPago: string;
+  privacidad: string;
+  invitarAmigos: string;
+}
+
 interface Step4PreviewProps {
   natilleraName: string;
   userName: string;
   description: string;
   aspectosDestacados: string;
+  formData: FormData;
+  selectedImage: File | null;
+  selectedDocuments: { id: string; file: File; motivo: string }[];
 }
 
 export const Step4Preview: React.FC<Step4PreviewProps> = ({
@@ -14,6 +32,9 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
   userName,
   description,
   aspectosDestacados,
+  formData,
+  selectedImage,
+  selectedDocuments,
 }) => {
   const [activeTab, setActiveTab] = useState<
     'resumen' | 'finanzas' | 'documentos'
@@ -25,10 +46,18 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
 
       <div className="natillera-preview">
         <div className="preview-image-placeholder">
-          <img
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%234A90E2' width='100' height='100'/%3E%3C/svg%3E"
-            alt="Natillera preview"
-          />
+          {selectedImage ? (
+            <img
+              src={URL.createObjectURL(selectedImage)}
+              alt="Miniatura de la natillera"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%234A90E2' width='100' height='100'/%3E%3C/svg%3E"
+              alt="Placeholder"
+            />
+          )}
         </div>
 
         <div className="preview-tabs">
@@ -102,7 +131,11 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 <div className="finance-item">
                   <div className="finance-icon">💰</div>
                   <div className="finance-details">
-                    <div className="finance-value">200.000 COP</div>
+                    <div className="finance-value">
+                      {formData.valorCuota
+                        ? `${Number(formData.valorCuota).toLocaleString('es-CO')} ${formData.moneda}`
+                        : 'N/A'}
+                    </div>
                     <div className="finance-label">
                       Valor de la cuota mensual ⓘ
                     </div>
@@ -112,7 +145,11 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 <div className="finance-item">
                   <div className="finance-icon">🌱</div>
                   <div className="finance-details">
-                    <div className="finance-value">50%</div>
+                    <div className="finance-value">
+                      {formData.rendimiento
+                        ? `${formData.rendimiento}%`
+                        : 'N/A'}
+                    </div>
                     <div className="finance-label">
                       Rendimiento anual esperado ⓘ
                     </div>
@@ -122,7 +159,11 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 <div className="finance-item">
                   <div className="finance-icon">🔥</div>
                   <div className="finance-details">
-                    <div className="finance-value">12 Meses</div>
+                    <div className="finance-value">
+                      {formData.cantidadMeses
+                        ? `${formData.cantidadMeses} Meses`
+                        : 'N/A'}
+                    </div>
                     <div className="finance-label">Cantidad de meses ⓘ</div>
                   </div>
                 </div>
@@ -130,7 +171,11 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 <div className="finance-item">
                   <div className="finance-icon">📅</div>
                   <div className="finance-details">
-                    <div className="finance-value">18-08-2025 | 6:30PM</div>
+                    <div className="finance-value">
+                      {formData.fechaPago && formData.horaPago
+                        ? `${new Date(formData.fechaPago).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formData.horaPago}`
+                        : 'N/A'}
+                    </div>
                     <div className="finance-label">
                       Fecha máxima de pago mensual ⓘ
                     </div>
@@ -149,40 +194,56 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
               >
                 <h3 className="preview-section-title">Documentos</h3>
 
-                <div className="document-list">
-                  <div className="document-list-item">
-                    <div className="document-icon pdf">📄</div>
-                    <div className="document-info">
-                      <div className="document-name">Firmas.pdf</div>
-                      <div className="document-desc">Motivo del documento</div>
-                    </div>
-                    <button className="document-download">
-                      1.4 MB Download
-                    </button>
-                  </div>
+                {selectedDocuments.length > 0 ? (
+                  <div className="document-list">
+                    {selectedDocuments.map((doc) => {
+                      const fileExtension = doc.file.name
+                        .split('.')
+                        .pop()
+                        ?.toLowerCase();
+                      const getIcon = () => {
+                        if (fileExtension === 'pdf') return '📄';
+                        if (
+                          ['jpg', 'jpeg', 'png', 'gif'].includes(
+                            fileExtension || ''
+                          )
+                        )
+                          return '🖼️';
+                        if (
+                          ['csv', 'xlsx', 'xls'].includes(fileExtension || '')
+                        )
+                          return '📊';
+                        return '📎';
+                      };
 
-                  <div className="document-list-item">
-                    <div className="document-icon image">🖼️</div>
-                    <div className="document-info">
-                      <div className="document-name">Contrato multiple.jpg</div>
-                      <div className="document-desc">Motivo del documento</div>
-                    </div>
-                    <button className="document-download">
-                      1.4 MB Download
-                    </button>
+                      return (
+                        <div key={doc.id} className="document-list-item">
+                          <div className="document-icon">{getIcon()}</div>
+                          <div className="document-info">
+                            <div className="document-name">{doc.file.name}</div>
+                            <div className="document-desc">
+                              {doc.motivo || 'Sin descripción'}
+                            </div>
+                          </div>
+                          <button className="document-download">
+                            {(doc.file.size / 1024).toFixed(1)} KB
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
-
-                  <div className="document-list-item">
-                    <div className="document-icon csv">📊</div>
-                    <div className="document-info">
-                      <div className="document-name">Libro de cuentas.csv</div>
-                      <div className="document-desc">Motivo del documento</div>
-                    </div>
-                    <button className="document-download">
-                      1.4 MB Download
-                    </button>
-                  </div>
-                </div>
+                ) : (
+                  <p
+                    style={{
+                      color: '#999',
+                      textAlign: 'center',
+                      padding: '40px 20px',
+                      fontSize: '14px',
+                    }}
+                  >
+                    No hay documentos seleccionados
+                  </p>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
