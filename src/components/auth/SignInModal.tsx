@@ -71,12 +71,25 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       lastAddressRef.current = account.address!;
 
       try {
+        console.log('🔐 THIRDWEB ACCOUNT INFO:', {
+          address: account.address,
+          accountKeys: Object.keys(account),
+          accountObject: account,
+          accountStringified: JSON.stringify(account, null, 2),
+        });
+
+        console.log('🔍 ADDITIONAL ACCOUNT DATA:', {
+          wallet: (account as any).wallet,
+          email: (account as any).email,
+          details: (account as any).details,
+          user: (account as any).user,
+        });
+
         await verifyThirdwebRef.current({
           address: account.address!,
           chain_id: celo.id,
         });
 
-        // Cerrar modal - la navegación la maneja use-auth hook
         onCloseRef.current();
       } catch (error) {
         console.error('Error verifying account:', error);
@@ -92,6 +105,11 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   if (!isOpen) return null;
 
   const handleConnect = () => {
+    console.log('✅ THIRDWEB CONNECT EVENT:', {
+      account: account,
+      address: account?.address,
+      isLoading: isLoading,
+    });
     if (account?.address && !isLoading) {
       onClose();
     }
