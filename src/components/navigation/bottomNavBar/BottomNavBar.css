@@ -6,6 +6,8 @@
   height: 80px;
   z-index: 1000;
   overflow: visible;
+  background: #4A5568;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .navbar-svg-background {
@@ -80,7 +82,7 @@
 
 .active-tab-indicator {
   position: absolute;
-  top: -8px;
+  top: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,8 +90,8 @@
 }
 
 .active-circle {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
   display: flex;
@@ -102,7 +104,7 @@
 }
 
 .tab-icon.active {
-  font-size: 22px;
+  font-size: 24px;
   color: #ffffff;
 }
 
@@ -115,8 +117,8 @@
 }
 
 .central-button {
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   border: none;
@@ -129,7 +131,7 @@
     inset 0 2px 6px rgba(255, 255, 255, 0.2);
   cursor: pointer;
   position: absolute;
-  top: -32px;
+  top: -26px;
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -154,7 +156,7 @@
 }
 
 .central-icon {
-  font-size: 36px;
+  font-size: 30px;
   color: white;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
@@ -169,21 +171,21 @@
   }
 
   .central-button {
-    width: 56px;
-    height: 56px;
-    top: -28px;
+    width: 46px;
+    height: 46px;
+    top: -23px;
   }
 
   .central-icon {
-    font-size: 32px;
+    font-size: 26px;
   }
 
   .tab-icon {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .tab-icon.active {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   .tab-label {
@@ -191,12 +193,12 @@
   }
 
   .active-circle {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
   }
 
   .active-tab-indicator {
-    top: -26px;
+    top: 6px;
   }
 }
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -210,6 +212,10 @@
   }
 }
 @media (prefers-color-scheme: dark) {
+  .bottom-navbar {
+    background: #2d3748;
+  }
+  
   .navbar-svg-background path {
     fill: #2d3748;
   }

@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useRef } from 'react';
 import { ConnectEmbed } from 'thirdweb/react';
 import { useActiveAccount } from 'thirdweb/react';
-import { inAppWallet, createWallet } from 'thirdweb/wallets';
+import { inAppWallet, createWallet, getUserEmail } from 'thirdweb/wallets';
 import { defineChain } from 'thirdweb/chains';
 import { thirdwebClient } from '@/app/App';
 import { useAuth } from '@/hooks/use-auth';
@@ -71,12 +71,27 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       lastAddressRef.current = account.address!;
 
       try {
-        await verifyThirdwebRef.current({
-          address: account.address!,
-          chain_id: celo.id,
+        console.log('🔐 THIRDWEB ACCOUNT INFO:', {
+          address: account.address,
+          accountKeys: Object.keys(account),
         });
 
-        // Cerrar modal - la navegación la maneja use-auth hook
+        let userEmail: string | undefined;
+        
+        try {
+          userEmail = await getUserEmail({ client: thirdwebClient });
+          console.log('📧 EMAIL FROM getUserEmail:', userEmail);
+        } catch (emailError) {
+          console.error('Error getting email:', emailError);
+        }
+
+        await verifyThirdwebRef.current({
+          wallet_address: account.address!,
+          thirdweb_user_id: account.address!,
+          chain_id: celo.id,
+          email: userEmail,
+        });
+
         onCloseRef.current();
       } catch (error) {
         console.error('Error verifying account:', error);
@@ -92,6 +107,11 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   if (!isOpen) return null;
 
   const handleConnect = () => {
+    console.log('✅ THIRDWEB CONNECT EVENT:', {
+      account: account,
+      address: account?.address,
+      isLoading: isLoading,
+    });
     if (account?.address && !isLoading) {
       onClose();
     }

@@ -48,41 +48,41 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
     }
   };
 
-  const getActiveTabIndex = () => {
-    const index = tabs.findIndex((tab) => tab.path === location.pathname);
-    return index !== -1 ? index : 0;
-  };
+  // Funciones para calcular posición de la curvatura - Temporalmente comentadas
+  // const getActiveTabIndex = () => {
+  //   const index = tabs.findIndex((tab) => tab.path === location.pathname);
+  //   return index !== -1 ? index : 0;
+  // };
 
-  const activeIndex = getActiveTabIndex();
-  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 430;
+  // const activeIndex = getActiveTabIndex();
+  // const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 430;
 
-  const calculateTabPosition = () => {
-    const tabWidth = screenWidth / 5;
+  // const calculateTabPosition = () => {
+  //   const tabWidth = screenWidth / 5;
 
-    const positions = [
-      tabWidth * 0.5,
-      tabWidth * 1.5,
-      tabWidth * 3.5,
-      tabWidth * 4.5,
-    ];
+  //   const positions = [
+  //     tabWidth * 0.5,
+  //     tabWidth * 1.5,
+  //     tabWidth * 3.5,
+  //     tabWidth * 4.5,
+  //   ];
 
-    const position = positions[activeIndex] || positions[0];
-    const calculatedPosition = Math.min(
-      Math.max(position, 50),
-      screenWidth - 50
-    );
+  //   const position = positions[activeIndex] || positions[0];
+  //   const calculatedPosition = Math.min(
+  //     Math.max(position, 50),
+  //     screenWidth - 50
+  //   );
+  //   return isNaN(calculatedPosition) ? tabWidth * 0.5 : calculatedPosition;
+  // };
 
-    // Validar que el resultado sea un número válido
-    return isNaN(calculatedPosition) ? tabWidth * 0.5 : calculatedPosition;
-  };
-
-  const activePosition = calculateTabPosition();
+  // const activePosition = calculateTabPosition();
   const firstHalf = tabs.slice(0, 2);
   const secondHalf = tabs.slice(2);
 
   return (
     <nav className="bottom-navbar">
-      <svg
+      {/* SVG con animación de curvatura - Temporalmente comentado */}
+      {/* <svg
         className="navbar-svg-background"
         viewBox={`0 0 ${screenWidth} 80`}
         preserveAspectRatio="none"
@@ -123,7 +123,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
             damping: 20,
           }}
         />
-      </svg>
+      </svg> */}
 
       <div className="navbar-content">
         {firstHalf.map((tab) => (
