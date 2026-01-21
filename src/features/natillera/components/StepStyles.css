@@ -602,3 +602,9 @@
 .document-download:hover {
   text-decoration: underline;
 }
+
+.form-hint {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 4px;
+}

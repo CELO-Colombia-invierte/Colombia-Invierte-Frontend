@@ -31,6 +31,7 @@ const MainContent: React.FC = () => {
   const history = useHistory();
   const hideNavBar =
     location.pathname.startsWith('/mensajes/') ||
+    location.pathname.startsWith('/inversiones/') ||
     location.pathname === '/crear-natillera' ||
     location.pathname === '/crear-tokenizacion';
   const [isModalOpen, setIsModalOpen] = useState(false);

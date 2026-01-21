@@ -25,6 +25,9 @@ const CrearTokenizacionPage = lazy(
 const ConfiguracionPage = lazy(
   () => import('@/features/configuracion/pages/ConfiguracionPage')
 );
+const InvestmentDetailsPage = lazy(
+  () => import('@/features/inversiones/pages/InvestmentDetailsPage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -75,6 +78,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/configuracion',
     component: ConfiguracionPage,
+    exact: true,
+  },
+  {
+    path: '/inversiones/:id',
+    component: InvestmentDetailsPage,
     exact: true,
   },
 ];

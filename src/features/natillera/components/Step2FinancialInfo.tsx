@@ -37,11 +37,13 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
               type="number"
               className="form-input currency-input"
               placeholder="0"
+              min="1000"
               value={formData.valorCuota}
               onChange={(e) => onChange('valorCuota', e.target.value)}
             />
           </div>
         </div>
+        <span className="form-hint">Mínimo: $1,000 COP</span>
       </div>
 
       <div className="form-group">
@@ -55,10 +57,14 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             type="number"
             className="form-input currency-input"
             placeholder="0"
+            min="0"
+            max="100"
+            step="0.01"
             value={formData.rendimiento}
             onChange={(e) => onChange('rendimiento', e.target.value)}
           />
         </div>
+        <span className="form-hint">Rango: 0% - 100%</span>
       </div>
 
       <div className="form-group">
@@ -70,9 +76,12 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           type="number"
           className="form-input"
           placeholder="0"
+          min="1"
+          max="120"
           value={formData.cantidadMeses}
           onChange={(e) => onChange('cantidadMeses', e.target.value)}
         />
+        <span className="form-hint">Rango: 1 - 120 meses</span>
       </div>
 
       <div className="form-group">

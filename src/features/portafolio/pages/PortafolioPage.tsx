@@ -1,5 +1,8 @@
-import React, { useEffect } from 'react';
-import { IonContent, IonPage } from '@ionic/react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { IonContent, IonPage, IonIcon } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
+import { walletOutline, businessOutline } from 'ionicons/icons';
 import { useAuth } from '@/hooks/use-auth';
 import { useProjects } from '@/hooks/use-projects';
 import { PortfolioProject } from '@/types';
@@ -9,11 +12,14 @@ import {
   PortfolioGrid,
   NewProjectCard,
 } from '@/components/portfolio';
+import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
   const { projects: projectsData, fetchProjects } = useProjects();
+  const history = useHistory();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProjects({ owner: true });
@@ -49,29 +55,61 @@ const PortafolioPage: React.FC = () => {
       avatars: [],
       gradient: gradientList[index % gradientList.length],
       amount: project.tokenization_details?.asset_value_amount,
-      description: undefined, // Project model no tiene description directamente
+      description: undefined, 
       emoji: isNatillera ? undefined : '🏠',
     };
   });
 
   const handleProjectClick = (project: PortfolioProject) => {
-    console.log('Project clicked:', project);
+    history.push(`/inversiones/${project.id}`);
   };
 
   const handleNewProject = () => {
-    console.log('New project clicked');
+    setIsModalOpen(true);
   };
 
+  const modalOptions = [
+    {
+      id: 'crear-natillera',
+      title: 'Crear Natillera',
+      description: 'Crea un proyecto de ahorro colectivo',
+      icon: <IonIcon icon={walletOutline} />,
+      onClick: () => {
+        history.push('/crear-natillera');
+      },
+    },
+    {
+      id: 'crear-tokenizacion',
+      title: 'Crear Tokenización',
+      description: 'Tokeniza un activo o proyecto',
+      icon: <IonIcon icon={businessOutline} />,
+      onClick: () => {
+        history.push('/crear-tokenizacion');
+      },
+    },
+  ];
+
   return (
-    <IonPage>
-      <IonContent fullscreen className="portafolio-page-content">
-        <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
-        <DateHeader />
-        <PortfolioGrid projects={projects} onProjectClick={handleProjectClick}>
-          <NewProjectCard onClick={handleNewProject} />
-        </PortfolioGrid>
-      </IonContent>
-    </IonPage>
+    <>
+      <IonPage>
+        <IonContent fullscreen className="portafolio-page-content">
+          <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
+          <DateHeader />
+          <PortfolioGrid projects={projects} onProjectClick={handleProjectClick}>
+            <NewProjectCard onClick={handleNewProject} />
+          </PortfolioGrid>
+        </IonContent>
+      </IonPage>
+      {createPortal(
+        <BottomSlideModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          options={modalOptions}
+          title="¿Qué deseas hacer?"
+        />,
+        document.body
+      )}
+    </>
   );
 };
 

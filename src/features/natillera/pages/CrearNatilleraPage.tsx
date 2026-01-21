@@ -112,9 +112,39 @@ const CrearNatilleraPage: React.FC = () => {
         selectedDocuments.map((d) => d.file.name)
       );
 
+      const valorCuota = parseFloat(formData.valorCuota);
+      const rendimiento = parseFloat(formData.rendimiento);
+      const cantidadMeses = parseInt(formData.cantidadMeses);
+
+      if (isNaN(valorCuota) || valorCuota < 1000) {
+        await present({
+          message: 'El valor de la cuota debe ser mínimo $1,000 COP',
+          duration: 3000,
+          color: 'danger',
+        });
+        return;
+      }
+
+      if (isNaN(rendimiento) || rendimiento < 0 || rendimiento > 100) {
+        await present({
+          message: 'El rendimiento debe estar entre 0% y 100%',
+          duration: 3000,
+          color: 'danger',
+        });
+        return;
+      }
+
+      if (isNaN(cantidadMeses) || cantidadMeses < 1 || cantidadMeses > 120) {
+        await present({
+          message: 'La cantidad de meses debe estar entre 1 y 120',
+          duration: 3000,
+          color: 'danger',
+        });
+        return;
+      }
+
       await presentLoading({ message: 'Creando natillera...' });
 
-      // 1. Preparar datos de la natillera
       const paymentDate = new Date(formData.fechaPago);
       if (formData.horaPago) {
         const [hours, minutes] = formData.horaPago.split(':');
@@ -128,10 +158,10 @@ const CrearNatilleraPage: React.FC = () => {
         visibility: formData.privacidad as ProjectVisibility,
         type: ProjectType.NATILLERA,
         natillera_details: {
-          monthly_fee_amount: parseFloat(formData.valorCuota),
+          monthly_fee_amount: valorCuota,
           monthly_fee_currency: formData.moneda as Currency,
-          expected_annual_return_pct: parseFloat(formData.rendimiento),
-          duration_months: parseInt(formData.cantidadMeses),
+          expected_annual_return_pct: rendimiento,
+          duration_months: cantidadMeses,
           payment_deadline_at: paymentDate.toISOString(),
         },
       };
@@ -146,7 +176,6 @@ const CrearNatilleraPage: React.FC = () => {
 
       const projectId = project.id;
 
-      // 2. Subir imagen si existe
       if (selectedImage) {
         await dismissLoading();
         await presentLoading({ message: 'Subiendo imagen miniatura...' });
@@ -160,8 +189,6 @@ const CrearNatilleraPage: React.FC = () => {
         );
         console.log(' Imagen subida:', uploadedImage);
       }
-
-      // 3. Subir documentos si existen
       if (selectedDocuments.length > 0) {
         for (let i = 0; i < selectedDocuments.length; i++) {
           const doc = selectedDocuments[i];
@@ -182,7 +209,6 @@ const CrearNatilleraPage: React.FC = () => {
         }
       }
 
-      // 4. Éxito
       setCreatedNatillera(project);
       setShowSuccess(true);
 
