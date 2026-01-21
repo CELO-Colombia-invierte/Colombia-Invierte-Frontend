@@ -33,10 +33,11 @@ interface FormData {
   invitarAmigos: string;
 }
 
-interface Document {
-  id: string;
-  motivo: string;
-}
+// Interface no usada, manejada en Step3Content
+// interface Document {
+//   id: string;
+//   motivo: string;
+// }
 
 const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
@@ -71,9 +72,10 @@ const CrearNatilleraPage: React.FC = () => {
     privacidad: 'PRIVATE',
     invitarAmigos: '',
   });
-  const [documents, setDocuments] = useState<Document[]>([
-    { id: '1', motivo: '' },
-  ]);
+  // Estado manejado en Step3Content
+  // const [documents, setDocuments] = useState<Document[]>([
+  //   { id: '1', motivo: '' },
+  // ]);
 
   const totalSteps = 4;
 
@@ -139,7 +141,7 @@ const CrearNatilleraPage: React.FC = () => {
       console.log(' Project ID:', project.id);
       console.log(
         ' Creado por:',
-        project.owner_user?.display_name || project.owner_user?.username
+        project.owner_user?.displayName || project.owner_user?.username
       );
 
       const projectId = project.id;
@@ -195,7 +197,7 @@ const CrearNatilleraPage: React.FC = () => {
       console.log(' Resumen:');
       console.log('   Nombre:', project.name);
       console.log('   ID:', project.id);
-      console.log('   Creador:', project.owner_user?.display_name);
+      console.log('   Creador:', project.owner_user?.displayName);
       console.log('   Imagen subida:', selectedImage ? 'Sí' : 'No');
       console.log('   Documentos subidos:', selectedDocuments.length);
     } catch (error: any) {

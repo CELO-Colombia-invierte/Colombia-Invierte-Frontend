@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { projectsService } from '@/services';
-import { Project } from '@/models/Project.model';
+import { Project } from '@/models/projects';
 
 interface GetProjectsParams {
   page?: number;
@@ -15,11 +15,13 @@ export const useProjects = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchProjects = useCallback(async (params?: GetProjectsParams) => {
+  const fetchProjects = useCallback(async (_params?: GetProjectsParams) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await projectsService.findAll(params);
+      // TODO: projectsService.findAll() no acepta params actualmente
+      // Si necesitas filtrar, debes implementarlo en el backend
+      const data = await projectsService.findAll();
       setProjects(data);
       return data;
     } catch (err) {

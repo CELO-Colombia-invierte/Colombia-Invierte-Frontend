@@ -1,4 +1,5 @@
-import { Currency, User } from '../projects/project.model';
+import { Currency } from '../projects/project.model';
+import { User } from '../User.model';
 
 export enum MembershipStatus {
   PENDING = 'PENDING',

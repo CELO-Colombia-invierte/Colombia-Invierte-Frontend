@@ -1,4 +1,4 @@
-import { User } from '../projects/project.model';
+import { User } from '../User.model';
 
 export enum InvitationStatus {
   PENDING = 'PENDING',

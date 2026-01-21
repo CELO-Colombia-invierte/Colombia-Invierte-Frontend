@@ -42,13 +42,14 @@ const PortafolioPage: React.FC = () => {
       id: project.id,
       name: project.name,
       type: isNatillera ? 'natillera' : 'tokenizacion',
-      changePercentage: project.natilleraDetails?.rendimientoAnual || 0,
+      changePercentage:
+        project.natillera_details?.expected_annual_return_pct || 0,
       period: 'Anual',
       participants: 0,
       avatars: [],
       gradient: gradientList[index % gradientList.length],
-      amount: project.tokenizationDetails?.assetValue,
-      description: project.description || undefined,
+      amount: project.tokenization_details?.asset_value_amount,
+      description: undefined, // Project model no tiene description directamente
       emoji: isNatillera ? undefined : '🏠',
     };
   });
