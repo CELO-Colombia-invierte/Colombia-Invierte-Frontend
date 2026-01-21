@@ -19,7 +19,7 @@ export const useProjects = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await projectsService.getProjects(params);
+      const data = await projectsService.findAll(params);
       setProjects(data);
       return data;
     } catch (err) {

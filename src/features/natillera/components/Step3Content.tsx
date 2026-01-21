@@ -23,7 +23,7 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
   onImageSelected,
   onDocumentsChanged,
   selectedImage,
-  selectedDocuments,
+  // selectedDocuments, // No usado actualmente
 }) => {
   const [present] = useIonToast();
   const imageInputRef = useRef<HTMLInputElement>(null);

@@ -29,7 +29,6 @@ class AuthService {
   private readonly tokenKey = 'auth_token';
   private readonly refreshTokenKey = 'auth_refresh_token';
   private readonly userKey = 'auth_user';
-  private hasLoggedSession = false;
 
   setAuth(token: string, refreshToken: string, user: User): void {
     const sanitizedUser = sanitizeObject(user.toJSON());
@@ -38,11 +37,7 @@ class AuthService {
     storageService.setItem(this.userKey, JSON.stringify(sanitizedUser));
 
     // Log para debugging
-    console.log('🔐 AUTH INFO:', {
-      token,
-      refreshToken,
-      user: sanitizedUser,
-    });
+    // console.log('TOKEN:', token);
   }
 
   getAuth(): AuthState {
@@ -63,7 +58,6 @@ class AuthService {
       const userData = JSON.parse(userStr);
       const user = new User(userData);
 
- 
       return {
         user,
         token,
@@ -87,7 +81,11 @@ class AuthService {
   }
 
   getToken(): string | null {
-    return storageService.getItem(this.tokenKey);
+    const token = storageService.getItem(this.tokenKey);
+    // if (token) {
+    //   console.log('TOKEN:', token);
+    // }
+    return token;
   }
 
   getRefreshToken(): string | null {
@@ -101,6 +99,9 @@ class AuthService {
     );
     if (response.data) {
       const user = UserMapper.fromAuthResponse(response.data);
+
+      // console.log('TOKEN:', response.data.access_token);
+
       this.setAuth(
         response.data.access_token,
         response.data.refresh_token,
@@ -126,19 +127,7 @@ class AuthService {
     if (response.data) {
       const user = UserMapper.fromAuthResponse(response.data);
 
-      // console.log(' === LOGIN EXITOSO ===');
-      // console.log(' TOKEN:', response.data.access_token);
-      // console.log(' REFRESH TOKEN:', response.data.refresh_token);
-      // console.log(' USUARIO:', {
-      //   id: user.id,
-      //   username: user.username,
-      //   email: user.email,
-      //   displayName: user.displayName,
-      //   isVerified: user.isVerified,
-      //   roles: user.roles,
-      // });
-      // console.log('📋 USER COMPLETO:', user.toJSON());
-      // console.log('======================');
+      // console.log('TOKEN:', response.data.access_token);
 
       this.setAuth(
         response.data.access_token,

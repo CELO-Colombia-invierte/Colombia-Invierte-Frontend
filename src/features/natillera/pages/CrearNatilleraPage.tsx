@@ -15,8 +15,6 @@ import {
   ProjectType,
   Currency,
   ProjectVisibility,
-  ProjectImage,
-  ProjectDocument,
 } from '@/models/projects';
 import './CrearNatilleraPage.css';
 
@@ -215,16 +213,17 @@ const CrearNatilleraPage: React.FC = () => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleAddDocument = () => {
-    const newDoc = { id: Date.now().toString(), motivo: '' };
-    setDocuments([...documents, newDoc]);
-  };
+  // Funciones manejadas en Step3Content
+  // const handleAddDocument = () => {
+  //   const newDoc = { id: Date.now().toString(), motivo: '' };
+  //   setDocuments([...documents, newDoc]);
+  // };
 
-  const handleUpdateDocument = (id: string, motivo: string) => {
-    setDocuments(
-      documents.map((doc) => (doc.id === id ? { ...doc, motivo } : doc))
-    );
-  };
+  // const handleUpdateDocument = (id: string, motivo: string) => {
+  //   setDocuments(
+  //     documents.map((doc) => (doc.id === id ? { ...doc, motivo } : doc))
+  //   );
+  // };
 
   const handleCopyLink = () => {
     if (createdNatillera?.share_slug) {
