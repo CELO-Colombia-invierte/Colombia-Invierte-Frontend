@@ -45,6 +45,13 @@
   border-color: #4a90e2;
 }
 
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f7fafc;
+  color: #a0aec0;
+}
+
 .form-input::placeholder {
   color: #a0aec0;
 }
@@ -208,6 +215,8 @@
 .currency-input-wrapper {
   flex: 1;
   position: relative;
+  min-width: 0;
+  overflow: visible;
 }
 
 .currency-prefix,
@@ -231,7 +240,10 @@
 }
 
 .currency-input {
-  padding-left: 56px;
+  padding-left: 70px !important;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-with-prefix {
@@ -239,7 +251,18 @@
 }
 
 .input-with-prefix .form-input {
-  padding-left: 56px;
+  padding-left: 60px;
+}
+
+/* Para inputs con prefijos largos como "Tokens" */
+.input-with-prefix .input-prefix {
+  min-width: 52px;
+  text-align: left;
+}
+
+.input-with-prefix:has(.input-prefix:contains('Tokens')) .form-input,
+.input-with-prefix .form-input[type='number']:nth-of-type(4) {
+  padding-left: 76px; /* Más espacio para "Tokens" */
 }
 
 .input-with-icon {
@@ -646,4 +669,14 @@
 
 .toggle-switch input:checked + .toggle-slider-round:before {
   transform: translateX(24px);
+}
+
+/* Input específico para Tokens - más padding */
+.input-with-tokens .input-prefix {
+  min-width: 70px;
+  padding: 0 12px;
+}
+
+.input-with-tokens .form-input {
+  padding-left: 90px !important;
 }

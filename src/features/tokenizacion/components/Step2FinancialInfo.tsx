@@ -9,6 +9,11 @@ import './StepStyles.css';
 
 export const Step2FinancialInfo: React.FC = () => {
   const [currency, setCurrency] = useState<'COP' | 'USD'>('COP');
+  const [presaleEnabled, setPresaleEnabled] = useState(false);
+
+  const handlePresaleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPresaleEnabled(e.target.checked);
+  };
 
   return (
     <div className="step-content">
@@ -83,7 +88,7 @@ export const Step2FinancialInfo: React.FC = () => {
           Total de tokens disponibles
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
-        <div className="input-with-prefix">
+        <div className="input-with-prefix input-with-tokens">
           <span className="input-prefix">Tokens</span>
           <input
             type="number"
@@ -113,17 +118,29 @@ export const Step2FinancialInfo: React.FC = () => {
           Venta anticipada
           <IonIcon icon={informationCircleOutline} className="info-icon" />
           <label className="toggle-switch" style={{ marginLeft: 'auto' }}>
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={presaleEnabled}
+              onChange={handlePresaleToggle}
+            />
             <span className="toggle-slider-round"></span>
           </label>
         </label>
         <div className="input-with-icon">
           <IonIcon icon={calendarOutline} className="input-icon" />
-          <input type="date" className="form-input" />
+          <input
+            type="date"
+            className="form-input"
+            disabled={!presaleEnabled}
+          />
         </div>
         <div className="input-with-icon" style={{ marginTop: '12px' }}>
           <IonIcon icon={timeOutline} className="input-icon" />
-          <input type="time" className="form-input" />
+          <input
+            type="time"
+            className="form-input"
+            disabled={!presaleEnabled}
+          />
         </div>
       </div>
 
