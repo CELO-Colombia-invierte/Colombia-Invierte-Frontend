@@ -1,61 +1,293 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { IonIcon } from '@ionic/react';
-import { informationCircleOutline, cloudUploadOutline } from 'ionicons/icons';
+import {
+  cloudUploadOutline,
+  informationCircleOutline,
+  addOutline,
+  closeCircle,
+  checkmarkCircle,
+} from 'ionicons/icons';
+import { useIonToast } from '@ionic/react';
 import './StepStyles.css';
 
-export const Step3Content: React.FC = () => {
+interface Step3ContentProps {
+  onImageSelected: (file: File) => void;
+  onDocumentsChanged: (
+    docs: { id: string; file: File; motivo: string }[]
+  ) => void;
+  selectedImage: File | null;
+  selectedDocuments: { id: string; file: File; motivo: string }[];
+}
+
+export const Step3Content: React.FC<Step3ContentProps> = ({
+  onImageSelected,
+  onDocumentsChanged,
+  selectedImage,
+}) => {
+  const [present] = useIonToast();
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>(
+    {}
+  );
+
+  const [localDocuments, setLocalDocuments] = React.useState<
+    { id: string; motivo: string; file?: File }[]
+  >([{ id: '1', motivo: '' }]);
+
+  console.log('[Step3] Renderizado:', {
+    selectedImage: selectedImage
+      ? { name: selectedImage.name, size: selectedImage.size }
+      : null,
+    localDocuments: localDocuments.map((d) => ({
+      id: d.id,
+      motivo: d.motivo,
+      file: d.file?.name || null,
+    })),
+    totalDocumentosConArchivo: localDocuments.filter((d) => d.file).length,
+  });
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      present({
+        message: 'Por favor selecciona un archivo de imagen',
+        duration: 3000,
+        color: 'danger',
+      });
+      return;
+    }
+
+    console.log('[Step3] Imagen seleccionada:', file.name);
+    onImageSelected(file);
+    present({
+      message: 'Imagen seleccionada',
+      duration: 2000,
+      color: 'success',
+    });
+  };
+
+  const handleDocumentSelect = (docId: string, file: File) => {
+    const doc = localDocuments.find((d) => d.id === docId);
+    if (!doc) return;
+
+    const updatedDocs = localDocuments.map((d) =>
+      d.id === docId ? { ...d, file } : d
+    );
+    setLocalDocuments(updatedDocs);
+
+    const docsWithFiles = updatedDocs
+      .filter((d) => d.file)
+      .map((d) => ({
+        id: d.id,
+        file: d.file!,
+        motivo: d.motivo.trim() || d.file!.name,
+      }));
+
+    console.log('[Step3] Documento seleccionado:', file.name);
+    onDocumentsChanged(docsWithFiles);
+
+    present({
+      message: 'Documento seleccionado',
+      duration: 2000,
+      color: 'success',
+    });
+  };
+
+  const handleAddDocument = () => {
+    const newDoc = { id: Date.now().toString(), motivo: '' };
+    setLocalDocuments([...localDocuments, newDoc]);
+    console.log(
+      '[Step3] Documento agregado, total:',
+      localDocuments.length + 1
+    );
+  };
+
+  const handleUpdateDocument = (id: string, motivo: string) => {
+    const updatedDocs = localDocuments.map((doc) =>
+      doc.id === id ? { ...doc, motivo } : doc
+    );
+    setLocalDocuments(updatedDocs);
+
+    const docsWithFiles = updatedDocs
+      .filter((d) => d.file)
+      .map((d) => ({
+        id: d.id,
+        file: d.file!,
+        motivo: d.motivo.trim() || d.file!.name,
+      }));
+    onDocumentsChanged(docsWithFiles);
+  };
+
+  const handleRemoveDocument = (id: string) => {
+    if (localDocuments.length > 1) {
+      const updatedDocs = localDocuments.filter((doc) => doc.id !== id);
+      setLocalDocuments(updatedDocs);
+
+      const docsWithFiles = updatedDocs
+        .filter((d) => d.file)
+        .map((d) => ({
+          id: d.id,
+          file: d.file!,
+          motivo: d.motivo.trim() || d.file!.name,
+        }));
+      onDocumentsChanged(docsWithFiles);
+
+      console.log('[Step3] Documento eliminado, total:', updatedDocs.length);
+    }
+  };
+
   return (
     <div className="step-content">
       <div className="form-group">
         <label className="form-label">
-          Upload content
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          Sube una miniatura para tu Tokenización
         </label>
-        <button type="button" className="upload-button">
-          <IonIcon icon={cloudUploadOutline} className="upload-icon" />
-          Subir archivo
-        </button>
-      </div>
 
-      <div className="form-group">
-        <label className="form-label">
-          Category
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
-        </label>
-        <div className="select-wrapper">
-          <select className="form-select">
-            <option>Real Estate</option>
-            <option>Arte</option>
-            <option>Tecnología</option>
-            <option>Finanzas</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="form-group">
-        <label className="form-label">
-          Important documents
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
-        </label>
         <input
-          type="text"
-          className="form-input"
-          placeholder="Motivo del documento..."
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleImageSelect}
         />
+
         <button
           type="button"
           className="upload-button"
-          style={{ marginTop: '12px' }}
+          onClick={() => imageInputRef.current?.click()}
+          style={{
+            backgroundColor: selectedImage ? '#10b981' : undefined,
+          }}
         >
-          <IonIcon icon={cloudUploadOutline} className="upload-icon" />
-          Subir archivo
+          <IonIcon
+            icon={selectedImage ? checkmarkCircle : cloudUploadOutline}
+            className="upload-icon"
+          />
+          {selectedImage ? 'Imagen seleccionada ✓' : 'Subir archivo'}
         </button>
+
+        {selectedImage && (
+          <div className="image-preview" style={{ marginTop: '16px' }}>
+            <img
+              src={URL.createObjectURL(selectedImage)}
+              alt="Miniatura"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '200px',
+                borderRadius: '8px',
+                objectFit: 'cover',
+              }}
+            />
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+              {selectedImage.name} ({(selectedImage.size / 1024).toFixed(1)} KB)
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Agrega documentos
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
+        </label>
+
+        {localDocuments.map((doc) => (
+          <div
+            key={doc.id}
+            className="document-item"
+            style={{ marginBottom: '16px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Motivo del documento (opcional)..."
+                value={doc.motivo}
+                onChange={(e) => handleUpdateDocument(doc.id, e.target.value)}
+                style={{ flex: 1 }}
+              />
+
+              {localDocuments.length > 1 && !doc.file && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveDocument(doc.id)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '8px',
+                  }}
+                >
+                  <IonIcon icon={closeCircle} style={{ fontSize: '24px' }} />
+                </button>
+              )}
+            </div>
+
+            <input
+              ref={(el) => (documentInputRefs.current[doc.id] = el)}
+              type="file"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleDocumentSelect(doc.id, file);
+              }}
+            />
+
+            <button
+              type="button"
+              className="upload-button"
+              onClick={() => documentInputRefs.current[doc.id]?.click()}
+              disabled={!!doc.file}
+              style={{
+                marginTop: '12px',
+                backgroundColor: doc.file ? '#10b981' : undefined,
+                cursor: doc.file ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <IonIcon
+                icon={doc.file ? checkmarkCircle : cloudUploadOutline}
+                className="upload-icon"
+              />
+              {doc.file ? 'Documento seleccionado ✓' : 'Subir archivo'}
+            </button>
+
+            {doc.file && (
+              <div
+                className="document-info"
+                style={{
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span>📄</span>
+                <span>{doc.file.name}</span>
+                <span>({(doc.file.size / 1024).toFixed(1)} KB)</span>
+              </div>
+            )}
+          </div>
+        ))}
+
         <button
           type="button"
           className="add-space-button"
-          style={{ marginTop: '12px' }}
+          onClick={handleAddDocument}
+          style={{
+            marginTop: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
         >
-          + Añadir espacio
+          <IonIcon icon={addOutline} />
+          Añadir espacio
         </button>
       </div>
     </div>

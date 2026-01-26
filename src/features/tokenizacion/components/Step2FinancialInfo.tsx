@@ -7,12 +7,45 @@ import {
 } from 'ionicons/icons';
 import './StepStyles.css';
 
-export const Step2FinancialInfo: React.FC = () => {
-  const [currency, setCurrency] = useState<'COP' | 'USD'>('COP');
-  const [presaleEnabled, setPresaleEnabled] = useState(false);
+interface Step2FinancialInfoProps {
+  formData: {
+    valorActivo: string;
+    moneda: string;
+    rendimiento: string;
+    precioPorToken: string;
+    monedaToken: string;
+    totalTokens: string;
+    simboloToken: string;
+    nombreToken: string;
+    ventaAnticipada: string;
+    fechaVentaAnticipada: string;
+    horaVentaAnticipada: string;
+    fechaVentaPublica: string;
+    horaVentaPublica: string;
+  };
+  onChange: (field: string, value: string) => void;
+}
+
+export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
+  formData,
+  onChange,
+}) => {
+  console.log('[Step2] Renderizado:', { formData });
+
+  const [currency, setCurrency] = useState<'COP' | 'USD'>(
+    (formData.moneda as 'COP' | 'USD') || 'COP'
+  );
+
+  const presaleEnabled = formData.ventaAnticipada === 'true';
 
   const handlePresaleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPresaleEnabled(e.target.checked);
+    console.log('[Step2] handlePresaleToggle:', { checked: e.target.checked });
+    onChange('ventaAnticipada', String(e.target.checked));
+  };
+
+  const handleCurrencyChange = (newCurrency: 'COP' | 'USD') => {
+    setCurrency(newCurrency);
+    onChange('moneda', newCurrency);
   };
 
   return (
@@ -27,14 +60,14 @@ export const Step2FinancialInfo: React.FC = () => {
             <button
               type="button"
               className={`currency-btn ${currency === 'COP' ? 'active' : ''}`}
-              onClick={() => setCurrency('COP')}
+              onClick={() => handleCurrencyChange('COP')}
             >
               COP
             </button>
             <button
               type="button"
               className={`currency-btn ${currency === 'USD' ? 'active' : ''}`}
-              onClick={() => setCurrency('USD')}
+              onClick={() => handleCurrencyChange('USD')}
             >
               USD
             </button>
@@ -48,6 +81,8 @@ export const Step2FinancialInfo: React.FC = () => {
               type="number"
               className="form-input currency-input"
               placeholder="0"
+              value={formData.valorActivo}
+              onChange={(e) => onChange('valorActivo', e.target.value)}
             />
           </div>
         </div>
@@ -64,6 +99,8 @@ export const Step2FinancialInfo: React.FC = () => {
             type="number"
             className="form-input currency-input"
             placeholder="0"
+            value={formData.rendimiento}
+            onChange={(e) => onChange('rendimiento', e.target.value)}
           />
         </div>
       </div>
@@ -79,6 +116,8 @@ export const Step2FinancialInfo: React.FC = () => {
             type="number"
             className="form-input currency-input"
             placeholder="0"
+            value={formData.precioPorToken}
+            onChange={(e) => onChange('precioPorToken', e.target.value)}
           />
         </div>
       </div>
@@ -94,8 +133,24 @@ export const Step2FinancialInfo: React.FC = () => {
             type="number"
             className="form-input currency-input"
             placeholder="0"
+            value={formData.totalTokens}
+            onChange={(e) => onChange('totalTokens', e.target.value)}
           />
         </div>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Símbolo del token
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
+        </label>
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Escribe el símbolo (Ej: CSK, FIK, LLI)"
+          value={formData.simboloToken}
+          onChange={(e) => onChange('simboloToken', e.target.value)}
+        />
       </div>
 
       <div className="form-group">
@@ -106,7 +161,9 @@ export const Step2FinancialInfo: React.FC = () => {
         <input
           type="text"
           className="form-input"
-          placeholder="Escribe el símbolo (Ej: CSK, FIK,LLI)"
+          placeholder="Escribe el nombre completo del token"
+          value={formData.nombreToken}
+          onChange={(e) => onChange('nombreToken', e.target.value)}
         />
       </div>
 
@@ -132,6 +189,8 @@ export const Step2FinancialInfo: React.FC = () => {
             type="date"
             className="form-input"
             disabled={!presaleEnabled}
+            value={formData.fechaVentaAnticipada}
+            onChange={(e) => onChange('fechaVentaAnticipada', e.target.value)}
           />
         </div>
         <div className="input-with-icon" style={{ marginTop: '12px' }}>
@@ -140,6 +199,8 @@ export const Step2FinancialInfo: React.FC = () => {
             type="time"
             className="form-input"
             disabled={!presaleEnabled}
+            value={formData.horaVentaAnticipada}
+            onChange={(e) => onChange('horaVentaAnticipada', e.target.value)}
           />
         </div>
       </div>
@@ -151,11 +212,21 @@ export const Step2FinancialInfo: React.FC = () => {
         </label>
         <div className="input-with-icon">
           <IonIcon icon={calendarOutline} className="input-icon" />
-          <input type="date" className="form-input" />
+          <input
+            type="date"
+            className="form-input"
+            value={formData.fechaVentaPublica}
+            onChange={(e) => onChange('fechaVentaPublica', e.target.value)}
+          />
         </div>
         <div className="input-with-icon" style={{ marginTop: '12px' }}>
           <IonIcon icon={timeOutline} className="input-icon" />
-          <input type="time" className="form-input" />
+          <input
+            type="time"
+            className="form-input"
+            value={formData.horaVentaPublica}
+            onChange={(e) => onChange('horaVentaPublica', e.target.value)}
+          />
         </div>
       </div>
     </div>
