@@ -680,3 +680,113 @@
 .input-with-tokens .form-input {
   padding-left: 90px !important;
 }
+
+/* Static Preview Sections (Always Visible) */
+.preview-section-static {
+  margin-bottom: 24px;
+}
+
+.preview-section-static .preview-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.preview-section-static .preview-section-text {
+  font-size: 15px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.rights-static-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rights-static-list .preview-section-text {
+  font-size: 15px;
+}
+
+/* FAQs Accordion (Only FAQs are collapsible) */
+.faqs-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.faq-accordion-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.faq-accordion-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.faq-accordion-item.expanded {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.faq-accordion-button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.faq-accordion-button:hover {
+  background: #f8fafc;
+}
+
+.faq-question-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  flex: 1;
+  padding-right: 12px;
+  line-height: 1.4;
+}
+
+.faq-chevron-icon {
+  font-size: 20px;
+  color: #718096;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.faq-answer-content {
+  padding: 0 16px 16px 16px;
+  animation: slideDown 0.3s ease-out;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.faq-answer-content .preview-section-text {
+  padding-top: 14px;
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
