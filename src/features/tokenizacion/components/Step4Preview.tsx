@@ -30,7 +30,7 @@ interface Step4PreviewProps {
   tokenRights: TokenRightDto[];
   tokenFaqs: TokenFaqDto[];
   selectedImage: File | null;
-  selectedDocuments: { id: string; file: File; motivo: string }[];
+  selectedDocuments: { id: string; file?: File; motivo: string }[];
 }
 
 export const Step4Preview: React.FC<Step4PreviewProps> = ({
@@ -292,39 +292,43 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
               >
                 <h3 className="preview-section-title">Documentos</h3>
 
-                {selectedDocuments.length > 0 ? (
+                {selectedDocuments.filter((d) => d.file).length > 0 ? (
                   <div className="document-list">
-                    {selectedDocuments.map((doc) => {
-                      const fileExtension = doc.file.name
-                        .split('.')
-                        .pop()
-                        ?.toLowerCase();
-                      const fileIcon =
-                        fileExtension === 'pdf'
-                          ? '📄'
-                          : fileExtension === 'csv'
-                            ? '📊'
-                            : '🖼️';
-                      const fileSizeMB = (
-                        doc.file.size /
-                        (1024 * 1024)
-                      ).toFixed(1);
+                    {selectedDocuments
+                      .filter((doc) => doc.file)
+                      .map((doc) => {
+                        const fileExtension = doc
+                          .file!.name.split('.')
+                          .pop()
+                          ?.toLowerCase();
+                        const fileIcon =
+                          fileExtension === 'pdf'
+                            ? '📄'
+                            : fileExtension === 'csv'
+                              ? '📊'
+                              : '🖼️';
+                        const fileSizeMB = (
+                          doc.file!.size /
+                          (1024 * 1024)
+                        ).toFixed(1);
 
-                      return (
-                        <div key={doc.id} className="document-list-item">
-                          <div className="document-icon">{fileIcon}</div>
-                          <div className="document-info">
-                            <div className="document-name">{doc.file.name}</div>
-                            <div className="document-desc">
-                              {doc.motivo || 'Documento'}
+                        return (
+                          <div key={doc.id} className="document-list-item">
+                            <div className="document-icon">{fileIcon}</div>
+                            <div className="document-info">
+                              <div className="document-name">
+                                {doc.file!.name}
+                              </div>
+                              <div className="document-desc">
+                                {doc.motivo || 'Documento'}
+                              </div>
+                            </div>
+                            <div className="document-download">
+                              {fileSizeMB} MB
                             </div>
                           </div>
-                          <div className="document-download">
-                            {fileSizeMB} MB
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 ) : (
                   <p className="preview-section-text">

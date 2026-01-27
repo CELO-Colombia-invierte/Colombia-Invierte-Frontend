@@ -11,18 +11,19 @@ import { useIonToast } from '@ionic/react';
 import './StepStyles.css';
 
 interface Step3ContentProps {
-  onImageSelected: (file: File) => void;
+  onImageSelected: (file: File | null) => void;
   onDocumentsChanged: (
-    docs: { id: string; file: File; motivo: string }[]
+    docs: { id: string; file?: File; motivo: string }[]
   ) => void;
   selectedImage: File | null;
-  selectedDocuments: { id: string; file: File; motivo: string }[];
+  selectedDocuments: { id: string; file?: File; motivo: string }[];
 }
 
 export const Step3Content: React.FC<Step3ContentProps> = ({
   onImageSelected,
   onDocumentsChanged,
   selectedImage,
+  selectedDocuments,
 }) => {
   const [present] = useIonToast();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -30,20 +31,18 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
     {}
   );
 
-  const [localDocuments, setLocalDocuments] = React.useState<
-    { id: string; motivo: string; file?: File }[]
-  >([{ id: '1', motivo: '' }]);
+  const documentsWithFiles = selectedDocuments.filter((d) => d.file);
 
   console.log('[Step3] Renderizado:', {
     selectedImage: selectedImage
       ? { name: selectedImage.name, size: selectedImage.size }
       : null,
-    localDocuments: localDocuments.map((d) => ({
+    selectedDocuments: selectedDocuments.map((d) => ({
       id: d.id,
       motivo: d.motivo,
       file: d.file?.name || null,
     })),
-    totalDocumentosConArchivo: localDocuments.filter((d) => d.file).length,
+    totalDocumentosConArchivo: documentsWithFiles.length,
   });
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,25 +68,11 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
   };
 
   const handleDocumentSelect = (docId: string, file: File) => {
-    const doc = localDocuments.find((d) => d.id === docId);
-    if (!doc) return;
-
-    const updatedDocs = localDocuments.map((d) =>
+    const updatedDocs = selectedDocuments.map((d) =>
       d.id === docId ? { ...d, file } : d
     );
-    setLocalDocuments(updatedDocs);
-
-    const docsWithFiles = updatedDocs
-      .filter((d) => d.file)
-      .map((d) => ({
-        id: d.id,
-        file: d.file!,
-        motivo: d.motivo.trim() || d.file!.name,
-      }));
-
     console.log('[Step3] Documento seleccionado:', file.name);
-    onDocumentsChanged(docsWithFiles);
-
+    onDocumentsChanged(updatedDocs);
     present({
       message: 'Documento seleccionado',
       duration: 2000,
@@ -97,44 +82,23 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
 
   const handleAddDocument = () => {
     const newDoc = { id: Date.now().toString(), motivo: '' };
-    setLocalDocuments([...localDocuments, newDoc]);
-    console.log(
-      '[Step3] Documento agregado, total:',
-      localDocuments.length + 1
-    );
+    const updatedDocs = [...selectedDocuments, newDoc];
+    console.log('[Step3] Documento agregado, total:', updatedDocs.length);
+    onDocumentsChanged(updatedDocs);
   };
 
-  const handleUpdateDocument = (id: string, motivo: string) => {
-    const updatedDocs = localDocuments.map((doc) =>
+  const handleUpdateMotivo = (id: string, motivo: string) => {
+    const updatedDocs = selectedDocuments.map((doc) =>
       doc.id === id ? { ...doc, motivo } : doc
     );
-    setLocalDocuments(updatedDocs);
-
-    const docsWithFiles = updatedDocs
-      .filter((d) => d.file)
-      .map((d) => ({
-        id: d.id,
-        file: d.file!,
-        motivo: d.motivo.trim() || d.file!.name,
-      }));
-    onDocumentsChanged(docsWithFiles);
+    onDocumentsChanged(updatedDocs);
   };
 
   const handleRemoveDocument = (id: string) => {
-    if (localDocuments.length > 1) {
-      const updatedDocs = localDocuments.filter((doc) => doc.id !== id);
-      setLocalDocuments(updatedDocs);
-
-      const docsWithFiles = updatedDocs
-        .filter((d) => d.file)
-        .map((d) => ({
-          id: d.id,
-          file: d.file!,
-          motivo: d.motivo.trim() || d.file!.name,
-        }));
-      onDocumentsChanged(docsWithFiles);
-
+    if (selectedDocuments.length > 1) {
+      const updatedDocs = selectedDocuments.filter((doc) => doc.id !== id);
       console.log('[Step3] Documento eliminado, total:', updatedDocs.length);
+      onDocumentsChanged(updatedDocs);
     }
   };
 
@@ -165,7 +129,7 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
             icon={selectedImage ? checkmarkCircle : cloudUploadOutline}
             className="upload-icon"
           />
-          {selectedImage ? 'Imagen seleccionada ✓' : 'Subir archivo'}
+          {selectedImage ? 'Imagen seleccionada' : 'Subir archivo'}
         </button>
 
         {selectedImage && (
@@ -193,7 +157,7 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
 
-        {localDocuments.map((doc) => (
+        {selectedDocuments.map((doc) => (
           <div
             key={doc.id}
             className="document-item"
@@ -205,11 +169,11 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
                 className="form-input"
                 placeholder="Motivo del documento (opcional)..."
                 value={doc.motivo}
-                onChange={(e) => handleUpdateDocument(doc.id, e.target.value)}
+                onChange={(e) => handleUpdateMotivo(doc.id, e.target.value)}
                 style={{ flex: 1 }}
               />
 
-              {localDocuments.length > 1 && !doc.file && (
+              {selectedDocuments.length > 1 && !doc.file && (
                 <button
                   type="button"
                   onClick={() => handleRemoveDocument(doc.id)}
@@ -252,7 +216,7 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
                 icon={doc.file ? checkmarkCircle : cloudUploadOutline}
                 className="upload-icon"
               />
-              {doc.file ? 'Documento seleccionado ✓' : 'Subir archivo'}
+              {doc.file ? 'Documento seleccionado' : 'Subir archivo'}
             </button>
 
             {doc.file && (

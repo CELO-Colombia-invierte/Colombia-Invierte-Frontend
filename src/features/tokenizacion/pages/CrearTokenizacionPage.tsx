@@ -85,8 +85,8 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<
-    { id: string; file: File; motivo: string }[]
-  >([]);
+    { id: string; file?: File; motivo: string }[]
+  >([{ id: '1', motivo: '' }]);
 
   const [tokenRights, setTokenRights] = useState<TokenRightDto[]>([
     { id: '1', title: '' },
@@ -252,19 +252,23 @@ const CrearTokenizacionPage: React.FC = () => {
         console.log('[CrearTokenizacion] Imagen subida:', uploadedImage);
       }
 
-      if (selectedDocuments.length > 0) {
-        for (let i = 0; i < selectedDocuments.length; i++) {
-          const doc = selectedDocuments[i];
+      const documentsWithFiles = selectedDocuments.filter((d) => d.file);
+      if (documentsWithFiles.length > 0) {
+        for (let i = 0; i < documentsWithFiles.length; i++) {
+          const doc = documentsWithFiles[i];
           await dismissLoading();
           await presentLoading({
-            message: `Subiendo documento ${i + 1}/${selectedDocuments.length}...`,
+            message: `Subiendo documento ${i + 1}/${documentsWithFiles.length}...`,
           });
-          console.log('[CrearTokenizacion] Subiendo documento:', doc.file.name);
+          console.log(
+            '[CrearTokenizacion] Subiendo documento:',
+            doc.file!.name
+          );
 
           const uploadedDoc = await projectsService.uploadDocument(
             projectId,
-            doc.file,
-            doc.motivo || doc.file.name,
+            doc.file!,
+            doc.motivo || doc.file!.name,
             'GENERAL',
             doc.motivo
           );
@@ -287,7 +291,7 @@ const CrearTokenizacionPage: React.FC = () => {
         nombre: project.name,
         id: project.id,
         imagen: selectedImage ? 'Si' : 'No',
-        documentos: selectedDocuments.length,
+        documentos: documentsWithFiles.length,
         derechos: rightsFiltered.length,
         faqs: faqsFiltered.length,
       });
