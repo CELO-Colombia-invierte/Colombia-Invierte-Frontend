@@ -44,7 +44,6 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
   monedaToken,
   totalTokens,
   simboloToken,
-  nombreToken,
   tokenRights,
   tokenFaqs,
   selectedImage,
@@ -162,7 +161,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                   <h4 className="preview-section-title">Derechos del token</h4>
                   {rightsFiltered.length > 0 ? (
                     <div className="rights-static-list">
-                      {rightsFiltered.map((right, index) => (
+                      {rightsFiltered.map((right) => (
                         <p key={right.id} className="preview-section-text">
                           {right.title}
                         </p>

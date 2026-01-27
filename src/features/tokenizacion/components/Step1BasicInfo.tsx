@@ -40,7 +40,6 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   onTokenRightsChange,
   onTokenFaqsChange,
 }) => {
-
   const handleAddRight = () => {
     const newRight = { id: Date.now().toString(), title: '' };
     onTokenRightsChange([...tokenRights, newRight]);
@@ -200,7 +199,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           Derechos del token
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
-        {tokenRights.map((right, index) => (
+        {tokenRights.map((right) => (
           <div key={right.id} style={{ marginBottom: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
@@ -243,7 +242,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           Preguntas frecuentes
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
-        {tokenFaqs.map((faq, index) => (
+        {tokenFaqs.map((faq) => (
           <div key={faq.id} style={{ marginBottom: '16px' }}>
             <div
               style={{
