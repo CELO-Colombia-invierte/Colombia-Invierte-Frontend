@@ -271,7 +271,11 @@ const CrearTokenizacionPage: React.FC = () => {
   };
 
   const handleFinish = () => {
-    history.push('/portafolio');
+    if (createdTokenizacion?.id) {
+      history.replace(`/inversiones/${createdTokenizacion.id}`);
+    } else {
+      history.replace('/portafolio');
+    }
   };
 
   const handleCopyLink = async () => {

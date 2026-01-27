@@ -248,9 +248,9 @@ const CrearNatilleraPage: React.FC = () => {
 
   const handleFinish = () => {
     if (createdNatillera?.id) {
-      history.push(`/natillera/${createdNatillera.id}`);
+      history.replace(`/inversiones/${createdNatillera.id}`);
     } else {
-      history.push('/portafolio');
+      history.replace('/portafolio');
     }
   };
 
