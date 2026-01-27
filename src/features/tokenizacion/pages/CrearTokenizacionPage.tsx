@@ -318,6 +318,28 @@ const CrearTokenizacionPage: React.FC = () => {
     history.push('/portafolio');
   };
 
+  const handleCopyLink = async () => {
+    if (!createdTokenizacion?.share_slug) return;
+
+    const shareLink = `${window.location.origin}/tokenizacion/${createdTokenizacion.share_slug}`;
+
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      await present({
+        message: 'Link copiado al portapapeles',
+        duration: 2000,
+        color: 'success',
+      });
+    } catch (error) {
+      console.error('[CrearTokenizacion] Error al copiar link:', error);
+      await present({
+        message: 'Error al copiar el link',
+        duration: 2000,
+        color: 'danger',
+      });
+    }
+  };
+
   const getProgressWidth = () => {
     const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
     return `${progressPercentage}%`;
@@ -431,7 +453,26 @@ const CrearTokenizacionPage: React.FC = () => {
               )}
             </>
           ) : (
-            <Step4Success />
+            <Step4Success
+              tokenizacionName={formData.nombreProyecto}
+              userName="UserName"
+              description={formData.descripcion}
+              aspectosDestacados={formData.aspectosDestacados}
+              privacidad={formData.privacidad}
+              invitarAmigos={formData.invitarAmigos}
+              shareLink={
+                createdTokenizacion?.share_slug
+                  ? `${window.location.origin}/tokenizacion/${createdTokenizacion.share_slug}`
+                  : ''
+              }
+              onPrivacidadChange={(value) =>
+                handleFieldChange('privacidad', value)
+              }
+              onInvitarAmigosChange={(value) =>
+                handleFieldChange('invitarAmigos', value)
+              }
+              onCopyLink={handleCopyLink}
+            />
           )}
         </div>
 
