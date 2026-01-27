@@ -24,12 +24,11 @@ interface Step4PreviewProps {
   aspectosDestacados: string;
   formData: FormData;
   selectedImage: File | null;
-  selectedDocuments: { id: string; file: File; motivo: string }[];
+  selectedDocuments: { id: string; file?: File; motivo: string }[];
 }
 
 export const Step4Preview: React.FC<Step4PreviewProps> = ({
   natilleraName,
-  userName,
   description,
   aspectosDestacados,
   formData,
@@ -94,7 +93,6 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 <h3 className="preview-name">
                   {natilleraName || 'NatilleraName #145'}
                 </h3>
-                <div className="preview-user">{userName || 'UserName'} ✓</div>
 
                 <div className="preview-section">
                   <h4 className="preview-section-title">
@@ -196,41 +194,45 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
 
                 {selectedDocuments.length > 0 ? (
                   <div className="document-list">
-                    {selectedDocuments.map((doc) => {
-                      const fileExtension = doc.file.name
-                        .split('.')
-                        .pop()
-                        ?.toLowerCase();
-                      const getIcon = () => {
-                        if (fileExtension === 'pdf') return '📄';
-                        if (
-                          ['jpg', 'jpeg', 'png', 'gif'].includes(
-                            fileExtension || ''
+                    {selectedDocuments
+                      .filter((doc) => doc.file)
+                      .map((doc) => {
+                        const fileExtension = doc
+                          .file!.name.split('.')
+                          .pop()
+                          ?.toLowerCase();
+                        const getIcon = () => {
+                          if (fileExtension === 'pdf') return '📄';
+                          if (
+                            ['jpg', 'jpeg', 'png', 'gif'].includes(
+                              fileExtension || ''
+                            )
                           )
-                        )
-                          return '🖼️';
-                        if (
-                          ['csv', 'xlsx', 'xls'].includes(fileExtension || '')
-                        )
-                          return '📊';
-                        return '📎';
-                      };
+                            return '🖼️';
+                          if (
+                            ['csv', 'xlsx', 'xls'].includes(fileExtension || '')
+                          )
+                            return '📊';
+                          return '📎';
+                        };
 
-                      return (
-                        <div key={doc.id} className="document-list-item">
-                          <div className="document-icon">{getIcon()}</div>
-                          <div className="document-info">
-                            <div className="document-name">{doc.file.name}</div>
-                            <div className="document-desc">
-                              {doc.motivo || 'Sin descripción'}
+                        return (
+                          <div key={doc.id} className="document-list-item">
+                            <div className="document-icon">{getIcon()}</div>
+                            <div className="document-info">
+                              <div className="document-name">
+                                {doc.file!.name}
+                              </div>
+                              <div className="document-desc">
+                                {doc.motivo || 'Sin descripción'}
+                              </div>
                             </div>
+                            <button className="document-download">
+                              {(doc.file!.size / 1024).toFixed(1)} KB
+                            </button>
                           </div>
-                          <button className="document-download">
-                            {(doc.file.size / 1024).toFixed(1)} KB
-                          </button>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 ) : (
                   <p

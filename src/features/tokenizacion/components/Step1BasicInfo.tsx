@@ -1,9 +1,85 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
-import { informationCircleOutline, happyOutline } from 'ionicons/icons';
+import {
+  informationCircleOutline,
+  happyOutline,
+  closeCircle,
+} from 'ionicons/icons';
 import './StepStyles.css';
 
-export const Step1BasicInfo: React.FC = () => {
+interface TokenRightDto {
+  id: string;
+  title: string;
+}
+
+interface TokenFaqDto {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+interface Step1BasicInfoProps {
+  formData: {
+    tipoProyecto: string;
+    nombreProyecto: string;
+    descripcion: string;
+    aspectosDestacados: string;
+  };
+  tokenRights: TokenRightDto[];
+  tokenFaqs: TokenFaqDto[];
+  onChange: (field: string, value: string) => void;
+  onTokenRightsChange: (rights: TokenRightDto[]) => void;
+  onTokenFaqsChange: (faqs: TokenFaqDto[]) => void;
+}
+
+export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
+  formData,
+  tokenRights,
+  tokenFaqs,
+  onChange,
+  onTokenRightsChange,
+  onTokenFaqsChange,
+}) => {
+  const handleAddRight = () => {
+    const newRight = { id: Date.now().toString(), title: '' };
+    onTokenRightsChange([...tokenRights, newRight]);
+  };
+
+  const handleUpdateRight = (id: string, title: string) => {
+    const updated = tokenRights.map((right) =>
+      right.id === id ? { ...right, title } : right
+    );
+    onTokenRightsChange(updated);
+  };
+
+  const handleRemoveRight = (id: string) => {
+    if (tokenRights.length > 1) {
+      onTokenRightsChange(tokenRights.filter((right) => right.id !== id));
+    }
+  };
+
+  const handleAddFaq = () => {
+    const newFaq = { id: Date.now().toString(), question: '', answer: '' };
+    onTokenFaqsChange([...tokenFaqs, newFaq]);
+  };
+
+  const handleUpdateFaq = (
+    id: string,
+    field: 'question' | 'answer',
+    value: string
+  ) => {
+    const updated = tokenFaqs.map((faq) =>
+      faq.id === id ? { ...faq, [field]: value } : faq
+    );
+    onTokenFaqsChange(updated);
+  };
+
+  const handleRemoveFaq = (id: string) => {
+    if (tokenFaqs.length > 1) {
+      onTokenFaqsChange(tokenFaqs.filter((faq) => faq.id !== id));
+    }
+  };
+
   return (
     <div className="step-content">
       <div className="form-group">
@@ -12,9 +88,13 @@ export const Step1BasicInfo: React.FC = () => {
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <div className="select-wrapper">
-          <select className="form-select">
-            <option>Tokenización</option>
-            <option>Natillera</option>
+          <select
+            className="form-select"
+            value={formData.tipoProyecto}
+            onChange={(e) => onChange('tipoProyecto', e.target.value)}
+          >
+            <option value="Tokenización">Tokenización</option>
+            <option value="Natillera">Natillera</option>
           </select>
         </div>
       </div>
@@ -32,6 +112,8 @@ export const Step1BasicInfo: React.FC = () => {
             type="text"
             className="form-input"
             placeholder="Escribe el nombre..."
+            value={formData.nombreProyecto}
+            onChange={(e) => onChange('nombreProyecto', e.target.value)}
           />
         </div>
       </div>
@@ -65,7 +147,12 @@ export const Step1BasicInfo: React.FC = () => {
               ☰
             </button>
           </div>
-          <textarea className="form-textarea" rows={4}></textarea>
+          <textarea
+            className="form-textarea"
+            rows={4}
+            value={formData.descripcion}
+            onChange={(e) => onChange('descripcion', e.target.value)}
+          ></textarea>
         </div>
       </div>
 
@@ -98,7 +185,12 @@ export const Step1BasicInfo: React.FC = () => {
               ☰
             </button>
           </div>
-          <textarea className="form-textarea" rows={4}></textarea>
+          <textarea
+            className="form-textarea"
+            rows={4}
+            value={formData.aspectosDestacados}
+            onChange={(e) => onChange('aspectosDestacados', e.target.value)}
+          ></textarea>
         </div>
       </div>
 
@@ -107,12 +199,40 @@ export const Step1BasicInfo: React.FC = () => {
           Derechos del token
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
-        <input
-          type="text"
-          className="form-input"
-          placeholder="Escribe por ítem..."
-        />
-        <button type="button" className="add-space-button">
+        {tokenRights.map((right) => (
+          <div key={right.id} style={{ marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Escribe por ítem..."
+                value={right.title}
+                onChange={(e) => handleUpdateRight(right.id, e.target.value)}
+                style={{ flex: 1 }}
+              />
+              {tokenRights.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveRight(right.id)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '8px',
+                  }}
+                >
+                  <IonIcon icon={closeCircle} style={{ fontSize: '24px' }} />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="add-space-button"
+          onClick={handleAddRight}
+        >
           + Añadir slot
         </button>
       </div>
@@ -122,30 +242,62 @@ export const Step1BasicInfo: React.FC = () => {
           Preguntas frecuentes
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
-        <input
-          type="text"
-          className="form-input"
-          placeholder="Escriba la pregunta..."
-        />
-        <div style={{ marginTop: '12px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '8px',
-            }}
-          >
-            <span style={{ fontSize: '20px' }}>•</span>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Escribe la respuesta..."
-              style={{ margin: 0 }}
-            />
+        {tokenFaqs.map((faq) => (
+          <div key={faq.id} style={{ marginBottom: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px',
+              }}
+            >
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Escriba la pregunta..."
+                value={faq.question}
+                onChange={(e) =>
+                  handleUpdateFaq(faq.id, 'question', e.target.value)
+                }
+                style={{ flex: 1 }}
+              />
+              {tokenFaqs.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveFaq(faq.id)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '8px',
+                  }}
+                >
+                  <IonIcon icon={closeCircle} style={{ fontSize: '24px' }} />
+                </button>
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>•</span>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Escribe la respuesta..."
+                value={faq.answer}
+                onChange={(e) =>
+                  handleUpdateFaq(faq.id, 'answer', e.target.value)
+                }
+                style={{ flex: 1, margin: 0 }}
+              />
+            </div>
           </div>
-        </div>
-        <button type="button" className="add-space-button">
+        ))}
+        <button
+          type="button"
+          className="add-space-button"
+          onClick={handleAddFaq}
+        >
           + Añadir slot
         </button>
       </div>

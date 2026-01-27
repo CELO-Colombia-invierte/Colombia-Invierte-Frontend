@@ -49,14 +49,16 @@ const PortafolioPage: React.FC = () => {
       name: project.name,
       type: isNatillera ? 'natillera' : 'tokenizacion',
       changePercentage:
-        project.natillera_details?.expected_annual_return_pct || 0,
+        project.natillera_details?.expected_annual_return_pct ||
+        project.tokenization_details?.expected_annual_return_pct ||
+        0,
       period: 'Anual',
       participants: 0,
       avatars: [],
       gradient: gradientList[index % gradientList.length],
       amount: project.tokenization_details?.asset_value_amount,
-      description: undefined, 
-      emoji: isNatillera ? undefined : '🏠',
+      description: project.description_rich?.substring(0, 50) || undefined,
+      emoji: undefined,
     };
   });
 
@@ -95,7 +97,10 @@ const PortafolioPage: React.FC = () => {
         <IonContent fullscreen className="portafolio-page-content">
           <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
           <DateHeader />
-          <PortfolioGrid projects={projects} onProjectClick={handleProjectClick}>
+          <PortfolioGrid
+            projects={projects}
+            onProjectClick={handleProjectClick}
+          >
             <NewProjectCard onClick={handleNewProject} />
           </PortfolioGrid>
         </IonContent>

@@ -45,6 +45,13 @@
   border-color: #4a90e2;
 }
 
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f7fafc;
+  color: #a0aec0;
+}
+
 .form-input::placeholder {
   color: #a0aec0;
 }
@@ -208,6 +215,8 @@
 .currency-input-wrapper {
   flex: 1;
   position: relative;
+  min-width: 0;
+  overflow: visible;
 }
 
 .currency-prefix,
@@ -231,7 +240,10 @@
 }
 
 .currency-input {
-  padding-left: 56px;
+  padding-left: 70px !important;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-with-prefix {
@@ -239,7 +251,18 @@
 }
 
 .input-with-prefix .form-input {
-  padding-left: 56px;
+  padding-left: 60px;
+}
+
+/* Para inputs con prefijos largos como "Tokens" */
+.input-with-prefix .input-prefix {
+  min-width: 52px;
+  text-align: left;
+}
+
+.input-with-prefix:has(.input-prefix:contains('Tokens')) .form-input,
+.input-with-prefix .form-input[type='number']:nth-of-type(4) {
+  padding-left: 76px; /* Más espacio para "Tokens" */
 }
 
 .input-with-icon {
@@ -646,4 +669,165 @@
 
 .toggle-switch input:checked + .toggle-slider-round:before {
   transform: translateX(24px);
+}
+
+/* Input específico para Tokens - más padding */
+.input-with-tokens .input-prefix {
+  min-width: 70px;
+  padding: 0 12px;
+}
+
+.input-with-tokens .form-input {
+  padding-left: 90px !important;
+}
+
+/* Static Preview Sections (Always Visible) */
+.preview-section-static {
+  margin-bottom: 24px;
+}
+
+.preview-section-static .preview-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.preview-section-static .preview-section-text {
+  font-size: 15px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.rights-static-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rights-static-list .preview-section-text {
+  font-size: 15px;
+}
+
+/* FAQs Accordion (Only FAQs are collapsible) */
+.faqs-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.faq-accordion-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.faq-accordion-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.faq-accordion-item.expanded {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.faq-accordion-button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.faq-accordion-button:hover {
+  background: #f8fafc;
+}
+
+.faq-question-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  flex: 1;
+  padding-right: 12px;
+  line-height: 1.4;
+}
+
+.faq-chevron-icon {
+  font-size: 20px;
+  color: #718096;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.faq-answer-content {
+  padding: 0 16px 16px 16px;
+  animation: slideDown 0.3s ease-out;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.faq-answer-content .preview-section-text {
+  padding-top: 14px;
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Remove Image/Document Button Styles */
+.image-preview-container {
+  position: relative;
+  margin-top: 16px;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.remove-image-button:hover {
+  background: rgba(220, 38, 38, 1);
+  transform: scale(1.1);
+}
+
+.document-info-container {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  background: #f7fafc;
+  border-radius: 8px;
 }
