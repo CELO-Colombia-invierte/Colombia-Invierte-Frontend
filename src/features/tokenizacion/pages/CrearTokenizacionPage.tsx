@@ -97,8 +97,6 @@ const CrearTokenizacionPage: React.FC = () => {
     { id: '1', question: '', answer: '' },
   ]);
 
-  console.log('[CrearTokenizacion] Estado inicial cargado');
-
   const totalSteps = 4;
 
   const stepTitles = [
@@ -110,26 +108,18 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handleFieldChange = (field: string, value: string) => {
     const updatedFormData = { ...formData, [field]: value };
-    console.log('[CrearTokenizacion] handleFieldChange:', {
-      field,
-      value,
-      formData: updatedFormData,
-    });
     setFormData(updatedFormData);
   };
 
   const handleTokenRightsChange = (rights: TokenRightDto[]) => {
-    console.log('[CrearTokenizacion] tokenRights actualizado:', rights);
     setTokenRights(rights);
   };
 
   const handleTokenFaqsChange = (faqs: TokenFaqDto[]) => {
-    console.log('[CrearTokenizacion] tokenFaqs actualizado:', faqs);
     setTokenFaqs(faqs);
   };
 
   const handleClose = () => {
-    console.log('[CrearTokenizacion] handleClose');
     history.push('/portafolio');
   };
 
@@ -139,9 +129,6 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
-      console.log('[CrearTokenizacion] handleNext:', {
-        currentStep: currentStep + 1,
-      });
       setCurrentStep(currentStep + 1);
       scrollToTop();
     }
@@ -149,9 +136,6 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      console.log('[CrearTokenizacion] handlePrevious:', {
-        currentStep: currentStep - 1,
-      });
       setCurrentStep(currentStep - 1);
       scrollToTop();
     }
@@ -159,15 +143,6 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handleCreateTokenizacion = async () => {
     try {
-      console.log('[CrearTokenizacion] Iniciando creacion con backend');
-      console.log('[CrearTokenizacion] Datos:', {
-        formData,
-        tokenRights,
-        tokenFaqs,
-        selectedImage: selectedImage?.name || null,
-        selectedDocuments: selectedDocuments.length,
-      });
-
       const valorActivo = parseFloat(formData.valorActivo);
       const rendimiento = parseFloat(formData.rendimiento);
       const precioPorToken = parseFloat(formData.precioPorToken);
@@ -248,15 +223,13 @@ const CrearTokenizacionPage: React.FC = () => {
       if (selectedImage) {
         await dismissLoading();
         await presentLoading({ message: 'Subiendo imagen miniatura...' });
-        console.log('[CrearTokenizacion] Subiendo imagen:', selectedImage.name);
 
-        const uploadedImage = await projectsService.uploadImage(
+        await projectsService.uploadImage(
           projectId,
           selectedImage,
           true,
           'Miniatura de tokenizacion'
         );
-        console.log('[CrearTokenizacion] Imagen subida:', uploadedImage);
       }
 
       const documentsWithFiles = selectedDocuments.filter((d) => d.file);
@@ -267,19 +240,14 @@ const CrearTokenizacionPage: React.FC = () => {
           await presentLoading({
             message: `Subiendo documento ${i + 1}/${documentsWithFiles.length}...`,
           });
-          console.log(
-            '[CrearTokenizacion] Subiendo documento:',
-            doc.file!.name
-          );
 
-          const uploadedDoc = await projectsService.uploadDocument(
+          await projectsService.uploadDocument(
             projectId,
             doc.file!,
             doc.motivo || doc.file!.name,
             'GENERAL',
             doc.motivo
           );
-          console.log('[CrearTokenizacion] Documento subido:', uploadedDoc);
         }
       }
 
@@ -292,18 +260,7 @@ const CrearTokenizacionPage: React.FC = () => {
         duration: 2000,
         color: 'success',
       });
-
-      console.log('[CrearTokenizacion] Proceso completado exitosamente');
-      console.log('[CrearTokenizacion] Resumen:', {
-        nombre: project.name,
-        id: project.id,
-        imagen: selectedImage ? 'Si' : 'No',
-        documentos: documentsWithFiles.length,
-        derechos: rightsFiltered.length,
-        faqs: faqsFiltered.length,
-      });
     } catch (error: any) {
-      console.log('[CrearTokenizacion] Error al crear:', error.message);
       await dismissLoading();
       await present({
         message: error.message || 'Error al crear la tokenizacion',
@@ -314,7 +271,6 @@ const CrearTokenizacionPage: React.FC = () => {
   };
 
   const handleFinish = () => {
-    console.log('[CrearTokenizacion] handleFinish');
     history.push('/portafolio');
   };
 

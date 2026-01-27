@@ -40,7 +40,6 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   onTokenRightsChange,
   onTokenFaqsChange,
 }) => {
-  console.log('[Step1] Renderizado:', { formData, tokenRights, tokenFaqs });
 
   const handleAddRight = () => {
     const newRight = { id: Date.now().toString(), title: '' };

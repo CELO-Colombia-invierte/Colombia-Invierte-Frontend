@@ -113,14 +113,6 @@ const CrearNatilleraPage: React.FC = () => {
     try {
       const documentsWithFiles = selectedDocuments.filter((d) => d.file);
 
-      console.log(' INICIANDO CREACIÓN DE NATILLERA ');
-      console.log(' Datos del formulario:', formData);
-      console.log(' Imagen seleccionada:', selectedImage?.name);
-      console.log(
-        'Documentos seleccionados:',
-        documentsWithFiles.map((d) => d.file!.name)
-      );
-
       const valorCuota = parseFloat(formData.valorCuota);
       const rendimiento = parseFloat(formData.rendimiento);
       const cantidadMeses = parseInt(formData.cantidadMeses);
@@ -176,27 +168,18 @@ const CrearNatilleraPage: React.FC = () => {
       };
 
       const project = await projectsService.create(natilleraData);
-      console.log(' Proyecto creado:', project);
-      console.log(' Project ID:', project.id);
-      console.log(
-        ' Creado por:',
-        project.owner_user?.displayName || project.owner_user?.username
-      );
-
       const projectId = project.id;
 
       if (selectedImage) {
         await dismissLoading();
         await presentLoading({ message: 'Subiendo imagen miniatura...' });
-        console.log(' Subiendo imagen:', selectedImage.name);
 
-        const uploadedImage = await projectsService.uploadImage(
+        await projectsService.uploadImage(
           projectId,
           selectedImage,
           true,
           'Miniatura de la natillera'
         );
-        console.log(' Imagen subida:', uploadedImage);
       }
       if (documentsWithFiles.length > 0) {
         for (let i = 0; i < documentsWithFiles.length; i++) {
@@ -205,16 +188,14 @@ const CrearNatilleraPage: React.FC = () => {
           await presentLoading({
             message: `Subiendo documento ${i + 1}/${documentsWithFiles.length}...`,
           });
-          console.log(` Subiendo documento ${i + 1}:`, doc.file!.name);
 
-          const uploadedDoc = await projectsService.uploadDocument(
+          await projectsService.uploadDocument(
             projectId,
             doc.file!,
             doc.motivo || doc.file!.name,
             'GENERAL',
             doc.motivo
           );
-          console.log(`Documento ${i + 1} subido:`, uploadedDoc);
         }
       }
 
@@ -227,16 +208,7 @@ const CrearNatilleraPage: React.FC = () => {
         duration: 2000,
         color: 'success',
       });
-
-      console.log(' NATILLERA CREADA EXITOSAMENTE ');
-      console.log(' Resumen:');
-      console.log('   Nombre:', project.name);
-      console.log('   ID:', project.id);
-      console.log('   Creador:', project.owner_user?.displayName);
-      console.log('   Imagen subida:', selectedImage ? 'Sí' : 'No');
-      console.log('   Documentos subidos:', selectedDocuments.length);
     } catch (error: any) {
-      console.error('❌ Error al crear natillera:', error);
       await dismissLoading();
       await present({
         message: error.message || 'Error al crear la natillera',

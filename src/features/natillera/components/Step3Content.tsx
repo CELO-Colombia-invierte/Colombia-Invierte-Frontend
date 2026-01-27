@@ -34,18 +34,6 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
 
   const documentsWithFiles = selectedDocuments.filter((d) => d.file);
 
-  console.log('[Step3] Renderizado:', {
-    selectedImage: selectedImage
-      ? { name: selectedImage.name, size: selectedImage.size }
-      : null,
-    selectedDocuments: selectedDocuments.map((d) => ({
-      id: d.id,
-      motivo: d.motivo,
-      file: d.file?.name || null,
-    })),
-    totalDocumentosConArchivo: documentsWithFiles.length,
-  });
-
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -59,7 +47,6 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
       return;
     }
 
-    console.log('[Step3] Imagen seleccionada:', file.name);
     onImageSelected(file);
     present({
       message: 'Imagen seleccionada',
@@ -72,7 +59,6 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
     const updatedDocs = selectedDocuments.map((d) =>
       d.id === docId ? { ...d, file } : d
     );
-    console.log('[Step3] Documento seleccionado:', file.name);
     onDocumentsChanged(updatedDocs);
     present({
       message: 'Documento seleccionado',
@@ -84,7 +70,6 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
   const handleAddDocument = () => {
     const newDoc = { id: Date.now().toString(), motivo: '' };
     const updatedDocs = [...selectedDocuments, newDoc];
-    console.log('[Step3] Documento agregado, total:', updatedDocs.length);
     onDocumentsChanged(updatedDocs);
   };
 
@@ -98,7 +83,6 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
   const handleRemoveDocument = (id: string) => {
     if (selectedDocuments.length > 1) {
       const updatedDocs = selectedDocuments.filter((doc) => doc.id !== id);
-      console.log('[Step3] Documento eliminado, total:', updatedDocs.length);
       onDocumentsChanged(updatedDocs);
     }
   };

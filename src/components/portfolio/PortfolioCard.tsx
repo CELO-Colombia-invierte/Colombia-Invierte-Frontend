@@ -74,33 +74,34 @@ export const PortfolioCard: React.FC<PortfolioCardProps> = ({
         </>
       ) : (
         <>
-          <div className="portfolio-card-tokenization-content">
-            <div className="portfolio-card-amount-section">
-              <span className="portfolio-card-amount">
-                {formatAmount(project.amount)}
-              </span>
-              {project.description && (
-                <span className="portfolio-card-description">
-                  {project.description}
+          <div className="portfolio-card-header">
+            <h3 className="portfolio-card-name">{project.name}</h3>
+            {project.changePercentage !== undefined && (
+              <div
+                className={`portfolio-card-badge ${project.changePercentage >= 0 ? 'positive' : 'negative'}`}
+              >
+                {project.changePercentage >= 0 ? '+' : ''}
+                {project.changePercentage}%
+              </div>
+            )}
+            {project.period && (
+              <div className="portfolio-card-period">{project.period}</div>
+            )}
+          </div>
+          {project.amount && (
+            <div className="portfolio-card-tokenization-content">
+              <div className="portfolio-card-amount-section">
+                <span className="portfolio-card-amount">
+                  {formatAmount(project.amount)}
                 </span>
-              )}
-            </div>
-            <div className="portfolio-card-bottom">
-              <div className="portfolio-card-badge-wrapper">
-                {project.changePercentage !== undefined && (
-                  <div
-                    className={`portfolio-card-badge ${project.changePercentage >= 0 ? 'positive' : 'negative'}`}
-                  >
-                    {project.changePercentage >= 0 ? '+' : ''}
-                    {project.changePercentage}%
-                  </div>
+                {project.description && (
+                  <span className="portfolio-card-description">
+                    {project.description}
+                  </span>
                 )}
               </div>
-              {project.emoji && (
-                <div className="portfolio-card-emoji">{project.emoji}</div>
-              )}
             </div>
-          </div>
+          )}
         </>
       )}
     </div>

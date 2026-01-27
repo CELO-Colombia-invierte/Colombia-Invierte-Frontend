@@ -139,7 +139,6 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 <h3 className="preview-name">
                   {projectName || 'ProjectName #145'}
                 </h3>
-                <div className="preview-user">UserName ✓</div>
 
                 <div className="preview-section-static">
                   <h4 className="preview-section-title">

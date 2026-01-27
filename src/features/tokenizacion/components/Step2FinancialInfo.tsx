@@ -30,7 +30,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   formData,
   onChange,
 }) => {
-  console.log('[Step2] Renderizado:', { formData });
+
 
   const [currency, setCurrency] = useState<'COP' | 'USD'>(
     (formData.moneda as 'COP' | 'USD') || 'COP'
