@@ -6,6 +6,7 @@ import {
   addOutline,
   closeCircle,
   checkmarkCircle,
+  closeOutline,
 } from 'ionicons/icons';
 import { useIonToast } from '@ionic/react';
 import './StepStyles.css';
@@ -133,7 +134,25 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
         </button>
 
         {selectedImage && (
-          <div className="image-preview" style={{ marginTop: '16px' }}>
+          <div
+            className="image-preview-container"
+            style={{ marginTop: '16px', position: 'relative' }}
+          >
+            <button
+              type="button"
+              className="remove-image-button"
+              onClick={() => {
+                onImageSelected(null);
+                if (imageInputRef.current) {
+                  imageInputRef.current.value = '';
+                }
+              }}
+            >
+              <IonIcon
+                icon={closeOutline}
+                style={{ fontSize: '20px', color: '#fff' }}
+              />
+            </button>
             <img
               src={URL.createObjectURL(selectedImage)}
               alt="Miniatura"
@@ -205,11 +224,9 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
               type="button"
               className="upload-button"
               onClick={() => documentInputRefs.current[doc.id]?.click()}
-              disabled={!!doc.file}
               style={{
                 marginTop: '12px',
                 backgroundColor: doc.file ? '#10b981' : undefined,
-                cursor: doc.file ? 'not-allowed' : 'pointer',
               }}
             >
               <IonIcon
@@ -221,19 +238,53 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
 
             {doc.file && (
               <div
-                className="document-info"
+                className="document-info-container"
                 style={{
                   marginTop: '8px',
                   fontSize: '12px',
                   color: '#666',
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'space-between',
                   gap: '8px',
+                  padding: '8px',
+                  background: '#f7fafc',
+                  borderRadius: '8px',
                 }}
               >
-                <span>📄</span>
-                <span>{doc.file.name}</span>
-                <span>({(doc.file.size / 1024).toFixed(1)} KB)</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    flex: 1,
+                  }}
+                >
+                  <span>📄</span>
+                  <span>{doc.file.name}</span>
+                  <span>({(doc.file.size / 1024).toFixed(1)} KB)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updatedDocs = selectedDocuments.map((d) =>
+                      d.id === doc.id ? { ...d, file: undefined } : d
+                    );
+                    onDocumentsChanged(updatedDocs);
+                    if (documentInputRefs.current[doc.id]) {
+                      documentInputRefs.current[doc.id]!.value = '';
+                    }
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                >
+                  <IonIcon icon={closeCircle} style={{ fontSize: '20px' }} />
+                </button>
               </div>
             )}
           </div>

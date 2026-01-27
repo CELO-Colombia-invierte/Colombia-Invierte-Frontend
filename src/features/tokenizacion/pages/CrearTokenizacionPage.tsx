@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
@@ -55,6 +55,7 @@ const CrearTokenizacionPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
+  const contentRef = useRef<HTMLIonContentElement>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -132,12 +133,17 @@ const CrearTokenizacionPage: React.FC = () => {
     history.push('/portafolio');
   };
 
+  const scrollToTop = () => {
+    contentRef.current?.scrollToTop(300);
+  };
+
   const handleNext = () => {
     if (currentStep < totalSteps) {
       console.log('[CrearTokenizacion] handleNext:', {
         currentStep: currentStep + 1,
       });
       setCurrentStep(currentStep + 1);
+      scrollToTop();
     }
   };
 
@@ -147,6 +153,7 @@ const CrearTokenizacionPage: React.FC = () => {
         currentStep: currentStep - 1,
       });
       setCurrentStep(currentStep - 1);
+      scrollToTop();
     }
   };
 
@@ -318,7 +325,12 @@ const CrearTokenizacionPage: React.FC = () => {
 
   return (
     <IonPage className="ion-page-light">
-      <IonContent fullscreen className="crear-natillera-page" color="light">
+      <IonContent
+        ref={contentRef}
+        fullscreen
+        className="crear-natillera-page"
+        color="light"
+      >
         <div className="page-header">
           <button className="header-back-button" onClick={handleClose}>
             <IonIcon icon={arrowBackOutline} />

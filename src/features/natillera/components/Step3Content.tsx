@@ -6,24 +6,25 @@ import {
   addOutline,
   closeCircle,
   checkmarkCircle,
+  closeOutline,
 } from 'ionicons/icons';
 import { useIonToast } from '@ionic/react';
 import './StepStyles.css';
 
 interface Step3ContentProps {
-  onImageSelected: (file: File) => void;
+  onImageSelected: (file: File | null) => void;
   onDocumentsChanged: (
-    docs: { id: string; file: File; motivo: string }[]
+    docs: { id: string; file?: File; motivo: string }[]
   ) => void;
   selectedImage: File | null;
-  selectedDocuments: { id: string; file: File; motivo: string }[];
+  selectedDocuments: { id: string; file?: File; motivo: string }[];
 }
 
 export const Step3Content: React.FC<Step3ContentProps> = ({
   onImageSelected,
   onDocumentsChanged,
   selectedImage,
-  // selectedDocuments, // No usado actualmente
+  selectedDocuments,
 }) => {
   const [present] = useIonToast();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -31,21 +32,24 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
     {}
   );
 
-  // Estado local para manejar los documentos
-  const [localDocuments, setLocalDocuments] = React.useState<
-    {
-      id: string;
-      motivo: string;
-      file?: File;
-    }[]
-  >([{ id: '1', motivo: '' }]);
+  const documentsWithFiles = selectedDocuments.filter((d) => d.file);
 
-  // Manejar selección de imagen miniatura
+  console.log('[Step3] Renderizado:', {
+    selectedImage: selectedImage
+      ? { name: selectedImage.name, size: selectedImage.size }
+      : null,
+    selectedDocuments: selectedDocuments.map((d) => ({
+      id: d.id,
+      motivo: d.motivo,
+      file: d.file?.name || null,
+    })),
+    totalDocumentosConArchivo: documentsWithFiles.length,
+  });
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validar que sea imagen
     if (!file.type.startsWith('image/')) {
       present({
         message: 'Por favor selecciona un archivo de imagen',
@@ -55,6 +59,7 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
       return;
     }
 
+    console.log('[Step3] Imagen seleccionada:', file.name);
     onImageSelected(file);
     present({
       message: 'Imagen seleccionada',
@@ -63,28 +68,12 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
     });
   };
 
-  // Manejar selección de documento
   const handleDocumentSelect = (docId: string, file: File) => {
-    const doc = localDocuments.find((d) => d.id === docId);
-    if (!doc) return;
-
-    // Actualizar documento local con el archivo
-    const updatedDocs = localDocuments.map((d) =>
+    const updatedDocs = selectedDocuments.map((d) =>
       d.id === docId ? { ...d, file } : d
     );
-    setLocalDocuments(updatedDocs);
-
-    // Actualizar lista de documentos seleccionados en el padre
-    // Si no hay motivo, usar el nombre del archivo
-    const docsWithFiles = updatedDocs
-      .filter((d) => d.file)
-      .map((d) => ({
-        id: d.id,
-        file: d.file!,
-        motivo: d.motivo.trim() || d.file!.name,
-      }));
-    onDocumentsChanged(docsWithFiles);
-
+    console.log('[Step3] Documento seleccionado:', file.name);
+    onDocumentsChanged(updatedDocs);
     present({
       message: 'Documento seleccionado',
       duration: 2000,
@@ -93,52 +82,29 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
   };
 
   const handleAddDocument = () => {
-    const newDoc = {
-      id: Date.now().toString(),
-      motivo: '',
-    };
-    setLocalDocuments([...localDocuments, newDoc]);
+    const newDoc = { id: Date.now().toString(), motivo: '' };
+    const updatedDocs = [...selectedDocuments, newDoc];
+    console.log('[Step3] Documento agregado, total:', updatedDocs.length);
+    onDocumentsChanged(updatedDocs);
   };
 
-  const handleUpdateDocument = (id: string, motivo: string) => {
-    const updatedDocs = localDocuments.map((doc) =>
+  const handleUpdateMotivo = (id: string, motivo: string) => {
+    const updatedDocs = selectedDocuments.map((doc) =>
       doc.id === id ? { ...doc, motivo } : doc
     );
-    setLocalDocuments(updatedDocs);
-
-    // Actualizar en el padre si ya tiene archivo
-    // Si no hay motivo, usar el nombre del archivo
-    const docsWithFiles = updatedDocs
-      .filter((d) => d.file)
-      .map((d) => ({
-        id: d.id,
-        file: d.file!,
-        motivo: d.motivo.trim() || d.file!.name,
-      }));
-    onDocumentsChanged(docsWithFiles);
+    onDocumentsChanged(updatedDocs);
   };
 
   const handleRemoveDocument = (id: string) => {
-    if (localDocuments.length > 1) {
-      const updatedDocs = localDocuments.filter((doc) => doc.id !== id);
-      setLocalDocuments(updatedDocs);
-
-      // Actualizar en el padre
-      // Si no hay motivo, usar el nombre del archivo
-      const docsWithFiles = updatedDocs
-        .filter((d) => d.file)
-        .map((d) => ({
-          id: d.id,
-          file: d.file!,
-          motivo: d.motivo.trim() || d.file!.name,
-        }));
-      onDocumentsChanged(docsWithFiles);
+    if (selectedDocuments.length > 1) {
+      const updatedDocs = selectedDocuments.filter((doc) => doc.id !== id);
+      console.log('[Step3] Documento eliminado, total:', updatedDocs.length);
+      onDocumentsChanged(updatedDocs);
     }
   };
 
   return (
     <div className="step-content">
-      {/* IMAGEN MINIATURA */}
       <div className="form-group">
         <label className="form-label">
           Sube una miniatura para tu Natillera
@@ -164,11 +130,29 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
             icon={selectedImage ? checkmarkCircle : cloudUploadOutline}
             className="upload-icon"
           />
-          {selectedImage ? 'Imagen seleccionada ✓' : 'Subir archivo'}
+          {selectedImage ? 'Imagen seleccionada' : 'Subir archivo'}
         </button>
 
         {selectedImage && (
-          <div className="image-preview" style={{ marginTop: '16px' }}>
+          <div
+            className="image-preview-container"
+            style={{ marginTop: '16px', position: 'relative' }}
+          >
+            <button
+              type="button"
+              className="remove-image-button"
+              onClick={() => {
+                onImageSelected(null);
+                if (imageInputRef.current) {
+                  imageInputRef.current.value = '';
+                }
+              }}
+            >
+              <IonIcon
+                icon={closeOutline}
+                style={{ fontSize: '20px', color: '#fff' }}
+              />
+            </button>
             <img
               src={URL.createObjectURL(selectedImage)}
               alt="Miniatura"
@@ -179,27 +163,20 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
                 objectFit: 'cover',
               }}
             />
-            <div
-              style={{
-                fontSize: '12px',
-                color: '#666',
-                marginTop: '8px',
-              }}
-            >
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
               {selectedImage.name} ({(selectedImage.size / 1024).toFixed(1)} KB)
             </div>
           </div>
         )}
       </div>
 
-      {/* DOCUMENTOS */}
       <div className="form-group">
         <label className="form-label">
           Agrega documentos
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
 
-        {localDocuments.map((doc) => (
+        {selectedDocuments.map((doc) => (
           <div
             key={doc.id}
             className="document-item"
@@ -211,11 +188,11 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
                 className="form-input"
                 placeholder="Motivo del documento (opcional)..."
                 value={doc.motivo}
-                onChange={(e) => handleUpdateDocument(doc.id, e.target.value)}
+                onChange={(e) => handleUpdateMotivo(doc.id, e.target.value)}
                 style={{ flex: 1 }}
               />
 
-              {localDocuments.length > 1 && !doc.file && (
+              {selectedDocuments.length > 1 && !doc.file && (
                 <button
                   type="button"
                   onClick={() => handleRemoveDocument(doc.id)}
@@ -247,35 +224,67 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
               type="button"
               className="upload-button"
               onClick={() => documentInputRefs.current[doc.id]?.click()}
-              disabled={!!doc.file}
               style={{
                 marginTop: '12px',
                 backgroundColor: doc.file ? '#10b981' : undefined,
-                cursor: doc.file ? 'not-allowed' : 'pointer',
               }}
             >
               <IonIcon
                 icon={doc.file ? checkmarkCircle : cloudUploadOutline}
                 className="upload-icon"
               />
-              {doc.file ? 'Documento seleccionado ✓' : 'Subir archivo'}
+              {doc.file ? 'Documento seleccionado' : 'Subir archivo'}
             </button>
 
             {doc.file && (
               <div
-                className="document-info"
+                className="document-info-container"
                 style={{
                   marginTop: '8px',
                   fontSize: '12px',
                   color: '#666',
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'space-between',
                   gap: '8px',
+                  padding: '8px',
+                  background: '#f7fafc',
+                  borderRadius: '8px',
                 }}
               >
-                <span>📄</span>
-                <span>{doc.file.name}</span>
-                <span>({(doc.file.size / 1024).toFixed(1)} KB)</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    flex: 1,
+                  }}
+                >
+                  <span>📄</span>
+                  <span>{doc.file.name}</span>
+                  <span>({(doc.file.size / 1024).toFixed(1)} KB)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updatedDocs = selectedDocuments.map((d) =>
+                      d.id === doc.id ? { ...d, file: undefined } : d
+                    );
+                    onDocumentsChanged(updatedDocs);
+                    if (documentInputRefs.current[doc.id]) {
+                      documentInputRefs.current[doc.id]!.value = '';
+                    }
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                >
+                  <IonIcon icon={closeCircle} style={{ fontSize: '20px' }} />
+                </button>
               </div>
             )}
           </div>

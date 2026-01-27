@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
@@ -43,6 +43,7 @@ const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
+  const contentRef = useRef<HTMLIonContentElement>(null);
   const [createdNatillera, setCreatedNatillera] = useState<Project | null>(
     null
   );
@@ -54,10 +55,10 @@ const CrearNatilleraPage: React.FC = () => {
   const [selectedDocuments, setSelectedDocuments] = useState<
     {
       id: string;
-      file: File;
+      file?: File;
       motivo: string;
     }[]
-  >([]);
+  >([{ id: '1', motivo: '' }]);
   const [formData, setFormData] = useState<FormData>({
     tipoProyecto: 'Natillera',
     nombreProyecto: '',
@@ -90,26 +91,34 @@ const CrearNatilleraPage: React.FC = () => {
     history.push('/portafolio');
   };
 
+  const scrollToTop = () => {
+    contentRef.current?.scrollToTop(300);
+  };
+
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+      scrollToTop();
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      scrollToTop();
     }
   };
 
   const handleCreateNatillera = async () => {
     try {
+      const documentsWithFiles = selectedDocuments.filter((d) => d.file);
+
       console.log(' INICIANDO CREACIÓN DE NATILLERA ');
       console.log(' Datos del formulario:', formData);
       console.log(' Imagen seleccionada:', selectedImage?.name);
       console.log(
         'Documentos seleccionados:',
-        selectedDocuments.map((d) => d.file.name)
+        documentsWithFiles.map((d) => d.file!.name)
       );
 
       const valorCuota = parseFloat(formData.valorCuota);
@@ -189,19 +198,19 @@ const CrearNatilleraPage: React.FC = () => {
         );
         console.log(' Imagen subida:', uploadedImage);
       }
-      if (selectedDocuments.length > 0) {
-        for (let i = 0; i < selectedDocuments.length; i++) {
-          const doc = selectedDocuments[i];
+      if (documentsWithFiles.length > 0) {
+        for (let i = 0; i < documentsWithFiles.length; i++) {
+          const doc = documentsWithFiles[i];
           await dismissLoading();
           await presentLoading({
-            message: `Subiendo documento ${i + 1}/${selectedDocuments.length}...`,
+            message: `Subiendo documento ${i + 1}/${documentsWithFiles.length}...`,
           });
-          console.log(` Subiendo documento ${i + 1}:`, doc.file.name);
+          console.log(` Subiendo documento ${i + 1}:`, doc.file!.name);
 
           const uploadedDoc = await projectsService.uploadDocument(
             projectId,
-            doc.file,
-            doc.motivo,
+            doc.file!,
+            doc.motivo || doc.file!.name,
             'GENERAL',
             doc.motivo
           );
@@ -280,7 +289,12 @@ const CrearNatilleraPage: React.FC = () => {
 
   return (
     <IonPage className="ion-page-light">
-      <IonContent fullscreen className="crear-natillera-page" color="light">
+      <IonContent
+        ref={contentRef}
+        fullscreen
+        className="crear-natillera-page"
+        color="light"
+      >
         <div className="page-header">
           <button className="header-back-button" onClick={handleClose}>
             <IonIcon icon={arrowBackOutline} />
