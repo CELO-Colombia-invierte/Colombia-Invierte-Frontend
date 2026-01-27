@@ -210,6 +210,7 @@ const InvestmentDetailsPage: React.FC = () => {
 
         <MembersList
           projectId={id}
+          projectName={project.name}
           isOwner={isOwner}
           onMembersChange={fetchProjectDetails}
         />

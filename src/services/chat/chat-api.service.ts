@@ -101,6 +101,25 @@ class ChatApiService {
       asset_id: presignResponse.asset_id,
     });
   }
+
+  async updateConversationName(
+    conversationId: string,
+    newName: string
+  ): Promise<Conversation> {
+    const response = await apiService.put<ConversationResponseDto>(
+      `/conversations/${conversationId}/name`,
+      { name: newName }
+    );
+    return ConversationMapper.fromDto(response.data);
+  }
+
+  async leaveConversation(conversationId: string): Promise<void> {
+    await apiService.delete(`/conversations/${conversationId}/leave`);
+  }
+
+  async deleteConversation(conversationId: string): Promise<void> {
+    await apiService.delete(`/conversations/${conversationId}`);
+  }
 }
 
 export const chatApiService = new ChatApiService();

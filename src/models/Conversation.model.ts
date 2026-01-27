@@ -2,12 +2,13 @@ import { User } from './User.model';
 import { Message } from './Message.model';
 
 export type ConversationType = 'DIRECT' | 'GROUP';
-
+export type ConversationMemberRole = 'admin' | 'member';
 
 export class ConversationMember {
   readonly id: string;
   readonly conversationId: string;
   readonly userId: string;
+  readonly role: ConversationMemberRole;
   joinedAt: Date;
   user: User;
 
@@ -15,17 +16,18 @@ export class ConversationMember {
     id: string;
     conversationId: string;
     userId: string;
+    role: ConversationMemberRole;
     joinedAt: Date;
     user: User;
   }) {
     this.id = data.id;
     this.conversationId = data.conversationId;
     this.userId = data.userId;
+    this.role = data.role;
     this.joinedAt = data.joinedAt;
     this.user = data.user;
   }
 }
-
 
 export class Conversation {
   readonly id: string;
@@ -54,121 +56,89 @@ export class Conversation {
     this.updatedAt = data.updatedAt ?? new Date();
   }
 
-  getTitle(currentUserId: string): string {
-    if (this.type === 'GROUP') {
-      return `Grupo de ${this.members.length} personas`;
-    }
-
-    const otherUser = this.getOtherUser(currentUserId);
-    return otherUser?.user.getDisplayName() || 'Conversación';
-  }
-
-
-  getOtherUser(currentUserId: string): ConversationMember | undefined {
-    return this.members.find(m => m.userId !== currentUserId);
-  }
-
-
-  getOtherUsers(currentUserId: string): ConversationMember[] {
-    return this.members.filter(m => m.userId !== currentUserId);
-  }
-
-
-  hasUnreadMessages(): boolean {
-    return this.unreadCount > 0;
-  }
-
-
-  isMemberActive(userId: string): boolean {
-    return this.members.some(m => m.userId === userId);
-  }
-
-
-  getAvatarUrl(currentUserId: string): string | undefined {
-    if (this.type === 'DIRECT') {
-      const otherUser = this.getOtherUser(currentUserId);
-      return otherUser?.user.getAvatarUrl();
-    }
-    return undefined;
-  }
-
-
-  getAvatarInitials(currentUserId: string): string {
-    if (this.type === 'DIRECT') {
-      const otherUser = this.getOtherUser(currentUserId);
-      return otherUser?.user.getInitials() || 'GR';
-    }
-
-    return 'GR'; 
-  }
-
-
-  getLastMessagePreview(): string {
-    if (!this.lastMessage) return 'Sin mensajes';
-
-    if (this.lastMessage.hasAttachments()) {
-      const imageCount = this.lastMessage.getImages().length;
-      if (imageCount > 0) {
-        return `📷 ${imageCount} imagen${imageCount > 1 ? 'es' : ''}`;
-      }
-      return `📎 ${this.lastMessage.attachments.length} archivo${this.lastMessage.attachments.length > 1 ? 's' : ''}`;
-    }
-
-
-    const maxLength = 50;
-    if (this.lastMessage.text.length > maxLength) {
-      return this.lastMessage.text.substring(0, maxLength) + '...';
-    }
-
-    return this.lastMessage.text;
-  }
-
-
-  getLastMessageTime(): string {
-    if (!this.lastMessage) return '';
-    return this.lastMessage.getFormattedTime();
-  }
-
-  isDirect(): boolean {
-    return this.type === 'DIRECT';
-  }
-
-
   isGroup(): boolean {
     return this.type === 'GROUP';
   }
 
+  getTitle(currentUserId: string): string {
+    if (this.isGroup()) {
+      return 'Grupo';
+    }
 
-  markAsRead(): void {
-    this.unreadCount = 0;
+    const otherMember = this.members.find(m => m.userId !== currentUserId);
+    if (!otherMember) return 'Conversacion';
+
+    return otherMember.user?.getDisplayName() || otherMember.user?.username || 'Usuario';
   }
 
+  getAvatarUrl(currentUserId: string): string | undefined {
+    if (this.isGroup()) {
+      return undefined;
+    }
 
-  incrementUnread(): void {
-    this.unreadCount++;
+    const otherMember = this.members.find(m => m.userId !== currentUserId);
+    return otherMember?.user?.getAvatarUrl();
   }
 
+  getAvatarInitials(currentUserId: string): string {
+    if (this.isGroup()) {
+      return 'GR';
+    }
 
-  updateLastMessage(message: Message): void {
-    this.lastMessage = message;
-    this.updatedAt = new Date();
+    const otherMember = this.members.find(m => m.userId !== currentUserId);
+    return otherMember?.user?.getInitials() || 'U';
   }
 
-  toJSON() {
-    return {
-      id: this.id,
-      type: this.type,
-      members: this.members.map(m => ({
-        id: m.id,
-        conversationId: m.conversationId,
-        userId: m.userId,
-        joinedAt: m.joinedAt.toISOString(),
-        user: m.user.toJSON(),
-      })),
-      lastMessage: this.lastMessage?.toJSON(),
-      unreadCount: this.unreadCount,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
-    };
+  getLastMessagePreview(): string {
+    if (!this.lastMessage) return 'Sin mensajes';
+    
+    const text = this.lastMessage.text || '';
+    return text.length > 50 ? text.substring(0, 50) + '...' : text;
+  }
+
+  getLastMessagePreviewWithSender(currentUserId: string): string {
+    if (!this.lastMessage) return 'Sin mensajes';
+
+    const senderId = this.lastMessage.senderId;
+    const text = this.lastMessage.text || '';
+    const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
+
+    if (this.isGroup()) {
+      const sender = this.members.find(m => m.userId === senderId);
+      const senderName = sender?.user?.getDisplayName() || sender?.user?.username || 'Usuario';
+      const isCurrentUser = senderId === currentUserId;
+      
+      if (isCurrentUser) {
+        return `Tu: ${preview}`;
+      }
+      return `${senderName}: ${preview}`;
+    }
+
+    if (senderId === currentUserId) {
+      return `Tu: ${preview}`;
+    }
+
+    return preview;
+  }
+
+  getLastMessageTime(): string | null {
+    if (!this.lastMessage) return null;
+
+    const now = new Date();
+    const messageDate = this.lastMessage.createdAt;
+    const diffMs = now.getTime() - messageDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Ahora';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays < 7) return `${diffDays}d`;
+
+    return messageDate.toLocaleDateString('es-CO', {
+      day: 'numeric',
+      month: 'short',
+    });
   }
 }

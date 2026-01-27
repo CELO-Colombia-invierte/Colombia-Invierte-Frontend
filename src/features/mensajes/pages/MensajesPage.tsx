@@ -1,98 +1,45 @@
-import React, { useState } from 'react';
-import { IonContent, IonPage } from '@ionic/react';
+import React, { useState, useEffect } from 'react';
+import { IonContent, IonPage, IonSpinner } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { ChatUser } from '@/types';
+import { chatApiService } from '@/services/chat';
+import { Conversation } from '@/models/Conversation.model';
 import { HomeHeader } from '@/components/home';
-import { SearchBar, ChatList } from '@/components/chat';
+import { SearchBar } from '@/components/chat';
+import { ConversationList } from '@/components/chat/ConversationList';
 import './MensajesPage.css';
 
 const MensajesPage: React.FC = () => {
   const { user } = useAuth();
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState('');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [chatUsers] = useState<ChatUser[]>([
-    {
-      id: '1',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '2',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '3',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '4',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '5',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '6',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '7',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-    {
-      id: '8',
-      name: 'Azunyan U. Wu',
-      location: 'País, provincia',
-      isOnline: true,
-      lastMessageTime: '12:30 PM',
-      unreadCount: 8,
-      avatar: '',
-    },
-  ]);
+  useEffect(() => {
+    fetchConversations();
+  }, []);
 
-  const filteredUsers = chatUsers.filter((chatUser) =>
-    chatUser.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const fetchConversations = async () => {
+    try {
+      setLoading(true);
+      const data = await chatApiService.getConversations();
+      setConversations(data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleUserClick = (chatUser: ChatUser) => {
-    history.push(`/mensajes/${chatUser.id}`);
+  const filteredConversations = conversations.filter((conversation) => {
+    if (!searchQuery) return true;
+    const title = conversation.getTitle(user?.id || '');
+    return title.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const handleConversationClick = (conversation: Conversation) => {
+    history.push(`/mensajes/${conversation.id}`);
   };
 
   const handleSearchChange = (value: string) => {
@@ -102,9 +49,20 @@ const MensajesPage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="mensajes-page-content">
-        <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
+        <HomeHeader userName={user?.getDisplayName() || 'Usuario'} />
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
-        <ChatList users={filteredUsers} onUserClick={handleUserClick} />
+        
+        {loading ? (
+          <div className="mensajes-loading">
+            <IonSpinner name="crescent" />
+          </div>
+        ) : (
+          <ConversationList 
+            conversations={filteredConversations} 
+            currentUserId={user?.id || ''}
+            onConversationClick={handleConversationClick} 
+          />
+        )}
       </IonContent>
     </IonPage>
   );

@@ -39,7 +39,7 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
     try {
       setProcessingId(positionId);
       await projectMembershipService.approveMembership(projectId, positionId);
-      
+
       await present({
         message: 'Solicitud aprobada exitosamente',
         duration: 2000,
@@ -47,7 +47,7 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
       });
 
       await fetchPendingRequests();
-      
+
       if (onRequestsChange) {
         onRequestsChange();
       }
@@ -67,7 +67,7 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
     try {
       setProcessingId(positionId);
       await projectMembershipService.rejectMembership(projectId, positionId);
-      
+
       await present({
         message: 'Solicitud rechazada',
         duration: 2000,
@@ -75,7 +75,7 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
       });
 
       await fetchPendingRequests();
-      
+
       if (onRequestsChange) {
         onRequestsChange();
       }
@@ -96,11 +96,11 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) return 'Hoy';
     if (days === 1) return 'Ayer';
-    if (days < 7) return `Hace ${days} días`;
-    
+    if (days < 7) return `Hace ${days} dias`;
+
     return date.toLocaleDateString('es-CO', {
       day: 'numeric',
       month: 'short',
@@ -134,70 +134,73 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
       <h2 className="pending-requests-title">
         Solicitudes Pendientes ({requests.length})
       </h2>
-      
+
       <div className={`pending-requests-list ${isCompact ? 'compact' : ''}`}>
-        {requests.map((request) => (
-          <div key={request.id} className="pending-request-card">
-            <div className="pending-request-user">
-              <div className="pending-request-avatar">
-                {request.user?.avatarUrl ? (
-                  <img src={request.user.avatarUrl} alt={request.user.username} />
-                ) : (
-                  <IonIcon icon={personCircle} />
-                )}
-              </div>
-              
-              <div className="pending-request-info">
-                <span className="pending-request-name">
-                  {request.user?.displayName || request.user?.username || 'Usuario'}
-                </span>
-                <span className="pending-request-username">
-                  @{request.user?.username || 'desconocido'}
-                </span>
-                <div className="pending-request-meta">
-                  <span className="pending-request-amount">
-                    {formatCurrency(request.base_amount, request.base_currency)}
+        {requests.map((request) => {
+          const avatarUrl = request.user?.getAvatarUrl?.() || request.user?.avatar;
+          return (
+            <div key={request.id} className="pending-request-card">
+              <div className="pending-request-user">
+                <div className="pending-request-avatar">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={request.user?.username} />
+                  ) : (
+                    <IonIcon icon={personCircle} />
+                  )}
+                </div>
+
+                <div className="pending-request-info">
+                  <span className="pending-request-name">
+                    {request.user?.displayName || request.user?.username || 'Usuario'}
                   </span>
-                  <span className="pending-request-date">
-                    • {formatDate(request.created_at)}
+                  <span className="pending-request-username">
+                    @{request.user?.username || 'desconocido'}
                   </span>
+                  <div className="pending-request-meta">
+                    <span className="pending-request-amount">
+                      {formatCurrency(request.base_amount, request.base_currency)}
+                    </span>
+                    <span className="pending-request-date">
+                      - {formatDate(request.created_at)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="pending-request-actions">
-              <button
-                className="pending-request-btn approve"
-                onClick={() => handleApprove(request.id)}
-                disabled={processingId !== null}
-              >
-                {processingId === request.id ? (
-                  <IonSpinner name="crescent" />
-                ) : (
-                  <>
-                    <IonIcon icon={checkmarkCircle} />
-                    Aprobar
-                  </>
-                )}
-              </button>
-              
-              <button
-                className="pending-request-btn reject"
-                onClick={() => handleReject(request.id)}
-                disabled={processingId !== null}
-              >
-                {processingId === request.id ? (
-                  <IonSpinner name="crescent" />
-                ) : (
-                  <>
-                    <IonIcon icon={closeCircle} />
-                    Rechazar
-                  </>
-                )}
-              </button>
+              <div className="pending-request-actions">
+                <button
+                  className="pending-request-btn approve"
+                  onClick={() => handleApprove(request.id)}
+                  disabled={processingId !== null}
+                >
+                  {processingId === request.id ? (
+                    <IonSpinner name="crescent" />
+                  ) : (
+                    <>
+                      <IonIcon icon={checkmarkCircle} />
+                      Aprobar
+                    </>
+                  )}
+                </button>
+
+                <button
+                  className="pending-request-btn reject"
+                  onClick={() => handleReject(request.id)}
+                  disabled={processingId !== null}
+                >
+                  {processingId === request.id ? (
+                    <IonSpinner name="crescent" />
+                  ) : (
+                    <>
+                      <IonIcon icon={closeCircle} />
+                      Rechazar
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -1,0 +1,14 @@
+.group-name-editor {
+  padding: 16px;
+}
+
+.group-name-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.group-option-danger {
+  --color: var(--ion-color-danger);
+}

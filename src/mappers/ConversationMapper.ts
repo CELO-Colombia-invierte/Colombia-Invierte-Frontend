@@ -1,4 +1,4 @@
-import { Conversation, ConversationMember, ConversationType } from '@/models/Conversation.model';
+import { Conversation, ConversationMember, ConversationType, ConversationMemberRole } from '@/models/Conversation.model';
 import {
   ConversationResponseDto,
   ConversationMemberDto,
@@ -16,9 +16,10 @@ export class ConversationMapper {
    */
   static memberFromDto(dto: ConversationMemberDto): ConversationMember {
     return new ConversationMember({
-      id: dto.id,
+      id: dto.id || dto.user_id,
       conversationId: dto.conversation_id,
       userId: dto.user_id,
+      role: (dto.role || 'member') as ConversationMemberRole,
       joinedAt: new Date(dto.joined_at),
       user: UserMapper.fromSimpleDto(dto.user),
     });
@@ -28,10 +29,12 @@ export class ConversationMapper {
    * Convierte un ConversationResponseDto a Conversation Model
    */
   static fromDto(dto: ConversationResponseDto): Conversation {
+    const members = dto.members || [];
+
     return new Conversation({
       id: dto.id,
       type: dto.type as ConversationType,
-      members: dto.members.map(m => this.memberFromDto(m)),
+      members: members.map(m => this.memberFromDto(m)),
       lastMessage: dto.last_message
         ? MessageMapper.fromDto(dto.last_message)
         : undefined,
@@ -45,6 +48,9 @@ export class ConversationMapper {
    * Convierte un array de ConversationResponseDto a Conversation Models
    */
   static fromDtoArray(dtos: ConversationResponseDto[]): Conversation[] {
+    if (!dtos || !Array.isArray(dtos)) {
+      return [];
+    }
     return dtos.map(dto => this.fromDto(dto));
   }
 
@@ -82,7 +88,7 @@ export class ConversationMapper {
     return [...conversations].sort((a, b) => {
       const timeA = a.lastMessage?.createdAt.getTime() ?? a.createdAt.getTime();
       const timeB = b.lastMessage?.createdAt.getTime() ?? b.createdAt.getTime();
-      return timeB - timeA; // Descendente (más reciente primero)
+      return timeB - timeA;
     });
   }
 
@@ -90,7 +96,7 @@ export class ConversationMapper {
    * Filtra conversaciones no leídas
    */
   static filterUnread(conversations: Conversation[]): Conversation[] {
-    return conversations.filter(c => c.hasUnreadMessages());
+    return conversations.filter(c => c.unreadCount > 0);
   }
 
   /**
