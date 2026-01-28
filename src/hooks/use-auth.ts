@@ -7,6 +7,7 @@ import {
   LoginRequestDto,
   UpdateUserRequestDto,
 } from '@/dtos/auth/AuthResponse.dto';
+import { isProfileComplete } from '@/utils/profile';
 
 export const useAuth = () => {
   const history = useHistory();
@@ -33,9 +34,11 @@ export const useAuth = () => {
         };
         setAuthState(newAuthState);
 
-
         setTimeout(() => {
-          window.location.href = '/home';
+          const redirectPath = isProfileComplete(response.user)
+            ? '/home'
+            : '/complete-profile';
+          history.replace(redirectPath);
         }, 400);
 
         return response;
@@ -59,7 +62,10 @@ export const useAuth = () => {
         };
         setAuthState(newAuthState);
         setTimeout(() => {
-          window.location.href = '/home';
+          const redirectPath = isProfileComplete(response.user)
+            ? '/home'
+            : '/complete-profile';
+          history.replace(redirectPath);
         }, 400);
 
         return response;
