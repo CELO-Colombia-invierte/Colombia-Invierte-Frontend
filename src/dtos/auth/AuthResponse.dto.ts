@@ -1,4 +1,3 @@
-
 export interface UserDto {
   id: string;
   email?: string;
@@ -9,6 +8,12 @@ export interface UserDto {
   verified?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface CompleteProfileDto {
+  display_name: string;
+  username: string;
+  email: string;
 }
 
 export interface AuthResponseDto {

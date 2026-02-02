@@ -5,3 +5,7 @@ export { ChatHeader } from './ChatHeader';
 export { MessageBubble } from './MessageBubble';
 export { MessageList } from './MessageList';
 export { MessageInput } from './MessageInput';
+export { ConversationList } from './ConversationList';
+export { GroupChatHeader } from './GroupChatHeader';
+export { GroupMessageList } from './GroupMessageList';
+export { GroupOptionsModal } from './GroupOptionsModal';

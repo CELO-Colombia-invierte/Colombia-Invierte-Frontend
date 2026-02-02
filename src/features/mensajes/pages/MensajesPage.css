@@ -5,3 +5,16 @@
 .mensajes-page-content::part(scroll) {
   padding-bottom: 80px;
 }
+
+.mensajes-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.mensajes-loading ion-spinner {
+  --color: #667eea;
+  width: 40px;
+  height: 40px;
+}

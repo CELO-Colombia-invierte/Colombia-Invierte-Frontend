@@ -3,11 +3,14 @@ import { IonPage, IonContent, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
 import { Project } from '@/models/projects';
+import { useAuth } from '@/hooks/use-auth';
 import {
   InvestmentHeader,
   InvestmentStats,
   InvestmentFinancialInfo,
   InvestmentDescription,
+  PendingRequests,
+  MembersList,
 } from '../components';
 import './InvestmentDetailsPage.css';
 
@@ -15,6 +18,7 @@ const InvestmentDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
   const [present] = useIonToast();
+  const { user } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const formatCurrency = (amount: number): string => {
@@ -62,6 +66,12 @@ const InvestmentDetailsPage: React.FC = () => {
     }
   };
 
+  const isOwner = Boolean(
+    user?.id && 
+    project?.owner_user?.id && 
+    user.id === project.owner_user.id
+  );
+
   if (loading) {
     return (
       <IonPage>
@@ -81,7 +91,7 @@ const InvestmentDetailsPage: React.FC = () => {
   const isNatillera = project.type === 'NATILLERA';
   const projectType = isNatillera ? 'natillera' : 'tokenizacion';
   const stats = [];
-  
+
   if (isNatillera && project.natillera_details) {
     stats.push({
       icon: 'cash',
@@ -123,7 +133,7 @@ const InvestmentDetailsPage: React.FC = () => {
   }
 
   const financialItems = [];
-  
+
   if (isNatillera && project.natillera_details) {
     financialItems.push({
       label: 'Total a Invertir',
@@ -191,6 +201,20 @@ const InvestmentDetailsPage: React.FC = () => {
           items={financialItems}
         />
 
+        {isOwner && (
+          <PendingRequests
+            projectId={id}
+            onRequestsChange={fetchProjectDetails}
+          />
+        )}
+
+        <MembersList
+          projectId={id}
+          projectName={project.name}
+          isOwner={isOwner}
+          onMembersChange={fetchProjectDetails}
+        />
+
         <InvestmentDescription
           description={project.description_rich || undefined}
           highlights={project.highlights_rich || undefined}
@@ -222,4 +246,3 @@ const InvestmentDetailsPage: React.FC = () => {
 };
 
 export default InvestmentDetailsPage;
-

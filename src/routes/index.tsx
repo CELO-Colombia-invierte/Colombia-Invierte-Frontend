@@ -28,6 +28,9 @@ const ConfiguracionPage = lazy(
 const InvestmentDetailsPage = lazy(
   () => import('@/features/inversiones/pages/InvestmentDetailsPage')
 );
+const CompleteProfilePage = lazy(
+  () => import('@/features/auth/pages/CompleteProfilePage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -38,6 +41,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/auth',
     component: AuthPage,
+    exact: true,
+  },
+  {
+    path: '/complete-profile',
+    component: CompleteProfilePage,
     exact: true,
   },
   {

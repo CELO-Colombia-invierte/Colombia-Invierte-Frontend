@@ -1,0 +1,248 @@
+.members-list-container {
+  margin: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.members-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.members-list-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.members-list-title ion-icon {
+  font-size: 22px;
+  color: #667eea;
+}
+
+.create-group-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.create-group-btn ion-icon {
+  font-size: 18px;
+}
+
+.create-group-btn ion-spinner {
+  --color: white;
+  width: 18px;
+  height: 18px;
+}
+
+.create-group-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.create-group-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.create-group-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.members-list-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.members-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+}
+
+.members-list-empty ion-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.members-list-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.member-card:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.member-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-avatar ion-icon {
+  font-size: 40px;
+  color: white;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-username {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.member-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.member-amount {
+  font-size: 13px;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.member-date {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.member-remove-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-remove-btn ion-icon {
+  font-size: 18px;
+}
+
+.member-remove-btn ion-spinner {
+  --color: #dc2626;
+  width: 18px;
+  height: 18px;
+}
+
+.member-remove-btn:hover:not(:disabled) {
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
+.member-remove-btn:active:not(:disabled) {
+  background: #fca5a5;
+  transform: scale(0.95);
+}
+
+.member-remove-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .members-list-container {
+    margin: 12px;
+    padding: 16px;
+  }
+
+  .members-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .create-group-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -29,6 +29,7 @@ export interface ConversationMemberDto {
   id: string;
   conversation_id: string;
   user_id: string;
+  role?: 'admin' | 'member';
   joined_at: string;
   user: {
     id: string;

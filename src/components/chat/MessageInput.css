@@ -59,6 +59,11 @@
   background-color: #2563eb;
 }
 
+.message-input-send:disabled {
+  background-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
 .message-input-send:active {
   transform: scale(0.95);
 }
@@ -66,4 +71,14 @@
 .message-input-send ion-icon {
   font-size: 20px;
   color: #fff;
+}
+
+.message-input-send:disabled ion-icon {
+  color: #9ca3af;
+}
+
+.message-input-send ion-spinner {
+  --color: #fff;
+  width: 20px;
+  height: 20px;
 }

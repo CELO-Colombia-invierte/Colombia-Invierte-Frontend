@@ -33,7 +33,8 @@ const MainContent: React.FC = () => {
     location.pathname.startsWith('/mensajes/') ||
     location.pathname.startsWith('/inversiones/') ||
     location.pathname === '/crear-natillera' ||
-    location.pathname === '/crear-tokenizacion';
+    location.pathname === '/crear-tokenizacion' ||
+    location.pathname === '/complete-profile';
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const modalOptions = [
@@ -79,8 +80,18 @@ const MainContent: React.FC = () => {
             path="/auth"
             component={routes.find((r) => r.path === '/auth')?.component}
           />
+          <Route
+            exact
+            path="/complete-profile"
+            component={
+              routes.find((r) => r.path === '/complete-profile')?.component
+            }
+          />
           {routes
-            .filter((route) => route.path !== '/auth')
+            .filter(
+              (route) =>
+                route.path !== '/auth' && route.path !== '/complete-profile'
+            )
             .map((route) => (
               <ProtectedRoute
                 key={route.path}
@@ -108,16 +119,6 @@ const MainContent: React.FC = () => {
 };
 
 const AppRouter: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  const history = useHistory();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (isAuthenticated && location.pathname === '/auth') {
-      history.replace('/home');
-    }
-  }, [isAuthenticated, location.pathname, history]);
-
   return <MainContent />;
 };
 
