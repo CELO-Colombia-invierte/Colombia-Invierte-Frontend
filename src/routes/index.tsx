@@ -31,6 +31,7 @@ const InvestmentDetailsPage = lazy(
 const CompleteProfilePage = lazy(
   () => import('@/features/auth/pages/CompleteProfilePage')
 );
+const PaymentPage = lazy(() => import('@/features/pagos/pages/PaymentPage'));
 
 export const routes: RouteConfig[] = [
   {
@@ -79,6 +80,11 @@ export const routes: RouteConfig[] = [
     exact: true,
   },
   {
+    path: '/tokenizacion/:slug',
+    component: JoinNatilleraPage,
+    exact: true,
+  },
+  {
     path: '/crear-tokenizacion',
     component: CrearTokenizacionPage,
     exact: true,
@@ -91,6 +97,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/inversiones/:id',
     component: InvestmentDetailsPage,
+    exact: true,
+  },
+  {
+    path: '/pago/:id',
+    component: PaymentPage,
     exact: true,
   },
 ];

@@ -1,0 +1,484 @@
+.payment-page {
+  --background: #f9fafb;
+}
+
+.payment-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+}
+
+.payment-back-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.payment-back-btn:active {
+  transform: scale(0.95);
+  background: #f9fafb;
+}
+
+.payment-back-btn ion-icon {
+  font-size: 22px;
+  color: #111827;
+}
+
+.payment-title {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0 12px;
+  text-align: left;
+}
+
+.payment-image-container {
+  padding: 0 16px 16px 16px;
+  background: white;
+}
+
+.payment-image {
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e568db 0%, #a855f7 100%);
+}
+
+.payment-content {
+  padding: 20px;
+  padding-bottom: 200px;
+}
+
+.payment-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 16px 0;
+}
+
+.payment-details {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.payment-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.payment-detail-row:not(:last-child) {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.payment-detail-label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.payment-detail-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.payment-method-section {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.payment-method-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.payment-method-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-outer {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.radio-outer.selected {
+  border-color: #3b82f6;
+}
+
+.radio-inner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.payment-method-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.payment-method-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  margin-left: 32px;
+}
+
+.payment-icon {
+  height: 24px;
+  width: auto;
+}
+
+.crypto-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+}
+
+.crypto-icon.usdt {
+  background: #26a17b;
+}
+
+.crypto-icon.usdc {
+  background: #2775ca;
+}
+
+.crypto-icon.dai {
+  background: #f4b731;
+}
+
+.crypto-icon.polygon {
+  background: #8247e5;
+}
+
+.payment-more {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Card Form */
+.card-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.form-section {
+  margin-bottom: 20px;
+}
+
+.form-label-small {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.card-input-group {
+  position: relative;
+}
+
+.form-input-card {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: white;
+  margin-bottom: 8px;
+}
+
+.form-input-card:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.form-input-card.half {
+  width: calc(50% - 4px);
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.card-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.card-icons-inline {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: -4px;
+}
+
+.card-icon-small {
+  height: 18px;
+  width: auto;
+}
+
+.form-select-card {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: white;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.form-select-card:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Crypto Form */
+.crypto-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.wallet-section {
+  margin-bottom: 20px;
+}
+
+.wallet-balance {
+  background: #1f2937;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.wallet-icon {
+  font-size: 28px;
+}
+
+.crypto-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 4px;
+  background: white;
+}
+
+.form-input-crypto {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  font-size: 16px;
+  color: #111827;
+  background: transparent;
+}
+
+.form-input-crypto:focus {
+  outline: none;
+}
+
+.crypto-select {
+  padding: 8px 12px;
+  border: none;
+  border-left: 1px solid #e5e7eb;
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+}
+
+.crypto-select:focus {
+  outline: none;
+}
+
+.crypto-breakdown {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.crypto-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.crypto-breakdown-label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.crypto-breakdown-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.crypto-total {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Payment Actions */
+.payment-actions {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9;
+}
+
+.payment-button {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.payment-button.primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.payment-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.payment-button.primary:active {
+  transform: translateY(0);
+}
+
+.payment-button.primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.payment-button.secondary {
+  background: white;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.payment-button.secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.payment-button.secondary:active {
+  background: #f3f4f6;
+}
+
+/* Desktop Responsive */
+@media (min-width: 768px) {
+  .payment-content {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .payment-header {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .payment-image-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .payment-actions {
+    max-width: 900px;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    padding: 20px 32px;
+  }
+
+  .payment-button.secondary {
+    flex: 0 0 auto;
+    min-width: 200px;
+  }
+
+  .payment-button.primary {
+    flex: 1;
+  }
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  font-size: 14px;
+  color: #6b7280;
+}

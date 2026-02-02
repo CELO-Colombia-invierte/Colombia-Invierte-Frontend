@@ -1,0 +1,12 @@
+.project-detail-page {
+  --background: #f9fafb;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  font-size: 14px;
+  color: #6b7280;
+}
