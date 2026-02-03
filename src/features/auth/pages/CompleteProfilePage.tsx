@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonPage, IonContent, IonButton, IonSpinner } from '@ionic/react';
+import { IonPage, IonContent, IonSpinner } from '@ionic/react';
 import { useAuth } from '@/hooks/use-auth';
 import { isValidEmail } from '@/utils/validation';
 import {
@@ -20,7 +20,7 @@ export const CompleteProfilePage: React.FC = () => {
     Partial<Record<keyof CompleteProfileDto, boolean>>
   >({});
   const [formData, setFormData] = useState<CompleteProfileDto>({
-    display_name: user?.display_name || '',
+    display_name: user?.displayName || '',
     username: user?.username || '',
     email: user?.email || '',
   });
@@ -39,7 +39,7 @@ export const CompleteProfilePage: React.FC = () => {
   useEffect(() => {
     if (user) {
       setFormData({
-        display_name: user.display_name || '',
+        display_name: user.displayName || '',
         username: user.username || '',
         email: user.email || '',
       });

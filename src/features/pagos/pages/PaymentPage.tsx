@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  IonPage,
-  IonContent,
-  IonIcon,
-  useIonToast,
-} from '@ionic/react';
+import { IonPage, IonContent, IonIcon, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
 import { projectsService } from '@/services/projects';
 import { Project } from '@/models/projects';
+import { Country, State } from 'country-state-city';
 import './PaymentPage.css';
 
 type PaymentMethod = 'card' | 'crypto' | null;
@@ -28,7 +24,7 @@ const PaymentPage: React.FC = () => {
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCVC, setCardCVC] = useState('');
   const [cardName, setCardName] = useState('');
-  const [country, setCountry] = useState('Nigeria');
+  const [country, setCountry] = useState('NG');
   const [address1, setAddress1] = useState('');
   const [suburb, setSuburb] = useState('');
   const [city, setCity] = useState('');
@@ -63,7 +59,11 @@ const PaymentPage: React.FC = () => {
     return amount * 0.03;
   };
 
-  const calculateCryptoConversion = (): { conversion: number; fee: number; total: number } => {
+  const calculateCryptoConversion = (): {
+    conversion: number;
+    fee: number;
+    total: number;
+  } => {
     if (!project?.natillera_details || !cryptoAmount) {
       return { conversion: 0, fee: 0, total: 0 };
     }
@@ -77,7 +77,7 @@ const PaymentPage: React.FC = () => {
     const conversionRate = 3650; // 1 USDT ≈ 3650 COP
     const conversion = amount * conversionRate;
     const fee = conversion * 0.03;
-    const total = amount + (fee / conversionRate);
+    const total = amount + fee / conversionRate;
 
     return { conversion, fee, total };
   };
@@ -183,19 +183,33 @@ const PaymentPage: React.FC = () => {
           <div className="payment-method-section">
             <div
               className={`payment-method-header ${selectedMethod === 'card' ? 'active' : ''}`}
-              onClick={() => setSelectedMethod(selectedMethod === 'card' ? null : 'card')}
+              onClick={() =>
+                setSelectedMethod(selectedMethod === 'card' ? null : 'card')
+              }
             >
               <div className="payment-method-radio">
-                <div className={`radio-outer ${selectedMethod === 'card' ? 'selected' : ''}`}>
+                <div
+                  className={`radio-outer ${selectedMethod === 'card' ? 'selected' : ''}`}
+                >
                   {selectedMethod === 'card' && <div className="radio-inner" />}
                 </div>
               </div>
-              <span className="payment-method-title">Tarjeta de débito / crédito</span>
+              <span className="payment-method-title">
+                Tarjeta de débito / crédito
+              </span>
             </div>
 
             <div className="payment-method-icons">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard" className="payment-icon" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="payment-icon" />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
+                alt="Mastercard"
+                className="payment-icon"
+              />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                alt="Visa"
+                className="payment-icon"
+              />
               <span className="payment-more">+99</span>
             </div>
 
@@ -213,8 +227,16 @@ const PaymentPage: React.FC = () => {
                       maxLength={19}
                     />
                     <div className="card-icons-inline">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="MC" className="card-icon-small" />
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="card-icon-small" />
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
+                        alt="MC"
+                        className="card-icon-small"
+                      />
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                        alt="Visa"
+                        className="card-icon-small"
+                      />
                     </div>
                   </div>
                   <div className="card-row">
@@ -253,11 +275,16 @@ const PaymentPage: React.FC = () => {
                   <select
                     className="form-select-card"
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
+                    onChange={(e) => {
+                      setCountry(e.target.value);
+                      setState('');
+                    }}
                   >
-                    <option value="Nigeria">Nigeria</option>
-                    <option value="Colombia">Colombia</option>
-                    <option value="USA">USA</option>
+                    {Country.getAllCountries().map((c) => (
+                      <option key={c.isoCode} value={c.isoCode}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                   <input
                     type="text"
@@ -294,14 +321,19 @@ const PaymentPage: React.FC = () => {
                     value={state}
                     onChange={(e) => setState(e.target.value)}
                   >
-                    <option value="">State</option>
-                    <option value="Lagos">Lagos</option>
-                    <option value="Abuja">Abuja</option>
+                    <option value="">State / Province</option>
+                    {State.getStatesOfCountry(country).map((s) => (
+                      <option key={s.isoCode} value={s.isoCode}>
+                        {s.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="form-section">
-                  <label className="form-label-small">Contact information</label>
+                  <label className="form-label-small">
+                    Contact information
+                  </label>
                   <input
                     type="email"
                     className="form-input-card"
@@ -318,11 +350,17 @@ const PaymentPage: React.FC = () => {
           <div className="payment-method-section">
             <div
               className={`payment-method-header ${selectedMethod === 'crypto' ? 'active' : ''}`}
-              onClick={() => setSelectedMethod(selectedMethod === 'crypto' ? null : 'crypto')}
+              onClick={() =>
+                setSelectedMethod(selectedMethod === 'crypto' ? null : 'crypto')
+              }
             >
               <div className="payment-method-radio">
-                <div className={`radio-outer ${selectedMethod === 'crypto' ? 'selected' : ''}`}>
-                  {selectedMethod === 'crypto' && <div className="radio-inner" />}
+                <div
+                  className={`radio-outer ${selectedMethod === 'crypto' ? 'selected' : ''}`}
+                >
+                  {selectedMethod === 'crypto' && (
+                    <div className="radio-inner" />
+                  )}
                 </div>
               </div>
               <span className="payment-method-title">Cripto</span>
@@ -372,12 +410,15 @@ const PaymentPage: React.FC = () => {
                 {cryptoAmount && parseFloat(cryptoAmount) > 0 && (
                   <div className="crypto-breakdown">
                     <div className="crypto-breakdown-row">
-                      <span className="crypto-breakdown-label">Conversión:</span>
+                      <span className="crypto-breakdown-label">
+                        Conversión:
+                      </span>
                       <span className="crypto-breakdown-value">
                         {cryptoCalc.conversion.toLocaleString('es-CO', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
-                        })} {currency}
+                        })}{' '}
+                        {currency}
                       </span>
                     </div>
                     <div className="crypto-breakdown-row">
@@ -396,7 +437,10 @@ const PaymentPage: React.FC = () => {
           </div>
 
           <div className="payment-actions">
-            <button className="payment-button secondary" onClick={() => history.goBack()}>
+            <button
+              className="payment-button secondary"
+              onClick={() => history.goBack()}
+            >
               Regresar
             </button>
             <button
@@ -404,7 +448,11 @@ const PaymentPage: React.FC = () => {
               onClick={handlePayment}
               disabled={!selectedMethod}
             >
-              {selectedMethod === 'card' ? 'Pagar' : selectedMethod === 'crypto' ? 'Pagar' : 'Siguiente'}
+              {selectedMethod === 'card'
+                ? 'Pagar'
+                : selectedMethod === 'crypto'
+                  ? 'Pagar'
+                  : 'Siguiente'}
             </button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IonPage, IonContent, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
-import { projectsService, projectMembershipService } from '@/services/projects';
+import { projectsService } from '@/services/projects';
 import { Project } from '@/models/projects';
 import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';

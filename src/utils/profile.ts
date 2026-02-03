@@ -1,8 +1,5 @@
-import type { UserDto } from '@/dtos/auth/AuthResponse.dto';
-
 export const isProfileComplete = (user: any | null): boolean => {
   if (!user) {
-    console.log('❌ No user');
     return false;
   }
 
@@ -13,17 +10,6 @@ export const isProfileComplete = (user: any | null): boolean => {
   const hasValidEmail = email && !email.includes('@temp.thirdweb');
   const hasValidUsername = username && !username.startsWith('user_');
   const hasValidDisplayName = displayName && !displayName.startsWith('Wallet ');
-
-  console.log('🔍 Profile check:', {
-    user,
-    displayName,
-    email,
-    username,
-    hasValidEmail,
-    hasValidUsername,
-    hasValidDisplayName,
-    result: Boolean(hasValidEmail && hasValidUsername && hasValidDisplayName),
-  });
 
   return Boolean(hasValidEmail && hasValidUsername && hasValidDisplayName);
 };

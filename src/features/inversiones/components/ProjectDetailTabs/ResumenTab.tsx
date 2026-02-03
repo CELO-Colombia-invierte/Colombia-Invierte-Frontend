@@ -125,17 +125,26 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
         </div>
       )}
 
-      {isMember && !isOwner && !showJoinButton && (
-        <div className="resumen-actions">
-          <button
-            className="action-button payment-button-highlighted"
-            onClick={handleGoToPayment}
-          >
-            <IonIcon icon={walletOutline} className="button-icon" />
-            Realizar Pago
-          </button>
-        </div>
-      )}
+      {isMember &&
+        !isOwner &&
+        !showJoinButton &&
+        (() => {
+          const deadline = project.natillera_details?.payment_deadline_at;
+          const isPastDeadline = deadline
+            ? new Date() >= new Date(deadline)
+            : false;
+          return isPastDeadline ? (
+            <div className="resumen-actions">
+              <button
+                className="action-button payment-button-highlighted"
+                onClick={handleGoToPayment}
+              >
+                <IonIcon icon={walletOutline} className="button-icon" />
+                Realizar Pago
+              </button>
+            </div>
+          ) : null;
+        })()}
     </div>
   );
 };
