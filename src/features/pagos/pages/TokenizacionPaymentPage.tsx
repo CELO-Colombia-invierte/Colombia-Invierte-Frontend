@@ -23,7 +23,7 @@ const TokenizacionPaymentPage: React.FC = () => {
 
   // Datos cripto
   const [cryptoAmount, setCryptoAmount] = useState('');
-  const [selectedCrypto, setSelectedCrypto] = useState('USDT');
+  const [selectedCrypto] = useState('USDT');
 
   // Datos de tarjeta
   const [cardNumber, setCardNumber] = useState('');
