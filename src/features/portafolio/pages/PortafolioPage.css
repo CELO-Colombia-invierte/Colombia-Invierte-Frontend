@@ -5,3 +5,14 @@
 .portafolio-page-content::part(scroll) {
   padding-bottom: 80px;
 }
+
+.comunidad-content {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.comunidad-placeholder {
+  color: #64748b;
+  font-size: 16px;
+  margin: 0;
+}
