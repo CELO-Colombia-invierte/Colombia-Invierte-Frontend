@@ -10,6 +10,7 @@ import {
   ResumenTab,
   FinanzasTab,
   DocumentosTab,
+  ParticipantesTab,
   SolicitudesTab,
 } from '../components/ProjectDetailTabs';
 import './ProjectDetailPage.css';
@@ -33,7 +34,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'solicitudes'
+    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
   >('resumen');
 
   useEffect(() => {
@@ -134,6 +135,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           activeTab={activeTab}
           onTabChange={setActiveTab}
           isOwner={isOwner}
+          isMember={isMember}
         />
 
         <div className="project-detail-content">
@@ -164,6 +166,10 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
               onJoinAction={onJoinAction}
               joinStatus={joinStatus}
             />
+          )}
+
+          {activeTab === 'participantes' && (isOwner || isMember) && (
+            <ParticipantesTab project={project} isOwner={isOwner} />
           )}
 
           {activeTab === 'solicitudes' && isOwner && (

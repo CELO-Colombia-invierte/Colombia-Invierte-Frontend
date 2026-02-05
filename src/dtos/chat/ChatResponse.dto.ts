@@ -1,4 +1,3 @@
-
 export interface MessageAttachmentDto {
   id: string;
   asset_id: string;
@@ -45,6 +44,7 @@ export interface ConversationMemberDto {
 export interface ConversationResponseDto {
   id: string;
   type: 'DIRECT' | 'GROUP';
+  name?: string;
   created_at: string;
   updated_at: string;
   members: ConversationMemberDto[];

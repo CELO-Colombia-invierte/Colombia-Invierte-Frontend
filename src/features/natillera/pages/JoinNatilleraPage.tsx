@@ -31,7 +31,7 @@ const JoinNatilleraPage: React.FC = () => {
     null
   );
   const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'solicitudes'
+    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
   >('resumen');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 

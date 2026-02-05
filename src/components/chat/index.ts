@@ -9,3 +9,4 @@ export { ConversationList } from './ConversationList';
 export { GroupChatHeader } from './GroupChatHeader';
 export { GroupMessageList } from './GroupMessageList';
 export { GroupOptionsModal } from './GroupOptionsModal';
+export { ChatInfoModal } from './ChatInfoModal';
