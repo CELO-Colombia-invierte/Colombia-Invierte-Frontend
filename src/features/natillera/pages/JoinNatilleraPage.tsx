@@ -11,6 +11,7 @@ import { checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import { projectsService, projectMembershipService } from '@/services/projects';
 import { Project } from '@/models/projects';
 
+
 import { InvestmentHeader } from '@/features/inversiones/components';
 import {
   ProjectDetailTabs,
