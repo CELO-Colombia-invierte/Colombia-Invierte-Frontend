@@ -1,6 +1,5 @@
 import React from 'react';
-import { IonIcon } from '@ionic/react';
-import { notificationsOutline } from 'ionicons/icons';
+import { NotificationBell } from '@/components/notifications';
 import './HomeHeader.css';
 
 interface HomeHeaderProps {
@@ -8,7 +7,10 @@ interface HomeHeaderProps {
   userAvatar?: string;
 }
 
-export const HomeHeader: React.FC<HomeHeaderProps> = ({ userName, userAvatar }) => {
+export const HomeHeader: React.FC<HomeHeaderProps> = ({
+  userName,
+  userAvatar,
+}) => {
   return (
     <div className="home-header">
       <div className="home-header-user">
@@ -24,9 +26,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ userName, userAvatar }) 
           <h2 className="home-header-name">{userName}</h2>
         </div>
       </div>
-      <button className="home-header-notification" aria-label="Notificaciones">
-        <IonIcon icon={notificationsOutline} />
-      </button>
+      <NotificationBell />
     </div>
   );
 };
