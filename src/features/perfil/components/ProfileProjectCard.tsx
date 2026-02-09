@@ -14,9 +14,7 @@ export const ProfileProjectCard: React.FC<ProfileProjectCardProps> = ({
 }) => {
   const history = useHistory();
 
-  const coverImageUrl = project.cover_asset?.url 
-    ? project.cover_asset.url
-    : project.cover_asset_id 
+  const coverImageUrl = project.cover_asset_id
     ? `${import.meta.env.VITE_API_URL || ''}/assets/${project.cover_asset_id}`
     : undefined;
 
@@ -58,8 +56,3 @@ export const ProfileProjectCard: React.FC<ProfileProjectCardProps> = ({
 };
 
 export default ProfileProjectCard;
-
-
-
-
-
