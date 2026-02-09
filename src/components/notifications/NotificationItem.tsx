@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Notification, NotificationType } from '@/types';
+import { projectInvitationsService } from '@/services/projects/invitations.service';
 import './NotificationItem.css';
 
 interface NotificationItemProps {
   notification: Notification;
   onClick: (notification: Notification) => void;
+  onInvitationResponse?: (notificationId: string, accepted: boolean) => void;
 }
 
 const getNotificationIcon = (type: NotificationType): string => {
@@ -49,14 +51,65 @@ const formatDate = (dateString: string): string => {
 export const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   onClick,
+  onInvitationResponse,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [responded, setResponded] = useState(false);
+  const [responseType, setResponseType] = useState<
+    'accepted' | 'declined' | null
+  >(null);
+
+  const isInvitation =
+    notification.type === NotificationType.PROJECT_INVITATION;
+  const invitationId = notification.metadata?.invitation_id as
+    | string
+    | undefined;
+
   const handleClick = () => {
+    // No navegar si es una invitación pendiente
+    if (isInvitation && !responded) {
+      return;
+    }
     onClick(notification);
+  };
+
+  const handleAccept = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!invitationId || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      await projectInvitationsService.accept(invitationId);
+      setResponded(true);
+      setResponseType('accepted');
+      onInvitationResponse?.(notification.id, true);
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDecline = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!invitationId || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      await projectInvitationsService.decline(invitationId);
+      setResponded(true);
+      setResponseType('declined');
+      onInvitationResponse?.(notification.id, false);
+    } catch (error) {
+      console.error('Error declining invitation:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div
-      className={`notification-item ${!notification.is_read ? 'notification-item--unread' : ''}`}
+      className={`notification-item ${!notification.is_read ? 'notification-item--unread' : ''} ${isInvitation && !responded ? 'notification-item--no-click' : ''}`}
       onClick={handleClick}
     >
       <div className="notification-item__avatar">
@@ -81,6 +134,37 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           {notification.actor?.display_name || 'Sistema'}
         </p>
         <p className="notification-item__body">{notification.body}</p>
+
+        {/* Botones de Aceptar/Rechazar para invitaciones */}
+        {isInvitation && invitationId && !responded && (
+          <div className="notification-item__actions">
+            <button
+              className="notification-item__btn notification-item__btn--accept"
+              onClick={handleAccept}
+              disabled={isLoading}
+            >
+              {isLoading ? '...' : 'Aceptar'}
+            </button>
+            <button
+              className="notification-item__btn notification-item__btn--decline"
+              onClick={handleDecline}
+              disabled={isLoading}
+            >
+              {isLoading ? '...' : 'Rechazar'}
+            </button>
+          </div>
+        )}
+
+        {/* Mensaje de respuesta */}
+        {isInvitation && responded && (
+          <p
+            className={`notification-item__response notification-item__response--${responseType}`}
+          >
+            {responseType === 'accepted'
+              ? '✅ Invitación aceptada'
+              : '❌ Invitación rechazada'}
+          </p>
+        )}
       </div>
 
       <div className="notification-item__meta">

@@ -12,6 +12,7 @@ interface NotificationPanelProps {
   onSeeAll: () => void;
   onMarkAllAsRead: () => void;
   onClose: () => void;
+  onInvitationResponse?: (notificationId: string, accepted: boolean) => void;
 }
 
 export const NotificationPanel: React.FC<NotificationPanelProps> = ({
@@ -21,6 +22,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
   onSeeAll,
   onMarkAllAsRead,
   onClose,
+  onInvitationResponse,
 }) => {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -58,6 +60,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                   key={notification.id}
                   notification={notification}
                   onClick={onNotificationClick}
+                  onInvitationResponse={onInvitationResponse}
                 />
               ))}
             </div>

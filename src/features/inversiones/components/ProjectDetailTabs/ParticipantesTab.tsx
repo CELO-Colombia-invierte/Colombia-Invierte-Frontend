@@ -33,16 +33,10 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
   }, [project.id]);
 
   const loadMembers = async () => {
-    if (!isOwner) {
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       const data = await projectMembershipService.getMembers(project.id);
-      const approvedMembers = data.filter((m) => m.status === 'APPROVED');
-      setMembers(approvedMembers);
+      setMembers(data);
     } catch (error) {
       console.error('Error loading members:', error);
       await present({
@@ -119,6 +113,36 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
     }
   };
 
+  const renderParticipantsList = () => {
+    return (
+      <div className="participants-list">
+        <div className="participants-info">
+          <p>Participantes: {members.length}</p>
+        </div>
+        <div className="participants-grid">
+          {members.map((member) => (
+            <div key={member.id} className="participant-card">
+              <div className="participant-avatar">
+                <div className="avatar-placeholder">
+                  {member.user?.display_name?.charAt(0).toUpperCase() || '?'}
+                </div>
+              </div>
+              <div className="participant-details">
+                <div className="participant-name-row">
+                  <h4>{member.user?.display_name || 'Usuario'}</h4>
+                  {member.id.startsWith('owner-') && (
+                    <span className="admin-badge">ADMIN</span>
+                  )}
+                </div>
+                <p className="participant-email">{member.user?.email}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="participantes-tab">
@@ -158,83 +182,47 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
       </div>
 
       {!isOwner && !groupConversation ? (
-        <div className="empty-state">
-          <p>El chat grupal aún no ha sido creado por el administrador</p>
+        <div>
+          <div className="empty-state">
+            <p>El chat grupal aún no ha sido creado por el administrador</p>
+          </div>
+          {members.length > 0 && renderParticipantsList()}
         </div>
       ) : !groupConversation && members.length === 0 ? (
         <div className="empty-state">
           <p>No hay participantes en este proyecto para crear el chat</p>
         </div>
       ) : isOwner && !groupConversation ? (
-        <div className="empty-state">
-          <p>
-            Crea un chat grupal para comunicarte con todos los participantes del
-            proyecto
-          </p>
-          <p
-            style={{
-              marginTop: '8px',
-              fontSize: '14px',
-              color: 'var(--ion-color-medium)',
-            }}
-          >
-            Participantes: {members.length}
-          </p>
+        <div>
+          <div className="empty-state">
+            <p>
+              Crea un chat grupal para comunicarte con todos los participantes
+              del proyecto
+            </p>
+          </div>
+          {members.length > 0 && renderParticipantsList()}
         </div>
       ) : groupConversation ? (
-        <div className="chat-ready-state">
-          <div className="chat-info">
-            <div className="chat-icon">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
+        <div>
+          <div className="chat-ready-state">
+            <div className="chat-info">
+              <div className="chat-icon">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <h3>Chat grupal activo</h3>
+              <p>Comunícate con todos los participantes del proyecto</p>
             </div>
-            <h3>Chat grupal activo</h3>
-            <p>Comunícate con todos los participantes del proyecto</p>
           </div>
-        </div>
-      ) : isOwner ? (
-        <div className="participants-list">
-          <div className="participants-info">
-            <p>Miembros del proyecto: {members.length}</p>
-          </div>
-          {members.map((member) => (
-            <div key={member.id} className="participant-item">
-              <div className="participant-avatar">
-                {member.user?.getAvatarUrl() ? (
-                  <img
-                    src={member.user.getAvatarUrl()}
-                    alt={member.user.getDisplayName()}
-                  />
-                ) : (
-                  <div className="avatar-placeholder">
-                    {member.user?.getInitials() || '?'}
-                  </div>
-                )}
-              </div>
-              <div className="participant-info">
-                <h3>{member.user?.getDisplayName() || 'Usuario'}</h3>
-                <p>{member.user?.email}</p>
-              </div>
-              <div className="participant-meta">
-                <span className="join-date">
-                  Unido el{' '}
-                  {new Date(member.created_at).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-            </div>
-          ))}
+          {members.length > 0 && renderParticipantsList()}
         </div>
       ) : null}
     </div>

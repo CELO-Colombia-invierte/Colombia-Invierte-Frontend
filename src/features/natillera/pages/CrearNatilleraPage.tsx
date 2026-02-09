@@ -10,6 +10,7 @@ import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
 import { projectsService } from '@/services/projects';
+import { projectInvitationsService } from '@/services/projects/invitations.service';
 import {
   Project,
   ProjectType,
@@ -246,6 +247,33 @@ const CrearNatilleraPage: React.FC = () => {
     }
   };
 
+  const handleInvite = async (
+    emailOrUsername: string
+  ): Promise<{ success: boolean; message: string }> => {
+    if (!createdNatillera?.id) {
+      return { success: false, message: 'Error: No se encontró el proyecto' };
+    }
+
+    try {
+      // Determinar si es email o username
+      const isEmail = emailOrUsername.includes('@');
+      const inviteData = isEmail
+        ? { invitee_email: emailOrUsername }
+        : { invitee_username: emailOrUsername };
+
+      await projectInvitationsService.create(createdNatillera.id, inviteData);
+
+      return {
+        success: true,
+        message: `Invitación enviada a ${emailOrUsername}`,
+      };
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || 'Error al enviar la invitación';
+      return { success: false, message: errorMessage };
+    }
+  };
+
   const handleFinish = () => {
     if (createdNatillera?.id) {
       history.replace(`/inversiones/${createdNatillera.id}`);
@@ -348,6 +376,7 @@ const CrearNatilleraPage: React.FC = () => {
                   ? `${window.location.origin}/natillera/${createdNatillera.share_slug}`
                   : ''
               }
+              projectId={createdNatillera?.id || ''}
               onPrivacidadChange={(value) =>
                 handleFieldChange('privacidad', value)
               }
@@ -355,6 +384,7 @@ const CrearNatilleraPage: React.FC = () => {
                 handleFieldChange('invitarAmigos', value)
               }
               onCopyLink={handleCopyLink}
+              onInvite={handleInvite}
             />
           )}
         </div>

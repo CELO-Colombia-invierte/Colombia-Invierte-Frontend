@@ -16,6 +16,7 @@ export const NotificationBell: React.FC = () => {
     loading,
     markAsRead,
     markAllAsRead,
+    refetch,
   } = useNotifications();
 
   const handleBellClick = () => {
@@ -47,6 +48,16 @@ export const NotificationBell: React.FC = () => {
     await markAllAsRead();
   };
 
+  const handleInvitationResponse = async (
+    notificationId: string,
+    _accepted: boolean
+  ) => {
+    // Marcar la notificación como leída después de responder
+    await markAsRead(notificationId);
+    // Refrescar las notificaciones para obtener el estado actualizado
+    await refetch();
+  };
+
   return (
     <>
       <button
@@ -70,6 +81,7 @@ export const NotificationBell: React.FC = () => {
           onSeeAll={handleSeeAll}
           onMarkAllAsRead={handleMarkAllAsRead}
           onClose={handleClosePanel}
+          onInvitationResponse={handleInvitationResponse}
         />
       )}
     </>

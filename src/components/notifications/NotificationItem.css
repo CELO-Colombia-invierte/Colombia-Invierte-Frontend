@@ -29,7 +29,7 @@
 }
 
 .notification-item__avatar-placeholder {
-  background: linear-gradient(135deg, #FCD116 0%, #003893 100%);
+  background: linear-gradient(135deg, #fcd116 0%, #003893 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,4 +100,64 @@
 .notification-item__indicator--read {
   border: 2px solid #ddd;
   background-color: transparent;
+}
+
+/* Estilo para invitaciones que no deben navegar */
+.notification-item--no-click {
+  cursor: default;
+}
+
+/* Botones de acción para invitaciones */
+.notification-item__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.notification-item__btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notification-item__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.notification-item__btn--accept {
+  background-color: #22c55e;
+  color: white;
+}
+
+.notification-item__btn--accept:hover:not(:disabled) {
+  background-color: #16a34a;
+}
+
+.notification-item__btn--decline {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.notification-item__btn--decline:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+/* Mensaje de respuesta */
+.notification-item__response {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.notification-item__response--accepted {
+  color: #22c55e;
+}
+
+.notification-item__response--declined {
+  color: #64748b;
 }
