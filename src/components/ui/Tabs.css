@@ -1,10 +1,10 @@
 .tabs-container {
   display: flex;
   width: 100%;
-  padding: 12px 20px 0 20px;
+  padding: 0 20px;
   background: #fff;
   margin-top: 0;
-
+  margin-bottom: 0;
 }
 
 .tab-button {
@@ -12,14 +12,13 @@
   flex: 1;
   background: none;
   border: none;
-  padding: 0;
+  padding: 16px 0;
   cursor: pointer;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-
 }
 
 .tab-button:focus-visible {
@@ -39,9 +38,9 @@
 }
 
 .tab-label {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 400;
-  color: #64748b;
+  color: #94a3b8;
   transition: all 0.2s ease;
   white-space: nowrap;
   line-height: 1.4;
@@ -50,7 +49,7 @@
 }
 
 .tab-button.active .tab-label {
-  color: #0f172a;
+  color: #1e293b;
   font-weight: 600;
 }
 
@@ -71,9 +70,9 @@
   left: 0;
   right: 0;
   width: 100%;
-  height: 6px;
+  height: 2px;
   background: #3b82f6;
-  border-radius: 100px;
+  border-radius: 0;
   z-index: 1;
   animation: slideIn 0.2s ease;
 }

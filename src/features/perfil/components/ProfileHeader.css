@@ -1,0 +1,54 @@
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.profile-back-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #1e293b;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-back-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.profile-back-btn:active {
+  background-color: #e2e8f0;
+}
+
+.profile-username-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.profile-username-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.verified-icon {
+  font-size: 20px;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+

@@ -13,6 +13,7 @@ const ChatConversationPage = lazy(
   () => import('@/features/mensajes/pages/ChatConversationPage')
 );
 const PerfilPage = lazy(() => import('@/features/perfil/pages/PerfilPage'));
+const UserProfilePage = lazy(() => import('@/features/perfil/pages/UserProfilePage'));
 const CrearNatilleraPage = lazy(
   () => import('@/features/natillera/pages/CrearNatilleraPage')
 );
@@ -70,6 +71,11 @@ export const routes: RouteConfig[] = [
     exact: true,
   },
   {
+    path: '/perfil/:username',
+    component: UserProfilePage,
+    exact: true,
+  },
+  {
     path: '/crear-natillera',
     component: CrearNatilleraPage,
     exact: true,
@@ -105,3 +111,5 @@ export const routes: RouteConfig[] = [
     exact: true,
   },
 ];
+
+export default routes;

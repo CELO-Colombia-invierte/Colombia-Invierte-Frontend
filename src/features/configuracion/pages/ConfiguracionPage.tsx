@@ -12,7 +12,7 @@ import './ConfiguracionPage.css';
 
 const ConfiguracionPage: React.FC = () => {
   const history = useHistory();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [biometricEnabled, setBiometricEnabled] = useState(true);
 
   const handleBack = () => {
@@ -28,7 +28,12 @@ const ConfiguracionPage: React.FC = () => {
   };
 
   const handleProfileClick = () => {
-    history.push('/configuracion/perfil');
+    if (user?.username) {
+      history.push(`/perfil/${user.username}`);
+    } else {
+      // Si no tiene username, ir a la página de perfil genérica
+      history.push('/perfil');
+    }
   };
 
   const handleContactClick = () => {

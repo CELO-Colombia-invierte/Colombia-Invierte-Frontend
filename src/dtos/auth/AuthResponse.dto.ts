@@ -5,6 +5,11 @@ export interface UserDto {
   display_name?: string;
   avatar?: string;
   avatar_asset_id?: string;
+  avatar_asset?: {
+    id: string;
+    url: string;
+  };
+  is_verified?: boolean;
   verified?: boolean;
   created_at: string;
   updated_at: string;
