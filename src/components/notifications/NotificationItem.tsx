@@ -77,9 +77,13 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   // Determinar si ya respondió (desde metadata o estado local)
   const hasResponded = invitationStatus || responded;
 
+  // Determinar si la invitación fue rechazada
+  const wasDeclined =
+    invitationStatus === 'declined' || responseType === 'declined';
+
   const handleClick = () => {
-    // No navegar si es una invitación pendiente
-    if (isInvitation && !hasResponded) {
+    // No navegar si es una invitación pendiente o si fue rechazada
+    if (isInvitation && (!hasResponded || wasDeclined)) {
       return;
     }
     onClick(notification);
@@ -161,7 +165,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
   return (
     <div
-      className={`notification-item ${!notification.is_read ? 'notification-item--unread' : ''} ${isInvitation && !responded ? 'notification-item--no-click' : ''}`}
+      className={`notification-item ${!notification.is_read ? 'notification-item--unread' : ''} ${isInvitation && (!hasResponded || wasDeclined) ? 'notification-item--no-click' : ''}`}
       onClick={handleClick}
     >
       <div className="notification-item__avatar">
