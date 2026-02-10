@@ -147,17 +147,30 @@
   background-color: #e2e8f0;
 }
 
-/* Mensaje de respuesta */
+/* Mensaje de respuesta - Discreto y limpio */
 .notification-item__response {
   margin: 8px 0 0 0;
+  padding: 0;
   font-size: 12px;
   font-weight: 500;
+  color: #718096;
+  display: block;
 }
 
 .notification-item__response--accepted {
-  color: #22c55e;
+  color: #48bb78;
 }
 
 .notification-item__response--declined {
-  color: #64748b;
+  color: #718096;
+}
+
+/* Mensaje de error - Discreto también */
+.notification-item__error {
+  margin: 8px 0 0 0;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #f56565;
+  display: block;
 }

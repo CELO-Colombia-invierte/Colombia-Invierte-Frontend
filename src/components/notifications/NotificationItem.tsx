@@ -60,6 +60,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   const [responseType, setResponseType] = useState<
     'accepted' | 'declined' | null
   >(null);
+  const [error, setError] = useState<string | null>(null);
 
   const isInvitation =
     notification.type === NotificationType.PROJECT_INVITATION;
@@ -67,9 +68,18 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     | string
     | undefined;
 
+  // Leer el status desde metadata (persistente en el servidor)
+  const invitationStatus = notification.metadata?.status as
+    | 'accepted'
+    | 'declined'
+    | undefined;
+
+  // Determinar si ya respondió (desde metadata o estado local)
+  const hasResponded = invitationStatus || responded;
+
   const handleClick = () => {
     // No navegar si es una invitación pendiente
-    if (isInvitation && !responded) {
+    if (isInvitation && !hasResponded) {
       return;
     }
     onClick(notification);
@@ -80,6 +90,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     if (!invitationId || isLoading) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       await projectInvitationsService.accept(invitationId);
       setResponded(true);
@@ -92,10 +103,16 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         position: 'bottom',
         color: 'success',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accepting invitation:', error);
+      const errorMessage =
+        error.message === 'Invitation is not pending'
+          ? 'Ya respondiste esta invitación'
+          : 'Error al aceptar la invitación';
+      setError(errorMessage);
+
       await present({
-        message: '❌ Error al aceptar la invitación',
+        message: `❌ ${errorMessage}`,
         duration: 3000,
         position: 'bottom',
         color: 'danger',
@@ -110,6 +127,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     if (!invitationId || isLoading) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       await projectInvitationsService.decline(invitationId);
       setResponded(true);
@@ -122,10 +140,16 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         position: 'bottom',
         color: 'warning',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error declining invitation:', error);
+      const errorMessage =
+        error.message === 'Invitation is not pending'
+          ? 'Ya respondiste esta invitación'
+          : 'Error al rechazar la invitación';
+      setError(errorMessage);
+
       await present({
-        message: '❌ Error al rechazar la invitación',
+        message: `❌ ${errorMessage}`,
         duration: 3000,
         position: 'bottom',
         color: 'danger',
@@ -163,8 +187,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         </p>
         <p className="notification-item__body">{notification.body}</p>
 
-        {/* Botones de Aceptar/Rechazar para invitaciones */}
-        {isInvitation && invitationId && !responded && (
+        {/* Botones de Aceptar/Rechazar para invitaciones (solo si NO ha respondido) */}
+        {isInvitation && invitationId && !hasResponded && (
           <div className="notification-item__actions">
             <button
               className="notification-item__btn notification-item__btn--accept"
@@ -183,15 +207,19 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           </div>
         )}
 
-        {/* Mensaje de respuesta */}
-        {isInvitation && responded && (
+        {/* Mensaje de respuesta (desde metadata del servidor o estado local) */}
+        {isInvitation && hasResponded && !error && (
           <p
-            className={`notification-item__response notification-item__response--${responseType}`}
+            className={`notification-item__response notification-item__response--${invitationStatus || responseType}`}
           >
-            {responseType === 'accepted'
-              ? '✅ Invitación aceptada'
-              : '❌ Invitación rechazada'}
+            {(invitationStatus || responseType) === 'accepted'
+              ? 'Aceptaste esta invitación'
+              : 'Rechazaste esta invitación'}
           </p>
+        )}
+
+        {isInvitation && error && (
+          <p className="notification-item__error">{error}</p>
         )}
       </div>
 
