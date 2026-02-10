@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useIonToast } from '@ionic/react';
 import { Notification, NotificationType } from '@/types';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
 import './NotificationItem.css';
@@ -53,6 +54,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onClick,
   onInvitationResponse,
 }) => {
+  const [present] = useIonToast();
   const [isLoading, setIsLoading] = useState(false);
   const [responded, setResponded] = useState(false);
   const [responseType, setResponseType] = useState<
@@ -83,8 +85,21 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       setResponded(true);
       setResponseType('accepted');
       onInvitationResponse?.(notification.id, true);
+
+      await present({
+        message: '✅ Ya eres parte de este proyecto',
+        duration: 3000,
+        position: 'bottom',
+        color: 'success',
+      });
     } catch (error) {
       console.error('Error accepting invitation:', error);
+      await present({
+        message: '❌ Error al aceptar la invitación',
+        duration: 3000,
+        position: 'bottom',
+        color: 'danger',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -100,8 +115,21 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       setResponded(true);
       setResponseType('declined');
       onInvitationResponse?.(notification.id, false);
+
+      await present({
+        message: '✓ Invitación rechazada',
+        duration: 3000,
+        position: 'bottom',
+        color: 'warning',
+      });
     } catch (error) {
       console.error('Error declining invitation:', error);
+      await present({
+        message: '❌ Error al rechazar la invitación',
+        duration: 3000,
+        position: 'bottom',
+        color: 'danger',
+      });
     } finally {
       setIsLoading(false);
     }
