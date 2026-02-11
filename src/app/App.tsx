@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Redirect, Route, useHistory, useLocation } from 'react-router-dom';
 import {
   IonApp,
@@ -18,7 +18,6 @@ import { BottomNavBar } from '@/components/navigation/bottomNavBar/BottomNavBar'
 import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
-import { useAuth } from '@/hooks/use-auth';
 import { useCleanupThirdweb } from '@/hooks/use-cleanup-thirdweb';
 
 setupIonicReact();

@@ -48,7 +48,7 @@ const MensajesPage: React.FC = () => {
     });
   }, []);
 
-  const { connected } = useChatWebSocket({
+  useChatWebSocket({
     onNewMessage: handleNewMessage,
     onConnected: () => {
       console.log('WebSocket connected in MensajesPage');

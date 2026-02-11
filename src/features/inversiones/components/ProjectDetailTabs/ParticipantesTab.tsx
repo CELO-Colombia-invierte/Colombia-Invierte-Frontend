@@ -124,12 +124,12 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
             <div key={member.id} className="participant-card">
               <div className="participant-avatar">
                 <div className="avatar-placeholder">
-                  {member.user?.display_name?.charAt(0).toUpperCase() || '?'}
+                  {member.user?.displayName?.charAt(0).toUpperCase() || '?'}
                 </div>
               </div>
               <div className="participant-details">
                 <div className="participant-name-row">
-                  <h4>{member.user?.display_name || 'Usuario'}</h4>
+                  <h4>{member.user?.displayName || 'Usuario'}</h4>
                   {member.id.startsWith('owner-') && (
                     <span className="admin-badge">ADMIN</span>
                   )}
