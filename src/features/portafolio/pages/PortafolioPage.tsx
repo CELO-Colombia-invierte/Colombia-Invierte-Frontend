@@ -14,6 +14,7 @@ import {
   NewProjectCard,
 } from '@/components/portfolio';
 import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
+import { Tabs, Tab } from '@/components/ui/Tabs';
 import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
@@ -21,6 +22,7 @@ const PortafolioPage: React.FC = () => {
   const [positions, setPositions] = useState<Position[]>([]);
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('mi-portafolio');
 
   const fetchPortfolio = useCallback(async () => {
     try {
@@ -98,18 +100,37 @@ const PortafolioPage: React.FC = () => {
     },
   ];
 
+  const tabs: Tab[] = [
+    { id: 'mi-portafolio', label: 'Mi Portafolio' },
+    { id: 'comunidad', label: 'Comunidad' },
+  ];
+
   return (
     <>
       <IonPage>
         <IonContent fullscreen className="portafolio-page-content">
           <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
-          <DateHeader />
-          <PortfolioGrid
-            projects={projects}
-            onProjectClick={handleProjectClick}
-          >
-            <NewProjectCard onClick={handleNewProject} />
-          </PortfolioGrid>
+          <DateHeader title="" />
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+          {activeTab === 'mi-portafolio' && (
+            <PortfolioGrid
+              projects={projects}
+              onProjectClick={handleProjectClick}
+            >
+              <NewProjectCard onClick={handleNewProject} />
+            </PortfolioGrid>
+          )}
+          {activeTab === 'comunidad' && (
+            <div className="comunidad-content">
+              <p className="comunidad-placeholder">
+                Contenido de comunidad próximamente
+              </p>
+            </div>
+          )}
         </IonContent>
       </IonPage>
       {createPortal(
