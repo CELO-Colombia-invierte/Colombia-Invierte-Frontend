@@ -10,14 +10,19 @@ export interface BalancesDto {
   OUSD: number;
 }
 
+export interface PositionProjectDto {
+  id: string;
+  name: string;
+  type: 'NATILLERA' | 'TOKENIZATION';
+  cover_url: string | null;
+}
+
 export interface PositionDto {
   id: string;
-  project_id: string;
-  project_name: string;
+  project: PositionProjectDto;
   base_amount: number;
   base_currency: string;
-  value_cop: number;
-  change_percentage: number;
+  created_at: string;
 }
 
 export interface PortfolioResponseDto {

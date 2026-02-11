@@ -27,12 +27,13 @@ export class PortfolioMapper {
   static positionFromDto(dto: PositionDto): Position {
     return new Position({
       id: dto.id,
-      projectId: dto.project_id,
-      projectName: dto.project_name,
+      projectId: dto.project.id,
+      projectName: dto.project.name,
+      projectType: dto.project.type,
+      projectCoverUrl: dto.project.cover_url,
       baseAmount: dto.base_amount,
       baseCurrency: dto.base_currency,
-      valueCop: dto.value_cop,
-      changePercentage: dto.change_percentage,
+      createdAt: dto.created_at,
     });
   }
 
@@ -42,7 +43,7 @@ export class PortfolioMapper {
   static fromDto(dto: PortfolioResponseDto): Portfolio {
     return new Portfolio({
       balances: this.balancesFromDto(dto.balances),
-      positions: dto.positions.map(p => this.positionFromDto(p)),
+      positions: dto.positions.map((p) => this.positionFromDto(p)),
     });
   }
 }

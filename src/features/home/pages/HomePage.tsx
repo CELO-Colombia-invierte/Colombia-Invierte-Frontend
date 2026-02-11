@@ -37,7 +37,7 @@ const HomePage: React.FC = () => {
         name: pos.projectName,
         amount: pos.baseAmount,
         currency: pos.baseCurrency,
-        changePercentage: pos.changePercentage,
+        changePercentage: 0,
         color: colors[index % colors.length],
         icon: icons[index % icons.length],
       };

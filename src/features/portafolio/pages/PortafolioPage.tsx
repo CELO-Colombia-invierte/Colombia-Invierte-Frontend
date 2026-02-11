@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { IonContent, IonPage, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { walletOutline, businessOutline } from 'ionicons/icons';
 import { useAuth } from '@/hooks/use-auth';
-import { useProjects } from '@/hooks/use-projects';
+import { portfolioService } from '@/services/portfolio/portfolio.service';
+import { Position } from '@/models/Portfolio.model';
 import { PortfolioProject } from '@/types';
 import { HomeHeader } from '@/components/home';
 import {
@@ -17,13 +18,22 @@ import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
-  const { projects: projectsData, fetchProjects } = useProjects();
+  const [positions, setPositions] = useState<Position[]>([]);
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const fetchPortfolio = useCallback(async () => {
+    try {
+      const portfolio = await portfolioService.getPortfolio();
+      setPositions(portfolio.positions);
+    } catch (error) {
+      console.error('Error fetching portfolio:', error);
+    }
+  }, []);
+
   useEffect(() => {
-    fetchProjects({ owner: true });
-  }, [fetchProjects]);
+    fetchPortfolio();
+  }, [fetchPortfolio]);
 
   const gradients = {
     natillera: [
@@ -38,26 +48,23 @@ const PortafolioPage: React.FC = () => {
     ],
   };
 
-  const projects: PortfolioProject[] = projectsData.map((project, index) => {
-    const isNatillera = project.type === 'NATILLERA';
+  const projects: PortfolioProject[] = positions.map((position, index) => {
+    const isNatillera = position.projectType === 'NATILLERA';
     const gradientList = isNatillera
       ? gradients.natillera
       : gradients.tokenization;
 
     return {
-      id: project.id,
-      name: project.name,
+      id: position.projectId,
+      name: position.projectName,
       type: isNatillera ? 'natillera' : 'tokenizacion',
-      changePercentage:
-        project.natillera_details?.expected_annual_return_pct ||
-        project.tokenization_details?.expected_annual_return_pct ||
-        0,
+      changePercentage: 0,
       period: 'Anual',
       participants: 0,
       avatars: [],
       gradient: gradientList[index % gradientList.length],
-      amount: project.tokenization_details?.asset_value_amount,
-      description: project.description_rich?.substring(0, 50) || undefined,
+      amount: position.baseAmount,
+      description: undefined,
       emoji: undefined,
     };
   });
