@@ -12,11 +12,9 @@ interface Step4SuccessProps {
   userName: string;
   description: string;
   aspectosDestacados: string;
-  privacidad: string;
   invitarAmigos: string;
   shareLink: string;
   projectId: string;
-  onPrivacidadChange: (value: string) => void;
   onInvitarAmigosChange: (value: string) => void;
   onCopyLink: () => void;
   onInvite: (
@@ -25,10 +23,8 @@ interface Step4SuccessProps {
 }
 
 export const Step4Success: React.FC<Step4SuccessProps> = ({
-  privacidad,
   invitarAmigos,
   shareLink,
-  onPrivacidadChange,
   onInvitarAmigosChange,
   onCopyLink,
   onInvite,
@@ -83,17 +79,6 @@ export const Step4Success: React.FC<Step4SuccessProps> = ({
       </p>
 
       <div className="privacy-settings">
-        <div className="form-group">
-          <select
-            className="form-select dark"
-            value={privacidad}
-            onChange={(e) => onPrivacidadChange(e.target.value)}
-          >
-            <option value="Privado">Privado</option>
-            <option value="Público">Público</option>
-          </select>
-        </div>
-
         <div className="form-group">
           <label className="form-label white">
             Invitar amigos

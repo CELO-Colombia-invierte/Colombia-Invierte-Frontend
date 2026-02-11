@@ -24,6 +24,7 @@ interface Step1BasicInfoProps {
     nombreProyecto: string;
     descripcion: string;
     aspectosDestacados: string;
+    privacidad?: string;
   };
   tokenRights: TokenRightDto[];
   tokenFaqs: TokenFaqDto[];
@@ -95,6 +96,23 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           >
             <option value="Tokenización">Tokenización</option>
             <option value="Natillera">Natillera</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Privacidad del proyecto
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
+        </label>
+        <div className="select-wrapper">
+          <select
+            className="form-select"
+            value={formData.privacidad || 'PRIVATE'}
+            onChange={(e) => onChange('privacidad', e.target.value)}
+          >
+            <option value="PRIVATE">Privado</option>
+            <option value="PUBLIC">Público</option>
           </select>
         </div>
       </div>

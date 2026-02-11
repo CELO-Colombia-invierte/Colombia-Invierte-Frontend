@@ -77,24 +77,34 @@ export const useNotifications = (): UseNotificationsReturn => {
     }
   }, []);
 
-  const deleteNotification = useCallback(async (notificationId: string) => {
-    try {
-      await notificationsApiService.deleteNotification(notificationId);
-      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      setUnreadCount((prev) => {
-        const notification = notifications.find((n) => n.id === notificationId);
-        if (notification && !notification.is_read) {
-          return Math.max(0, prev - 1);
-        }
-        return prev;
-      });
-    } catch (err) {
-      console.error('Error deleting notification:', err);
-    }
-  }, [notifications]);
+  const deleteNotification = useCallback(
+    async (notificationId: string) => {
+      try {
+        await notificationsApiService.deleteNotification(notificationId);
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+        setUnreadCount((prev) => {
+          const notification = notifications.find(
+            (n) => n.id === notificationId
+          );
+          if (notification && !notification.is_read) {
+            return Math.max(0, prev - 1);
+          }
+          return prev;
+        });
+      } catch (err) {
+        console.error('Error deleting notification:', err);
+      }
+    },
+    [notifications]
+  );
 
   useEffect(() => {
     fetchNotifications();
+
+    // Polling: refrescar notificaciones cada 30 segundos
+    const interval = setInterval(fetchNotifications, 30000);
+
+    return () => clearInterval(interval);
   }, [fetchNotifications]);
 
   return {

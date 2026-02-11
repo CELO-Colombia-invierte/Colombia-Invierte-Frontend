@@ -369,7 +369,6 @@ const CrearNatilleraPage: React.FC = () => {
               userName="UserName"
               description={formData.descripcion}
               aspectosDestacados={formData.aspectosDestacados}
-              privacidad={formData.privacidad}
               invitarAmigos={formData.invitarAmigos}
               shareLink={
                 createdNatillera?.share_slug
@@ -377,9 +376,6 @@ const CrearNatilleraPage: React.FC = () => {
                   : ''
               }
               projectId={createdNatillera?.id || ''}
-              onPrivacidadChange={(value) =>
-                handleFieldChange('privacidad', value)
-              }
               onInvitarAmigosChange={(value) =>
                 handleFieldChange('invitarAmigos', value)
               }

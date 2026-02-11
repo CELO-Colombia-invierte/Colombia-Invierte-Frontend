@@ -9,6 +9,7 @@ interface Step1BasicInfoProps {
     nombreProyecto: string;
     descripcion: string;
     aspectosDestacados: string;
+    privacidad: string;
   };
   onChange: (field: string, value: string) => void;
 }
@@ -32,6 +33,23 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           >
             <option value="Natillera">Natillera</option>
             <option value="Tokenización">Tokenización</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Privacidad del proyecto
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
+        </label>
+        <div className="select-wrapper">
+          <select
+            className="form-select"
+            value={formData.privacidad}
+            onChange={(e) => onChange('privacidad', e.target.value)}
+          >
+            <option value="PRIVATE">Privado</option>
+            <option value="PUBLIC">Público</option>
           </select>
         </div>
       </div>
@@ -74,9 +92,15 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
             <button type="button" className="toolbar-btn">
               <IonIcon icon={happyOutline} />
             </button>
-            <button type="button" className="toolbar-btn">🔗</button>
-            <button type="button" className="toolbar-btn">≡</button>
-            <button type="button" className="toolbar-btn">☰</button>
+            <button type="button" className="toolbar-btn">
+              🔗
+            </button>
+            <button type="button" className="toolbar-btn">
+              ≡
+            </button>
+            <button type="button" className="toolbar-btn">
+              ☰
+            </button>
           </div>
           <textarea
             className="form-textarea"
@@ -106,9 +130,15 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
             <button type="button" className="toolbar-btn">
               <IonIcon icon={happyOutline} />
             </button>
-            <button type="button" className="toolbar-btn">🔗</button>
-            <button type="button" className="toolbar-btn">≡</button>
-            <button type="button" className="toolbar-btn">☰</button>
+            <button type="button" className="toolbar-btn">
+              🔗
+            </button>
+            <button type="button" className="toolbar-btn">
+              ≡
+            </button>
+            <button type="button" className="toolbar-btn">
+              ☰
+            </button>
           </div>
           <textarea
             className="form-textarea"
