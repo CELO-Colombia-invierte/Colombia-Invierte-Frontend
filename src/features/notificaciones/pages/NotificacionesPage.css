@@ -61,7 +61,8 @@
 .notificaciones-page__list {
   display: flex;
   flex-direction: column;
-  padding-top: 8px;
+  padding-top: 16px;
+  padding-bottom: 100px;
 }
 
 .notificaciones-page__list > * {
@@ -70,9 +71,4 @@
 
 .notificaciones-page__list > *:last-child {
   border-bottom: none;
-}
-
-/* Asegurar que el contenido no se corte */
-.notificaciones-page-content::part(scroll) {
-  padding-top: 0;
 }
