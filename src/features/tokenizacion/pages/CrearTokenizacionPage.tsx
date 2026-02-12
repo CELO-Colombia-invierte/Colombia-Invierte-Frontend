@@ -213,11 +213,11 @@ const CrearTokenizacionPage: React.FC = () => {
         })),
       };
 
-      console.log('[CrearTokenizacion] DTO preparado:', tokenizacionData);
+      // console.log('[CrearTokenizacion] DTO preparado:', tokenizacionData);
 
       const project = await projectsService.create(tokenizacionData);
-      console.log('[CrearTokenizacion] Proyecto creado:', project);
-      console.log('[CrearTokenizacion] Project ID:', project.id);
+      // console.log('[CrearTokenizacion] Proyecto creado:', project);
+      // console.log('[CrearTokenizacion] Project ID:', project.id);
 
       const projectId = project.id;
 
