@@ -120,24 +120,30 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
           <p>Participantes: {members.length}</p>
         </div>
         <div className="participants-grid">
-          {members.map((member) => (
-            <div key={member.id} className="participant-card">
-              <div className="participant-avatar">
-                <div className="avatar-placeholder">
-                  {member.user?.displayName?.charAt(0).toUpperCase() || '?'}
+          {members.map((member) => {
+            const userName =
+              (member.user as any)?.display_name ||
+              member.user?.displayName ||
+              'Usuario';
+            return (
+              <div key={member.id} className="participant-card">
+                <div className="participant-avatar">
+                  <div className="avatar-placeholder">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className="participant-details">
+                  <div className="participant-name-row">
+                    <h4>{userName}</h4>
+                    {member.id.startsWith('owner-') && (
+                      <span className="admin-badge">ADMIN</span>
+                    )}
+                  </div>
+                  <p className="participant-email">{member.user?.email}</p>
                 </div>
               </div>
-              <div className="participant-details">
-                <div className="participant-name-row">
-                  <h4>{member.user?.displayName || 'Usuario'}</h4>
-                  {member.id.startsWith('owner-') && (
-                    <span className="admin-badge">ADMIN</span>
-                  )}
-                </div>
-                <p className="participant-email">{member.user?.email}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
