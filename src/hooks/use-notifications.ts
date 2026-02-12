@@ -24,7 +24,9 @@ export const useNotifications = (): UseNotificationsReturn => {
     try {
       setLoading(true);
       setError(null);
-      const response = await notificationsApiService.getNotifications();
+      const response = await notificationsApiService.getNotifications({
+        limit: 100,
+      });
       setNotifications(response.notifications);
       setUnreadCount(response.unread_count);
     } catch (err) {
