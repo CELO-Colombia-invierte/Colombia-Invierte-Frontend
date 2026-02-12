@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { IonContent, IonPage, IonIcon } from '@ionic/react';
+import { IonContent, IonPage, IonIcon, IonSpinner } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { walletOutline, businessOutline } from 'ionicons/icons';
 import { useAuth } from '@/hooks/use-auth';
 import { portfolioService } from '@/services/portfolio/portfolio.service';
+import { projectsService } from '@/services/projects/projects.service';
 import { Position } from '@/models/Portfolio.model';
+import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { PortfolioProject } from '@/types';
 import { HomeHeader } from '@/components/home';
 import {
@@ -20,6 +22,8 @@ import './PortafolioPage.css';
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
   const [positions, setPositions] = useState<Position[]>([]);
+  const [publicProjects, setPublicProjects] = useState<Project[]>([]);
+  const [loadingPublic, setLoadingPublic] = useState(false);
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('mi-portafolio');
@@ -33,9 +37,33 @@ const PortafolioPage: React.FC = () => {
     }
   }, []);
 
+  const fetchPublicProjects = useCallback(async () => {
+    try {
+      setLoadingPublic(true);
+      const allProjects = await projectsService.findAll();
+      // Filtrar solo proyectos públicos que no sean del usuario actual
+      const publicOnly = allProjects.filter(
+        (p) =>
+          p.visibility === ProjectVisibility.PUBLIC &&
+          p.owner_user_id !== user?.id
+      );
+      setPublicProjects(publicOnly);
+    } catch (error) {
+      console.error('Error fetching public projects:', error);
+    } finally {
+      setLoadingPublic(false);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
     fetchPortfolio();
   }, [fetchPortfolio]);
+
+  useEffect(() => {
+    if (activeTab === 'comunidad') {
+      fetchPublicProjects();
+    }
+  }, [activeTab, fetchPublicProjects]);
 
   const gradients = {
     natillera: [
@@ -111,11 +139,7 @@ const PortafolioPage: React.FC = () => {
         <IonContent fullscreen className="portafolio-page-content">
           <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
           <DateHeader title="" />
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+          <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
           {activeTab === 'mi-portafolio' && (
             <PortfolioGrid
               projects={projects}
@@ -126,9 +150,43 @@ const PortafolioPage: React.FC = () => {
           )}
           {activeTab === 'comunidad' && (
             <div className="comunidad-content">
-              <p className="comunidad-placeholder">
-                Contenido de comunidad próximamente
-              </p>
+              {loadingPublic && (
+                <div className="comunidad-loading">
+                  <IonSpinner name="crescent" />
+                </div>
+              )}
+              {!loadingPublic && publicProjects.length === 0 && (
+                <p className="comunidad-placeholder">
+                  No hay proyectos públicos disponibles
+                </p>
+              )}
+              {!loadingPublic && publicProjects.length > 0 && (
+                <PortfolioGrid
+                  projects={publicProjects.map((project, index) => {
+                    const isNatillera = project.type === 'NATILLERA';
+                    const gradientList = isNatillera
+                      ? gradients.natillera
+                      : gradients.tokenization;
+                    return {
+                      id: project.id,
+                      name: project.name,
+                      type: isNatillera ? 'natillera' : 'tokenizacion',
+                      changePercentage: 0,
+                      period: 'Anual',
+                      participants: 0,
+                      avatars: [],
+                      gradient: gradientList[index % gradientList.length],
+                      amount: 0,
+                      description: project.description_rich,
+                      emoji: undefined,
+                      ownerName:
+                        project.owner_user?.displayName ||
+                        project.owner_user?.username,
+                    };
+                  })}
+                  onProjectClick={handleProjectClick}
+                />
+              )}
             </div>
           )}
         </IonContent>

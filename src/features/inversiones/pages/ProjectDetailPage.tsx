@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonContent, useIonToast } from '@ionic/react';
+import { IonPage, IonContent, IonButton, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
-import { Project } from '@/models/projects';
+import { projectMembershipService } from '@/services/projects/membership.service';
+import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';
 import {
@@ -33,6 +34,8 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
   const [activeTab, setActiveTab] = useState<
     'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
   >('resumen');
@@ -89,6 +92,30 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     }
   };
 
+  const handleJoinProject = async () => {
+    if (!project || !user) return;
+
+    try {
+      setIsJoining(true);
+      await projectMembershipService.join(project.id);
+      setHasJoined(true);
+      await present({
+        message: 'Te has unido al proyecto exitosamente',
+        duration: 3000,
+        color: 'success',
+      });
+    } catch (error: any) {
+      console.error('Error joining project:', error);
+      await present({
+        message: error.message || 'Error al unirse al proyecto',
+        duration: 3000,
+        color: 'danger',
+      });
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
   const isOwner = Boolean(
     user?.id && project?.owner_user?.id && user.id === project.owner_user.id
   );
@@ -120,6 +147,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   // Determinar si mostrar botón de unirse
   const showJoinButton = mode === 'join' && !isOwner;
 
+  // Mostrar botón de unirse para proyectos públicos cuando el usuario no es owner ni miembro
+  const isPublicProject = project?.visibility === ProjectVisibility.PUBLIC;
+  const canJoinPublicProject =
+    isPublicProject && !isOwner && !isMember && !hasJoined && user;
+
   return (
     <IonPage>
       <IonContent fullscreen className="project-detail-page">
@@ -128,7 +160,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           projectType={projectType}
           gradient={gradients[projectType]}
           onBack={handleBack}
-          onShare={mode === 'view' ? handleShare : undefined}
+          onShare={isOwner ? handleShare : undefined}
         />
 
         <ProjectDetailTabs
@@ -176,6 +208,27 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             <SolicitudesTab project={project} />
           )}
         </div>
+
+        {/* Botón flotante para unirse a proyectos públicos */}
+        {canJoinPublicProject && (
+          <div className="join-project-footer">
+            <IonButton
+              expand="block"
+              className="join-project-btn"
+              onClick={handleJoinProject}
+              disabled={isJoining}
+            >
+              {isJoining ? 'Uniéndose...' : 'Unirme al proyecto'}
+            </IonButton>
+          </div>
+        )}
+
+        {/* Mensaje si ya se unió */}
+        {hasJoined && (
+          <div className="join-project-footer join-project-footer--success">
+            <p>Ya eres parte de este proyecto</p>
+          </div>
+        )}
       </IonContent>
     </IonPage>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
-import { arrowBackOutline } from 'ionicons/icons';
+import { arrowBackOutline, shareSocialOutline } from 'ionicons/icons';
 import './InvestmentComponents.css';
 
 interface InvestmentHeaderProps {
@@ -17,6 +17,7 @@ export const InvestmentHeader: React.FC<InvestmentHeaderProps> = ({
   coverImage,
   gradient,
   onBack,
+  onShare,
 }) => {
   return (
     <div className="investment-header">
@@ -25,6 +26,11 @@ export const InvestmentHeader: React.FC<InvestmentHeaderProps> = ({
           <IonIcon icon={arrowBackOutline} />
         </button>
         <h1 className="investment-header-title">{projectName}</h1>
+        {onShare && (
+          <button className="header-share-btn" onClick={onShare}>
+            <IonIcon icon={shareSocialOutline} />
+          </button>
+        )}
       </div>
       <div
         className="investment-header-image"
