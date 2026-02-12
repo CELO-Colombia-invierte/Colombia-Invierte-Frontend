@@ -41,11 +41,18 @@ const PortafolioPage: React.FC = () => {
     try {
       setLoadingPublic(true);
       const allProjects = await projectsService.findAll();
-      // Filtrar solo proyectos públicos que no sean del usuario actual
+
+      // Obtener IDs de proyectos donde el usuario ya es miembro
+      const myProjectIds = new Set(positions.map((p) => p.projectId));
+
+      // Filtrar solo proyectos públicos que:
+      // 1. No sean del usuario actual (owner)
+      // 2. El usuario no sea ya miembro
       const publicOnly = allProjects.filter(
         (p) =>
           p.visibility === ProjectVisibility.PUBLIC &&
-          p.owner_user_id !== user?.id
+          p.owner_user_id !== user?.id &&
+          !myProjectIds.has(p.id)
       );
       setPublicProjects(publicOnly);
     } catch (error) {
@@ -53,7 +60,7 @@ const PortafolioPage: React.FC = () => {
     } finally {
       setLoadingPublic(false);
     }
-  }, [user?.id]);
+  }, [user?.id, positions]);
 
   useEffect(() => {
     fetchPortfolio();
