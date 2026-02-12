@@ -387,6 +387,7 @@ const CrearTokenizacionPage: React.FC = () => {
                     nombreProyecto: formData.nombreProyecto,
                     descripcion: formData.descripcion,
                     aspectosDestacados: formData.aspectosDestacados,
+                    privacidad: formData.privacidad,
                   }}
                   tokenRights={tokenRights}
                   tokenFaqs={tokenFaqs}
@@ -449,7 +450,6 @@ const CrearTokenizacionPage: React.FC = () => {
               userName="UserName"
               description={formData.descripcion}
               aspectosDestacados={formData.aspectosDestacados}
-              privacidad={formData.privacidad}
               invitarAmigos={formData.invitarAmigos}
               shareLink={
                 createdTokenizacion?.share_slug
@@ -457,9 +457,6 @@ const CrearTokenizacionPage: React.FC = () => {
                   : ''
               }
               projectId={createdTokenizacion?.id || ''}
-              onPrivacidadChange={(value) =>
-                handleFieldChange('privacidad', value)
-              }
               onInvitarAmigosChange={(value) =>
                 handleFieldChange('invitarAmigos', value)
               }
