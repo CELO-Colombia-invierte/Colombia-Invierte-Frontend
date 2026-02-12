@@ -4,6 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
 import { projectMembershipService } from '@/services/projects/membership.service';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
+import { MembershipStatus } from '@/models/membership/membership.model';
 import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';
 import {
@@ -34,6 +35,8 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const [membershipStatus, setMembershipStatus] =
+    useState<MembershipStatus | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -54,12 +57,23 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       const data = await projectsService.findOne(identifier);
       setProject(data);
 
-      // Determinar si mostrar botón de pago
-      // Si el usuario está autenticado, en modo view, y no es el dueño, mostramos el botón
-      if (user?.id && mode === 'view' && data.owner_user_id !== user.id) {
-        setIsMember(true);
+      // Verificar membresía real del usuario si está autenticado
+      if (user?.id) {
+        try {
+          const membership = await projectMembershipService.checkMembership(
+            data.id
+          );
+          setIsMember(membership.isMember);
+          setMembershipStatus(membership.status);
+        } catch (membershipError) {
+          // Si falla la verificación, asumir que no es miembro
+          console.error('Error checking membership:', membershipError);
+          setIsMember(false);
+          setMembershipStatus(null);
+        }
       } else {
         setIsMember(false);
+        setMembershipStatus(null);
       }
     } catch (error: any) {
       console.error('Error fetching project:', error);
@@ -149,8 +163,14 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
   // Mostrar botón de unirse para proyectos públicos cuando el usuario no es owner ni miembro
   const isPublicProject = project?.visibility === ProjectVisibility.PUBLIC;
+  const hasPendingRequest = membershipStatus === MembershipStatus.PENDING;
   const canJoinPublicProject =
-    isPublicProject && !isOwner && !isMember && !hasJoined && user;
+    isPublicProject &&
+    !isOwner &&
+    !isMember &&
+    !hasJoined &&
+    !hasPendingRequest &&
+    user;
 
   return (
     <IonPage>
@@ -227,6 +247,13 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         {hasJoined && (
           <div className="join-project-footer join-project-footer--success">
             <p>Ya eres parte de este proyecto</p>
+          </div>
+        )}
+
+        {/* Mensaje si tiene solicitud pendiente */}
+        {hasPendingRequest && !hasJoined && (
+          <div className="join-project-footer join-project-footer--pending">
+            <p>Tu solicitud está pendiente de aprobación</p>
           </div>
         )}
       </IonContent>

@@ -45,3 +45,16 @@
   font-weight: 500;
   font-size: 14px;
 }
+
+.join-project-footer--pending {
+  text-align: center;
+  background: #fffbeb;
+  border-top: 1px solid #fde68a;
+}
+
+.join-project-footer--pending p {
+  margin: 0;
+  color: #d97706;
+  font-weight: 500;
+  font-size: 14px;
+}
