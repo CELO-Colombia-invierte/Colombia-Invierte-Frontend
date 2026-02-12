@@ -11,6 +11,7 @@ import { checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import { projectsService, projectMembershipService } from '@/services/projects';
 import { Project } from '@/models/projects';
 
+
 import { InvestmentHeader } from '@/features/inversiones/components';
 import {
   ProjectDetailTabs,
@@ -31,7 +32,7 @@ const JoinNatilleraPage: React.FC = () => {
     null
   );
   const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'solicitudes'
+    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
   >('resumen');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 

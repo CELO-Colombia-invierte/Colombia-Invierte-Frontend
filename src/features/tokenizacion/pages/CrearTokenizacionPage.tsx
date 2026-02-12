@@ -10,6 +10,7 @@ import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
 import { projectsService } from '@/services/projects';
+import { projectInvitationsService } from '@/services/projects/invitations.service';
 import {
   Project,
   ProjectType,
@@ -212,11 +213,11 @@ const CrearTokenizacionPage: React.FC = () => {
         })),
       };
 
-      console.log('[CrearTokenizacion] DTO preparado:', tokenizacionData);
+      // console.log('[CrearTokenizacion] DTO preparado:', tokenizacionData);
 
       const project = await projectsService.create(tokenizacionData);
-      console.log('[CrearTokenizacion] Proyecto creado:', project);
-      console.log('[CrearTokenizacion] Project ID:', project.id);
+      // console.log('[CrearTokenizacion] Proyecto creado:', project);
+      // console.log('[CrearTokenizacion] Project ID:', project.id);
 
       const projectId = project.id;
 
@@ -300,6 +301,36 @@ const CrearTokenizacionPage: React.FC = () => {
     }
   };
 
+  const handleInvite = async (
+    emailOrUsername: string
+  ): Promise<{ success: boolean; message: string }> => {
+    if (!createdTokenizacion?.id) {
+      return { success: false, message: 'Error: No se encontró el proyecto' };
+    }
+
+    try {
+      // Determinar si es email o username
+      const isEmail = emailOrUsername.includes('@');
+      const inviteData = isEmail
+        ? { invitee_email: emailOrUsername }
+        : { invitee_username: emailOrUsername };
+
+      await projectInvitationsService.create(
+        createdTokenizacion.id,
+        inviteData
+      );
+
+      return {
+        success: true,
+        message: `Invitación enviada a ${emailOrUsername}`,
+      };
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || 'Error al enviar la invitación';
+      return { success: false, message: errorMessage };
+    }
+  };
+
   const getProgressWidth = () => {
     const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
     return `${progressPercentage}%`;
@@ -356,6 +387,7 @@ const CrearTokenizacionPage: React.FC = () => {
                     nombreProyecto: formData.nombreProyecto,
                     descripcion: formData.descripcion,
                     aspectosDestacados: formData.aspectosDestacados,
+                    privacidad: formData.privacidad,
                   }}
                   tokenRights={tokenRights}
                   tokenFaqs={tokenFaqs}
@@ -418,20 +450,18 @@ const CrearTokenizacionPage: React.FC = () => {
               userName="UserName"
               description={formData.descripcion}
               aspectosDestacados={formData.aspectosDestacados}
-              privacidad={formData.privacidad}
               invitarAmigos={formData.invitarAmigos}
               shareLink={
                 createdTokenizacion?.share_slug
                   ? `${window.location.origin}/tokenizacion/${createdTokenizacion.share_slug}`
                   : ''
               }
-              onPrivacidadChange={(value) =>
-                handleFieldChange('privacidad', value)
-              }
+              projectId={createdTokenizacion?.id || ''}
               onInvitarAmigosChange={(value) =>
                 handleFieldChange('invitarAmigos', value)
               }
               onCopyLink={handleCopyLink}
+              onInvite={handleInvite}
             />
           )}
         </div>

@@ -18,6 +18,7 @@ import { BottomNavBar } from '@/components/navigation/bottomNavBar/BottomNavBar'
 import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { useCleanupThirdweb } from '@/hooks/use-cleanup-thirdweb';
 
 setupIonicReact();
 
@@ -154,6 +155,7 @@ const OnboardingWrapper: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { showSplash, showLoading, loadingProgress, isReady } = useSplash();
+  useCleanupThirdweb();
 
   if (showSplash) {
     return <SplashScreen />;

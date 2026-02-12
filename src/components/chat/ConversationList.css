@@ -38,10 +38,29 @@
   cursor: pointer;
   transition: background 0.2s;
   border-bottom: 1px solid #f3f4f6;
+  position: relative;
+}
+
+.conversation-item.has-unread {
+  background: #fef3c7;
+}
+
+.conversation-item.has-unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #f59e0b;
 }
 
 .conversation-item:hover {
   background: #f9fafb;
+}
+
+.conversation-item.has-unread:hover {
+  background: #fef3c7;
 }
 
 .conversation-item:active {
@@ -125,6 +144,11 @@
   text-overflow: ellipsis;
 }
 
+.conversation-item.has-unread .conversation-title {
+  font-weight: 700;
+  color: #000000;
+}
+
 .conversation-time {
   font-size: 12px;
   color: #9ca3af;
@@ -144,6 +168,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.conversation-item.has-unread .conversation-subtitle {
+  font-weight: 600;
+  color: #374151;
 }
 
 .conversation-unread-badge {

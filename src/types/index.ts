@@ -123,3 +123,52 @@ export interface Message {
   isMine: boolean;
   userId: string;
 }
+
+// Notificaciones
+export enum NotificationType {
+  PROJECT_INVITATION = 'PROJECT_INVITATION',
+  PROJECT_INVITATION_ACCEPTED = 'PROJECT_INVITATION_ACCEPTED',
+  PROJECT_INVITATION_DECLINED = 'PROJECT_INVITATION_DECLINED',
+  PAYMENT_REMINDER = 'PAYMENT_REMINDER',
+  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
+  PAYMENT_LATE = 'PAYMENT_LATE',
+  NEW_MESSAGE = 'NEW_MESSAGE',
+  SYSTEM_ANNOUNCEMENT = 'SYSTEM_ANNOUNCEMENT',
+}
+
+export interface NotificationActor {
+  id: string;
+  display_name: string;
+  username: string;
+  avatar_url: string | null;
+}
+
+export interface NotificationProject {
+  id: string;
+  name: string;
+  type: string;
+}
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  action_url: string | null;
+  actor: NotificationActor | null;
+  project: NotificationProject | null;
+  metadata: Record<string, unknown> | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface NotificationListResponse {
+  notifications: Notification[];
+  total: number;
+  unread_count: number;
+}
+
+export interface UnreadCountResponse {
+  unread_count: number;
+}

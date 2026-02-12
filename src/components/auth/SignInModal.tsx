@@ -5,6 +5,7 @@ import { inAppWallet, createWallet, getUserEmail } from 'thirdweb/wallets';
 import { defineChain } from 'thirdweb/chains';
 import { thirdwebClient } from '@/app/App';
 import { useAuth } from '@/hooks/use-auth';
+import { cleanupThirdwebBackdrop } from '@/utils/cleanup-thirdweb';
 import './SignInModal.css';
 
 const celo = defineChain({
@@ -56,6 +57,11 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
   useEffect(() => {
     if (isAuthenticated) {
+      cleanupThirdwebBackdrop();
+      setTimeout(cleanupThirdwebBackdrop, 100);
+      setTimeout(cleanupThirdwebBackdrop, 300);
+      setTimeout(cleanupThirdwebBackdrop, 500);
+
       onCloseRef.current();
       return;
     }
@@ -77,7 +83,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         });
 
         let userEmail: string | undefined;
-        
+
         try {
           userEmail = await getUserEmail({ client: thirdwebClient });
           console.log('📧 EMAIL FROM getUserEmail:', userEmail);
@@ -103,6 +109,12 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
     handleVerify();
   }, [account?.address, isAuthenticated]);
+
+  useEffect(() => {
+    return () => {
+      cleanupThirdwebBackdrop();
+    };
+  }, []);
 
   if (!isOpen) return null;
 

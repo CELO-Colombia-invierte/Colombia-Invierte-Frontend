@@ -1,5 +1,9 @@
-import { apiService } from "../api/api.service";
-import { InvestmentPosition, JoinProjectResponse } from "@/models/membership/membership.model";
+import { apiService } from '../api/api.service';
+import {
+  InvestmentPosition,
+  JoinProjectResponse,
+  CheckMembershipResponse,
+} from '@/models/membership/membership.model';
 
 class ProjectMembershipService {
   async join(projectId: string): Promise<JoinProjectResponse> {
@@ -24,7 +28,10 @@ class ProjectMembershipService {
     return response.data;
   }
 
-  async approveMembership(projectId: string, positionId: string): Promise<InvestmentPosition> {
+  async approveMembership(
+    projectId: string,
+    positionId: string
+  ): Promise<InvestmentPosition> {
     const response = await apiService.post<InvestmentPosition>(
       `/projects/${projectId}/membership/members/${positionId}/approve`,
       {}
@@ -32,7 +39,10 @@ class ProjectMembershipService {
     return response.data;
   }
 
-  async rejectMembership(projectId: string, positionId: string): Promise<InvestmentPosition> {
+  async rejectMembership(
+    projectId: string,
+    positionId: string
+  ): Promise<InvestmentPosition> {
     const response = await apiService.post<InvestmentPosition>(
       `/projects/${projectId}/membership/members/${positionId}/reject`,
       {}
@@ -44,6 +54,13 @@ class ProjectMembershipService {
     await apiService.delete(
       `/projects/${projectId}/membership/members/${positionId}`
     );
+  }
+
+  async checkMembership(projectId: string): Promise<CheckMembershipResponse> {
+    const response = await apiService.get<CheckMembershipResponse>(
+      `/projects/${projectId}/membership/check`
+    );
+    return response.data;
   }
 }
 

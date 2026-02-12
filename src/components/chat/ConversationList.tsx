@@ -13,7 +13,7 @@ interface ConversationListProps {
 export const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   currentUserId,
-  onConversationClick
+  onConversationClick,
 }) => {
   if (conversations.length === 0) {
     return (
@@ -68,7 +68,10 @@ const ConversationListItem: React.FC<ConversationListItemProps> = ({
   };
 
   return (
-    <div className="conversation-item" onClick={onClick}>
+    <div
+      className={`conversation-item ${unreadCount > 0 ? 'has-unread' : ''}`}
+      onClick={onClick}
+    >
       <div className="conversation-avatar">
         {avatarUrl ? (
           <img src={avatarUrl} alt={title} />
@@ -77,13 +80,9 @@ const ConversationListItem: React.FC<ConversationListItemProps> = ({
             <IonIcon icon={peopleCircle} />
           </div>
         ) : (
-          <div className="conversation-avatar-initials">
-            {initials}
-          </div>
+          <div className="conversation-avatar-initials">{initials}</div>
         )}
-        {!isGroup && (
-          <span className="conversation-online-indicator"></span>
-        )}
+        {!isGroup && <span className="conversation-online-indicator"></span>}
       </div>
 
       <div className="conversation-content">

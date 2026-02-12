@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import { SignInModal } from '@/components/auth';
 import { useAuth } from '@/hooks/use-auth';
+import { cleanupThirdwebBackdrop } from '@/utils/cleanup-thirdweb';
 import './AuthPage.css';
 
 const AuthPage: React.FC = () => {
@@ -13,6 +14,10 @@ const AuthPage: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       setIsModalOpen(false);
+
+      setTimeout(cleanupThirdwebBackdrop, 200);
+      setTimeout(cleanupThirdwebBackdrop, 500);
+      setTimeout(cleanupThirdwebBackdrop, 1000);
     }
   }, [isAuthenticated]);
 

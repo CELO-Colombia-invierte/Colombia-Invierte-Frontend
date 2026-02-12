@@ -1,0 +1,233 @@
+.participantes-tab {
+  padding: 16px;
+}
+
+.participantes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ion-color-light-shade);
+}
+
+.participantes-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+}
+
+.loading-container p {
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-state p {
+  color: var(--ion-color-medium);
+  font-size: 16px;
+  margin: 0 0 8px 0;
+}
+
+.chat-ready-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.chat-info {
+  text-align: center;
+  max-width: 400px;
+}
+
+.chat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-bottom: 16px;
+}
+
+.chat-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.chat-info p {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.participants-info {
+  padding: 12px 16px;
+  background: var(--ion-color-light-tint);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.participants-info p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ion-color-dark);
+}
+
+.participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.participants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.participant-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  border: 1px solid var(--ion-color-light-shade);
+}
+
+.participant-card:hover {
+  background: var(--ion-color-light-tint);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.participant-avatar {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.participant-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.participant-details {
+  width: 100%;
+  text-align: center;
+}
+
+.participant-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.participant-name-row h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.participant-email {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .participantes-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .participantes-header ion-button {
+    width: 100%;
+  }
+
+  .participants-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .participants-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .participant-card {
+    padding: 12px;
+  }
+
+  .participant-avatar {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 8px;
+  }
+
+  .avatar-placeholder {
+    font-size: 20px;
+  }
+
+  .participant-name-row h4 {
+    font-size: 14px;
+  }
+}

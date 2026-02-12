@@ -2,17 +2,24 @@ import React from 'react';
 import './ProjectDetailTabs.css';
 
 interface ProjectDetailTabsProps {
-  activeTab: 'resumen' | 'finanzas' | 'documentos' | 'solicitudes';
+  activeTab:
+    | 'resumen'
+    | 'finanzas'
+    | 'documentos'
+    | 'participantes'
+    | 'solicitudes';
   onTabChange: (
-    tab: 'resumen' | 'finanzas' | 'documentos' | 'solicitudes'
+    tab: 'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
   ) => void;
   isOwner?: boolean;
+  isMember?: boolean;
 }
 
 export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
   activeTab,
   onTabChange,
   isOwner = false,
+  isMember = false,
 }) => {
   return (
     <div className="project-detail-tabs">
@@ -34,6 +41,14 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
       >
         Documentos
       </button>
+      {(isOwner || isMember) && (
+        <button
+          className={`tab-button ${activeTab === 'participantes' ? 'active' : ''}`}
+          onClick={() => onTabChange('participantes')}
+        >
+          Participantes
+        </button>
+      )}
       {isOwner && (
         <button
           className={`tab-button ${activeTab === 'solicitudes' ? 'active' : ''}`}

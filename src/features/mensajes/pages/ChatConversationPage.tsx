@@ -4,7 +4,13 @@ import { useHistory, useParams } from 'react-router-dom';
 import { chatApiService } from '@/services/chat';
 import { Conversation } from '@/models/Conversation.model';
 import { Message } from '@/models/Message.model';
-import { GroupChatHeader, GroupMessageList, MessageInput, GroupOptionsModal } from '@/components/chat';
+import {
+  GroupChatHeader,
+  GroupMessageList,
+  MessageInput,
+  GroupOptionsModal,
+  ChatInfoModal,
+} from '@/components/chat';
 import { useAuth } from '@/hooks/use-auth';
 import { useChatWebSocket } from '@/hooks/use-chat-websocket';
 import { MessageMapper } from '@/mappers/MessageMapper';
@@ -26,72 +32,95 @@ const ChatConversationPage: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const contentRef = useRef<HTMLIonContentElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingUsersTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const markAsReadRef = useRef<((conversationId: string) => void) | null>(null);
 
-  const handleNewMessage = useCallback((event: NewMessageSocketEvent) => {
-    if (event.conversationId === conversationId) {
-      const messageDto = event.message as any;
-      const newMessage = MessageMapper.fromDto(messageDto);
-      
-      setMessages(prev => {
-        if (prev.some(m => m.id === newMessage.id)) {
-          return prev;
+  const handleNewMessage = useCallback(
+    (event: NewMessageSocketEvent) => {
+      if (event.conversationId === conversationId) {
+        const messageDto = event.message as any;
+        const newMessage = MessageMapper.fromDto(messageDto);
+
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === newMessage.id)) {
+            return prev;
+          }
+          return [...prev, newMessage];
+        });
+
+        setTypingUsers((prev) =>
+          prev.filter((u) => u.id !== messageDto.sender_user_id)
+        );
+
+        if (markAsReadRef.current) {
+          markAsReadRef.current(conversationId);
         }
-        return [...prev, newMessage];
-      });
-      
-      setTypingUsers(prev => prev.filter(u => u.id !== messageDto.sender_user_id));
-      
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-    }
-  }, [conversationId]);
 
-  const handleUserTyping = useCallback((event: { conversationId: string; userId: string; userName: string }) => {
-    if (event.conversationId === conversationId && event.userId !== user?.id) {
-      setTypingUsers(prev => {
-        if (prev.some(u => u.id === event.userId)) {
-          return prev;
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+      }
+    },
+    [conversationId]
+  );
+
+  const handleUserTyping = useCallback(
+    (event: { conversationId: string; userId: string; userName: string }) => {
+      if (
+        event.conversationId === conversationId &&
+        event.userId !== user?.id
+      ) {
+        setTypingUsers((prev) => {
+          if (prev.some((u) => u.id === event.userId)) {
+            return prev;
+          }
+          return [
+            ...prev,
+            { id: event.userId, name: event.userName || 'Usuario' },
+          ];
+        });
+
+        const existingTimeout = typingUsersTimeoutRef.current.get(event.userId);
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
         }
-        return [...prev, { id: event.userId, name: event.userName || 'Usuario' }];
-      });
 
-      const existingTimeout = typingUsersTimeoutRef.current.get(event.userId);
-      if (existingTimeout) {
-        clearTimeout(existingTimeout);
+        const timeout = setTimeout(() => {
+          setTypingUsers((prev) => prev.filter((u) => u.id !== event.userId));
+          typingUsersTimeoutRef.current.delete(event.userId);
+        }, 3000);
+
+        typingUsersTimeoutRef.current.set(event.userId, timeout);
       }
+    },
+    [conversationId, user?.id]
+  );
 
-      const timeout = setTimeout(() => {
-        setTypingUsers(prev => prev.filter(u => u.id !== event.userId));
-        typingUsersTimeoutRef.current.delete(event.userId);
-      }, 3000);
-      
-      typingUsersTimeoutRef.current.set(event.userId, timeout);
-    }
-  }, [conversationId, user?.id]);
+  const handleUserStoppedTyping = useCallback(
+    (event: { conversationId: string; userId: string }) => {
+      if (event.conversationId === conversationId) {
+        setTypingUsers((prev) => prev.filter((u) => u.id !== event.userId));
 
-  const handleUserStoppedTyping = useCallback((event: { conversationId: string; userId: string }) => {
-    if (event.conversationId === conversationId) {
-      setTypingUsers(prev => prev.filter(u => u.id !== event.userId));
-      
-      const existingTimeout = typingUsersTimeoutRef.current.get(event.userId);
-      if (existingTimeout) {
-        clearTimeout(existingTimeout);
-        typingUsersTimeoutRef.current.delete(event.userId);
+        const existingTimeout = typingUsersTimeoutRef.current.get(event.userId);
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
+          typingUsersTimeoutRef.current.delete(event.userId);
+        }
       }
-    }
-  }, [conversationId]);
+    },
+    [conversationId]
+  );
 
-  const { 
-    connected, 
-    sendMessage: sendWsMessage, 
-    typing: wsTyping, 
+  const {
+    connected,
+    sendMessage: sendWsMessage,
+    typing: wsTyping,
     stopTyping: wsStopTyping,
     joinConversation,
-    markAsRead 
+    markAsRead,
   } = useChatWebSocket({
     onNewMessage: handleNewMessage,
     onUserTyping: handleUserTyping,
@@ -106,6 +135,10 @@ const ChatConversationPage: React.FC = () => {
       console.error('WebSocket error:', error);
     },
   });
+
+  useEffect(() => {
+    markAsReadRef.current = markAsRead;
+  }, [markAsRead]);
 
   useEffect(() => {
     if (conversationId) {
@@ -125,7 +158,7 @@ const ChatConversationPage: React.FC = () => {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
-      typingUsersTimeoutRef.current.forEach(timeout => clearTimeout(timeout));
+      typingUsersTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
       typingUsersTimeoutRef.current.clear();
     };
   }, []);
@@ -134,7 +167,9 @@ const ChatConversationPage: React.FC = () => {
     try {
       setLoading(true);
       const conversations = await chatApiService.getConversations();
-      const currentConversation = conversations.find(c => c.id === conversationId);
+      const currentConversation = conversations.find(
+        (c) => c.id === conversationId
+      );
       if (currentConversation) {
         setConversation(currentConversation);
       }
@@ -162,17 +197,24 @@ const ChatConversationPage: React.FC = () => {
     setShowOptionsModal(true);
   };
 
+  const handleHeaderClick = () => {
+    setShowInfoModal(true);
+  };
+
   const handleSendMessage = async (text: string) => {
     if (!user || !text.trim() || sending) return;
 
     try {
       setSending(true);
-      
+
       if (connected) {
         sendWsMessage(conversationId, text);
       } else {
-        const newMessage = await chatApiService.sendMessage(conversationId, text);
-        setMessages(prev => [...prev, newMessage]);
+        const newMessage = await chatApiService.sendMessage(
+          conversationId,
+          text
+        );
+        setMessages((prev) => [...prev, newMessage]);
       }
 
       wsStopTyping(conversationId);
@@ -224,15 +266,23 @@ const ChatConversationPage: React.FC = () => {
   const isGroup = conversation?.isGroup() || false;
   const title = conversation?.getTitle(user?.id || '') || 'Conversacion';
   const subtitle = isGroup
-    ? conversation?.members.map(m => m.user?.getDisplayName() || m.user?.username).filter(Boolean).join(', ')
+    ? conversation?.members
+        .map((m) => m.user?.getDisplayName() || m.user?.username)
+        .filter(Boolean)
+        .join(', ')
     : undefined;
 
   // Verificar si el usuario es admin del grupo
-  const isAdmin = conversation?.members.find(m => m.userId === user?.id)?.role === 'admin';
+  const isAdmin =
+    conversation?.members.find((m) => m.userId === user?.id)?.role === 'admin';
 
   return (
     <IonPage>
-      <IonContent ref={contentRef} fullscreen className="chat-conversation-page">
+      <IonContent
+        ref={contentRef}
+        fullscreen
+        className="chat-conversation-page"
+      >
         <div className="chat-conversation-container">
           <GroupChatHeader
             title={title}
@@ -243,6 +293,7 @@ const ChatConversationPage: React.FC = () => {
             membersCount={conversation?.members.length}
             onBack={handleBack}
             onMenuClick={handleMenuClick}
+            onHeaderClick={handleHeaderClick}
           />
           <GroupMessageList
             messages={messages}
@@ -251,10 +302,10 @@ const ChatConversationPage: React.FC = () => {
             conversation={conversation}
             typingUsers={typingUsers}
           />
-          <MessageInput 
-            onSend={handleSendMessage} 
+          <MessageInput
+            onSend={handleSendMessage}
             onTyping={handleTyping}
-            disabled={sending} 
+            disabled={sending}
           />
         </div>
 
@@ -266,6 +317,13 @@ const ChatConversationPage: React.FC = () => {
           isAdmin={isAdmin}
           onNameChanged={handleNameChanged}
           onLeave={handleLeaveGroup}
+        />
+
+        <ChatInfoModal
+          isOpen={showInfoModal}
+          onClose={() => setShowInfoModal(false)}
+          conversation={conversation}
+          currentUserId={user?.id || ''}
         />
       </IonContent>
     </IonPage>

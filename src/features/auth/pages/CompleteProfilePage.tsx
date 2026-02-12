@@ -53,17 +53,27 @@ export const CompleteProfilePage: React.FC = () => {
     switch (field) {
       case 'display_name':
         if (!value.trim()) return 'El nombre es requerido';
+        if (value.trim().length < 2)
+          return 'El nombre debe tener al menos 2 caracteres';
+        if (value.trim().length > 50)
+          return 'El nombre no puede exceder 50 caracteres';
         if (!isValidDisplayName(value))
           return 'El nombre debe tener entre 2 y 50 caracteres';
         return '';
       case 'username':
         if (!value.trim()) return 'El nombre de usuario es requerido';
+        if (value.trim().length < 3)
+          return 'El usuario debe tener al menos 3 caracteres';
+        if (value.trim().length > 20)
+          return 'El usuario no puede exceder 20 caracteres';
+        if (!/^[a-zA-Z0-9_]+$/.test(value))
+          return 'Solo se permiten letras, números y guiones bajos (_)';
         if (!isValidUsername(value))
           return 'Usuario inválido (3-20 caracteres, solo letras, números y _)';
         return '';
       case 'email':
         if (!value.trim()) return 'El email es requerido';
-        if (!isValidEmail(value)) return 'Email inválido';
+        if (!isValidEmail(value)) return 'Ingresa un email válido';
         return '';
       default:
         return '';
@@ -126,9 +136,20 @@ export const CompleteProfilePage: React.FC = () => {
         email: formData.email.trim(),
       });
 
-      window.location.href = '/home';
-    } catch (error) {
+      history.replace('/home');
+    } catch (error: any) {
       console.error('Error updating profile:', error);
+
+      if (error?.response?.data?.message) {
+        const message = error.response.data.message;
+        if (message.toLowerCase().includes('username')) {
+          setErrors((prev) => ({ ...prev, username: message }));
+          setTouched((prev) => ({ ...prev, username: true }));
+        } else if (message.toLowerCase().includes('email')) {
+          setErrors((prev) => ({ ...prev, email: message }));
+          setTouched((prev) => ({ ...prev, email: true }));
+        }
+      }
     }
   };
 
@@ -207,8 +228,12 @@ export const CompleteProfilePage: React.FC = () => {
                 className={`form-input ${errors.username && touched.username ? 'error' : ''}`}
                 disabled={isLoading}
               />
-              {errors.username && touched.username && (
+              {errors.username && touched.username ? (
                 <span className="error-text">{errors.username}</span>
+              ) : (
+                <span className="hint-text">
+                  3-20 caracteres, solo letras, números y guión bajo (_)
+                </span>
               )}
             </div>
 

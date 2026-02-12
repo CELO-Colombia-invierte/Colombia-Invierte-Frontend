@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { IonContent, IonPage, IonSpinner } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
@@ -7,6 +7,9 @@ import { Conversation } from '@/models/Conversation.model';
 import { HomeHeader } from '@/components/home';
 import { SearchBar } from '@/components/chat';
 import { ConversationList } from '@/components/chat/ConversationList';
+import { useChatWebSocket } from '@/hooks/use-chat-websocket';
+import { MessageMapper } from '@/mappers/MessageMapper';
+import { NewMessageSocketEvent } from '@/types/chat';
 import './MensajesPage.css';
 
 const MensajesPage: React.FC = () => {
@@ -16,6 +19,42 @@ const MensajesPage: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleNewMessage = useCallback((event: NewMessageSocketEvent) => {
+    const messageDto = event.message as any;
+    const newMessage = MessageMapper.fromDto(messageDto);
+
+    setConversations((prev) => {
+      return prev
+        .map((conv) => {
+          if (conv.id === event.conversationId) {
+            return new Conversation({
+              id: conv.id,
+              type: conv.type,
+              name: conv.name,
+              members: conv.members,
+              lastMessage: newMessage,
+              unreadCount: conv.unreadCount + 1,
+              createdAt: conv.createdAt,
+              updatedAt: new Date(),
+            });
+          }
+          return conv;
+        })
+        .sort((a, b) => {
+          const aTime = a.lastMessage?.createdAt || a.createdAt;
+          const bTime = b.lastMessage?.createdAt || b.createdAt;
+          return bTime.getTime() - aTime.getTime();
+        });
+    });
+  }, []);
+
+  useChatWebSocket({
+    onNewMessage: handleNewMessage,
+    onConnected: () => {
+      console.log('WebSocket connected in MensajesPage');
+    },
+  });
+
   useEffect(() => {
     fetchConversations();
   }, []);
@@ -24,6 +63,15 @@ const MensajesPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await chatApiService.getConversations();
+      console.log(
+        'Conversations loaded:',
+        data.map((c) => ({
+          id: c.id,
+          title: c.name || 'No name',
+          unreadCount: c.unreadCount,
+          lastMessage: c.lastMessage?.text,
+        }))
+      );
       setConversations(data);
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -51,16 +99,16 @@ const MensajesPage: React.FC = () => {
       <IonContent fullscreen className="mensajes-page-content">
         <HomeHeader userName={user?.getDisplayName() || 'Usuario'} />
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
-        
+
         {loading ? (
           <div className="mensajes-loading">
             <IonSpinner name="crescent" />
           </div>
         ) : (
-          <ConversationList 
-            conversations={filteredConversations} 
+          <ConversationList
+            conversations={filteredConversations}
             currentUserId={user?.id || ''}
-            onConversationClick={handleConversationClick} 
+            onConversationClick={handleConversationClick}
           />
         )}
       </IonContent>

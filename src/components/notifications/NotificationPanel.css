@@ -1,0 +1,115 @@
+.notification-panel-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  padding-top: 80px;
+}
+
+.notification-panel {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: calc(100% - 32px);
+  max-width: 380px;
+  max-height: calc(100vh - 160px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.notification-panel__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.notification-panel__menu-btn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-panel__menu-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification-panel__menu-btn ion-icon {
+  font-size: 20px;
+  color: #666;
+}
+
+.notification-panel__content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.notification-panel__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-panel__loading,
+.notification-panel__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.notification-panel__loading p,
+.notification-panel__empty p {
+  margin: 0;
+  font-size: 14px;
+  color: #999;
+}
+
+.notification-panel__see-all {
+  margin: 12px 16px 16px;
+  padding: 12px 24px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-panel__see-all:hover {
+  background-color: #2563eb;
+}

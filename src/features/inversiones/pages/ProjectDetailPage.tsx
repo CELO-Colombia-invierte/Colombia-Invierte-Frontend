@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonContent, useIonToast } from '@ionic/react';
+import { IonPage, IonContent, IonButton, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
-import { Project } from '@/models/projects';
+import { projectMembershipService } from '@/services/projects/membership.service';
+import { Project, ProjectVisibility } from '@/models/projects/project.model';
+import { MembershipStatus } from '@/models/membership/membership.model';
 import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';
 import {
@@ -10,6 +12,7 @@ import {
   ResumenTab,
   FinanzasTab,
   DocumentosTab,
+  ParticipantesTab,
   SolicitudesTab,
 } from '../components/ProjectDetailTabs';
 import './ProjectDetailPage.css';
@@ -32,8 +35,12 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const [membershipStatus, setMembershipStatus] =
+    useState<MembershipStatus | null>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'solicitudes'
+    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
   >('resumen');
 
   useEffect(() => {
@@ -50,12 +57,23 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       const data = await projectsService.findOne(identifier);
       setProject(data);
 
-      // Determinar si mostrar botón de pago
-      // Si el usuario está autenticado, en modo view, y no es el dueño, mostramos el botón
-      if (user?.id && mode === 'view' && data.owner_user_id !== user.id) {
-        setIsMember(true);
+      // Verificar membresía real del usuario si está autenticado
+      if (user?.id) {
+        try {
+          const membership = await projectMembershipService.checkMembership(
+            data.id
+          );
+          setIsMember(membership.isMember);
+          setMembershipStatus(membership.status);
+        } catch (membershipError) {
+          // Si falla la verificación, asumir que no es miembro
+          console.error('Error checking membership:', membershipError);
+          setIsMember(false);
+          setMembershipStatus(null);
+        }
       } else {
         setIsMember(false);
+        setMembershipStatus(null);
       }
     } catch (error: any) {
       console.error('Error fetching project:', error);
@@ -85,6 +103,30 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         duration: 2000,
         color: 'success',
       });
+    }
+  };
+
+  const handleJoinProject = async () => {
+    if (!project || !user) return;
+
+    try {
+      setIsJoining(true);
+      await projectMembershipService.join(project.id);
+      setHasJoined(true);
+      await present({
+        message: 'Te has unido al proyecto exitosamente',
+        duration: 3000,
+        color: 'success',
+      });
+    } catch (error: any) {
+      console.error('Error joining project:', error);
+      await present({
+        message: error.message || 'Error al unirse al proyecto',
+        duration: 3000,
+        color: 'danger',
+      });
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -119,6 +161,17 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   // Determinar si mostrar botón de unirse
   const showJoinButton = mode === 'join' && !isOwner;
 
+  // Mostrar botón de unirse para proyectos públicos cuando el usuario no es owner ni miembro
+  const isPublicProject = project?.visibility === ProjectVisibility.PUBLIC;
+  const hasPendingRequest = membershipStatus === MembershipStatus.PENDING;
+  const canJoinPublicProject =
+    isPublicProject &&
+    !isOwner &&
+    !isMember &&
+    !hasJoined &&
+    !hasPendingRequest &&
+    user;
+
   return (
     <IonPage>
       <IonContent fullscreen className="project-detail-page">
@@ -127,13 +180,14 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           projectType={projectType}
           gradient={gradients[projectType]}
           onBack={handleBack}
-          onShare={mode === 'view' ? handleShare : undefined}
+          onShare={isOwner ? handleShare : undefined}
         />
 
         <ProjectDetailTabs
           activeTab={activeTab}
           onTabChange={setActiveTab}
           isOwner={isOwner}
+          isMember={isMember}
         />
 
         <div className="project-detail-content">
@@ -166,10 +220,42 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             />
           )}
 
+          {activeTab === 'participantes' && (isOwner || isMember) && (
+            <ParticipantesTab project={project} isOwner={isOwner} />
+          )}
+
           {activeTab === 'solicitudes' && isOwner && (
             <SolicitudesTab project={project} />
           )}
         </div>
+
+        {/* Botón flotante para unirse a proyectos públicos */}
+        {canJoinPublicProject && (
+          <div className="join-project-footer">
+            <IonButton
+              expand="block"
+              className="join-project-btn"
+              onClick={handleJoinProject}
+              disabled={isJoining}
+            >
+              {isJoining ? 'Uniéndose...' : 'Unirme al proyecto'}
+            </IonButton>
+          </div>
+        )}
+
+        {/* Mensaje si ya se unió */}
+        {hasJoined && (
+          <div className="join-project-footer join-project-footer--success">
+            <p>Ya eres parte de este proyecto</p>
+          </div>
+        )}
+
+        {/* Mensaje si tiene solicitud pendiente */}
+        {hasPendingRequest && !hasJoined && (
+          <div className="join-project-footer join-project-footer--pending">
+            <p>Tu solicitud está pendiente de aprobación</p>
+          </div>
+        )}
       </IonContent>
     </IonPage>
   );

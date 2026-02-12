@@ -1,8 +1,13 @@
-import { Conversation, ConversationMember, ConversationType, ConversationMemberRole } from '@/models/Conversation.model';
+import {
+  Conversation,
+  ConversationMember,
+  ConversationType,
+  ConversationMemberRole,
+} from '@/models/Conversation.model';
 import {
   ConversationResponseDto,
   ConversationMemberDto,
-  CreateConversationRequestDto
+  CreateConversationRequestDto,
 } from '@/dtos/chat/ChatResponse.dto';
 import { UserMapper } from './UserMapper';
 import { MessageMapper } from './MessageMapper';
@@ -34,7 +39,8 @@ export class ConversationMapper {
     return new Conversation({
       id: dto.id,
       type: dto.type as ConversationType,
-      members: members.map(m => this.memberFromDto(m)),
+      name: dto.name,
+      members: members.map((m) => this.memberFromDto(m)),
       lastMessage: dto.last_message
         ? MessageMapper.fromDto(dto.last_message)
         : undefined,
@@ -51,7 +57,7 @@ export class ConversationMapper {
     if (!dtos || !Array.isArray(dtos)) {
       return [];
     }
-    return dtos.map(dto => this.fromDto(dto));
+    return dtos.map((dto) => this.fromDto(dto));
   }
 
   /**
@@ -70,14 +76,18 @@ export class ConversationMapper {
   /**
    * Crea una conversación directa con otro usuario
    */
-  static toCreateDirectRequest(otherUserId: string): CreateConversationRequestDto {
+  static toCreateDirectRequest(
+    otherUserId: string
+  ): CreateConversationRequestDto {
     return this.toCreateRequest('DIRECT', [otherUserId]);
   }
 
   /**
    * Crea una conversación de grupo
    */
-  static toCreateGroupRequest(memberIds: string[]): CreateConversationRequestDto {
+  static toCreateGroupRequest(
+    memberIds: string[]
+  ): CreateConversationRequestDto {
     return this.toCreateRequest('GROUP', memberIds);
   }
 
@@ -96,7 +106,7 @@ export class ConversationMapper {
    * Filtra conversaciones no leídas
    */
   static filterUnread(conversations: Conversation[]): Conversation[] {
-    return conversations.filter(c => c.unreadCount > 0);
+    return conversations.filter((c) => c.unreadCount > 0);
   }
 
   /**
@@ -106,6 +116,6 @@ export class ConversationMapper {
     conversations: Conversation[],
     type: ConversationType
   ): Conversation[] {
-    return conversations.filter(c => c.type === type);
+    return conversations.filter((c) => c.type === type);
   }
 }

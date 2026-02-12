@@ -64,7 +64,11 @@ const TokenizacionPaymentPage: React.FC = () => {
 
   const networkFee = 0.005; // Network fee en USDT
 
-  const calculateCryptoTotal = (): { conversion: number; fee: number; total: number } => {
+  const calculateCryptoTotal = (): {
+    conversion: number;
+    fee: number;
+    total: number;
+  } => {
     if (!cryptoAmount || parseFloat(cryptoAmount) <= 0) {
       return { conversion: 0, fee: 0, total: 0 };
     }
@@ -144,7 +148,9 @@ const TokenizacionPaymentPage: React.FC = () => {
           <button className="tkn-back-btn" onClick={() => history.goBack()}>
             <IonIcon icon={arrowBackOutline} />
           </button>
-          <h1 className="tkn-payment-title">Tokenización #{project.id.slice(-3)}</h1>
+          <h1 className="tkn-payment-title">
+            Tokenización #{project.id.slice(-3)}
+          </h1>
         </div>
 
         <div className="tkn-image-container">
@@ -164,7 +170,10 @@ const TokenizacionPaymentPage: React.FC = () => {
           <div className="tkn-quantity-section">
             <div className="tkn-quantity-header">
               <span className="tkn-quantity-label">Cantidad</span>
-              <span className="tkn-balance">Balance: <span className="tkn-balance-value">{walletBalance} USDT</span></span>
+              <span className="tkn-balance">
+                Balance:{' '}
+                <span className="tkn-balance-value">{walletBalance} USDT</span>
+              </span>
             </div>
 
             <div className="tkn-input-box">
@@ -198,7 +207,10 @@ const TokenizacionPaymentPage: React.FC = () => {
               <div className="tkn-usdt-badge">
                 <span className="tkn-usdt-icon">●</span>
                 <span className="tkn-usdt-name">USDT</span>
-                <IonIcon icon={chevronDownOutline} className="tkn-dropdown-icon" />
+                <IonIcon
+                  icon={chevronDownOutline}
+                  className="tkn-dropdown-icon"
+                />
               </div>
             </div>
           </div>
@@ -220,14 +232,22 @@ const TokenizacionPaymentPage: React.FC = () => {
           <div className="tkn-method-section">
             <div
               className={`tkn-method-header ${selectedMethod === 'card' ? 'active' : ''}`}
-              onClick={() => setSelectedMethod(selectedMethod === 'card' ? null : 'card')}
+              onClick={() =>
+                setSelectedMethod(selectedMethod === 'card' ? null : 'card')
+              }
             >
               <div className="tkn-radio">
-                <div className={`tkn-radio-outer ${selectedMethod === 'card' ? 'selected' : ''}`}>
-                  {selectedMethod === 'card' && <div className="tkn-radio-inner" />}
+                <div
+                  className={`tkn-radio-outer ${selectedMethod === 'card' ? 'selected' : ''}`}
+                >
+                  {selectedMethod === 'card' && (
+                    <div className="tkn-radio-inner" />
+                  )}
                 </div>
               </div>
-              <span className="tkn-method-title">Tarjeta de débito / crédito</span>
+              <span className="tkn-method-title">
+                Tarjeta de débito / crédito
+              </span>
             </div>
 
             <div className="tkn-method-icons">
@@ -258,8 +278,16 @@ const TokenizacionPaymentPage: React.FC = () => {
                       maxLength={19}
                     />
                     <div className="tkn-card-icons-inline">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="MC" className="tkn-icon-small" />
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="tkn-icon-small" />
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
+                        alt="MC"
+                        className="tkn-icon-small"
+                      />
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                        alt="Visa"
+                        className="tkn-icon-small"
+                      />
                     </div>
                   </div>
                   <div className="tkn-card-row">
@@ -304,7 +332,9 @@ const TokenizacionPaymentPage: React.FC = () => {
                     }}
                   >
                     {Country.getAllCountries().map((c) => (
-                      <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+                      <option key={c.isoCode} value={c.isoCode}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                   <input
@@ -344,7 +374,9 @@ const TokenizacionPaymentPage: React.FC = () => {
                   >
                     <option value="">State</option>
                     {State.getStatesOfCountry(country).map((s) => (
-                      <option key={s.isoCode} value={s.isoCode}>{s.name}</option>
+                      <option key={s.isoCode} value={s.isoCode}>
+                        {s.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -367,14 +399,22 @@ const TokenizacionPaymentPage: React.FC = () => {
           <div className="tkn-method-section">
             <div
               className={`tkn-method-header ${selectedMethod === 'crypto' ? 'active' : ''}`}
-              onClick={() => setSelectedMethod(selectedMethod === 'crypto' ? null : 'crypto')}
+              onClick={() =>
+                setSelectedMethod(selectedMethod === 'crypto' ? null : 'crypto')
+              }
             >
               <div className="tkn-radio">
-                <div className={`tkn-radio-outer ${selectedMethod === 'crypto' ? 'selected' : ''}`}>
-                  {selectedMethod === 'crypto' && <div className="tkn-radio-inner" />}
+                <div
+                  className={`tkn-radio-outer ${selectedMethod === 'crypto' ? 'selected' : ''}`}
+                >
+                  {selectedMethod === 'crypto' && (
+                    <div className="tkn-radio-inner" />
+                  )}
                 </div>
               </div>
-              <span className="tkn-method-title">Tarjeta de débito / crédito</span>
+              <span className="tkn-method-title">
+                Tarjeta de débito / crédito
+              </span>
             </div>
 
             <div className="tkn-method-icons">
@@ -391,7 +431,9 @@ const TokenizacionPaymentPage: React.FC = () => {
                   <label className="tkn-form-label">Wallet & Network</label>
                   <div className="tkn-wallet-box">
                     <span className="tkn-wallet-icon">👛</span>
-                    <span className="tkn-wallet-balance">{walletBalance.toFixed(2)}</span>
+                    <span className="tkn-wallet-balance">
+                      {walletBalance.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 
@@ -418,13 +460,19 @@ const TokenizacionPaymentPage: React.FC = () => {
                     <div className="tkn-summary-label">Total:</div>
                     <div className="tkn-summary-row">
                       <span className="tkn-summary-text">Conversión:</span>
-                      <span className="tkn-summary-value">{cryptoCalc.conversion.toFixed(2)} USDT</span>
+                      <span className="tkn-summary-value">
+                        {cryptoCalc.conversion.toFixed(2)} USDT
+                      </span>
                     </div>
                     <div className="tkn-summary-row">
                       <span className="tkn-summary-text">Fee:</span>
-                      <span className="tkn-summary-value">{cryptoCalc.fee.toFixed(2)} USDT</span>
+                      <span className="tkn-summary-value">
+                        {cryptoCalc.fee.toFixed(2)} USDT
+                      </span>
                     </div>
-                    <div className="tkn-total-amount">{cryptoCalc.total.toFixed(2)} USDT</div>
+                    <div className="tkn-total-amount">
+                      {cryptoCalc.total.toFixed(2)} USDT
+                    </div>
                   </div>
                 )}
               </div>
@@ -433,7 +481,10 @@ const TokenizacionPaymentPage: React.FC = () => {
 
           {/* Botones de acción */}
           <div className="tkn-actions">
-            <button className="tkn-btn secondary" onClick={() => history.goBack()}>
+            <button
+              className="tkn-btn secondary"
+              onClick={() => history.goBack()}
+            >
               Regresar
             </button>
             <button

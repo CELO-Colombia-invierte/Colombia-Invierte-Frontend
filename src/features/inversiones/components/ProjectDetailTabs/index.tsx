@@ -3,3 +3,4 @@ export { ResumenTab } from './ResumenTab';
 export { FinanzasTab } from './FinanzasTab';
 export { DocumentosTab } from './DocumentosTab';
 export { SolicitudesTab } from './SolicitudesTab';
+export { ParticipantesTab } from './ParticipantesTab';

@@ -96,6 +96,14 @@
   color: #ef4444;
 }
 
+.hint-text {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 4px;
+  color: #6b7280;
+}
+
 .submit-button {
   width: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

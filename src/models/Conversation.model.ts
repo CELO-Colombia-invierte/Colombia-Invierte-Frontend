@@ -32,6 +32,7 @@ export class ConversationMember {
 export class Conversation {
   readonly id: string;
   type: ConversationType;
+  name?: string;
   members: ConversationMember[];
   lastMessage?: Message;
   unreadCount: number;
@@ -41,6 +42,7 @@ export class Conversation {
   constructor(data: {
     id: string;
     type: ConversationType;
+    name?: string;
     members?: ConversationMember[];
     lastMessage?: Message;
     unreadCount?: number;
@@ -49,6 +51,7 @@ export class Conversation {
   }) {
     this.id = data.id;
     this.type = data.type;
+    this.name = data.name;
     this.members = data.members ?? [];
     this.lastMessage = data.lastMessage;
     this.unreadCount = data.unreadCount ?? 0;
@@ -62,13 +65,17 @@ export class Conversation {
 
   getTitle(currentUserId: string): string {
     if (this.isGroup()) {
-      return 'Grupo';
+      return this.name || 'Grupo';
     }
 
-    const otherMember = this.members.find(m => m.userId !== currentUserId);
+    const otherMember = this.members.find((m) => m.userId !== currentUserId);
     if (!otherMember) return 'Conversacion';
 
-    return otherMember.user?.getDisplayName() || otherMember.user?.username || 'Usuario';
+    return (
+      otherMember.user?.getDisplayName() ||
+      otherMember.user?.username ||
+      'Usuario'
+    );
   }
 
   getAvatarUrl(currentUserId: string): string | undefined {
@@ -76,7 +83,7 @@ export class Conversation {
       return undefined;
     }
 
-    const otherMember = this.members.find(m => m.userId !== currentUserId);
+    const otherMember = this.members.find((m) => m.userId !== currentUserId);
     return otherMember?.user?.getAvatarUrl();
   }
 
@@ -85,13 +92,13 @@ export class Conversation {
       return 'GR';
     }
 
-    const otherMember = this.members.find(m => m.userId !== currentUserId);
+    const otherMember = this.members.find((m) => m.userId !== currentUserId);
     return otherMember?.user?.getInitials() || 'U';
   }
 
   getLastMessagePreview(): string {
     if (!this.lastMessage) return 'Sin mensajes';
-    
+
     const text = this.lastMessage.text || '';
     return text.length > 50 ? text.substring(0, 50) + '...' : text;
   }
@@ -104,10 +111,11 @@ export class Conversation {
     const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
 
     if (this.isGroup()) {
-      const sender = this.members.find(m => m.userId === senderId);
-      const senderName = sender?.user?.getDisplayName() || sender?.user?.username || 'Usuario';
+      const sender = this.members.find((m) => m.userId === senderId);
+      const senderName =
+        sender?.user?.getDisplayName() || sender?.user?.username || 'Usuario';
       const isCurrentUser = senderId === currentUserId;
-      
+
       if (isCurrentUser) {
         return `Tu: ${preview}`;
       }

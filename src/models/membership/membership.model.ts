@@ -23,3 +23,9 @@ export interface JoinProjectResponse {
   position: InvestmentPosition;
   via_invitation: boolean;
 }
+
+export interface CheckMembershipResponse {
+  isMember: boolean;
+  isOwner: boolean;
+  status: MembershipStatus | null;
+}
