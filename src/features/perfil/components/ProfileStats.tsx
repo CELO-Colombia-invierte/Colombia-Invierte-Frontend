@@ -1,6 +1,5 @@
 import React from 'react';
 import './ProfileStats.css';
-import { stat } from 'fs/promises';
 
 interface Stat {
   value: number | string;
