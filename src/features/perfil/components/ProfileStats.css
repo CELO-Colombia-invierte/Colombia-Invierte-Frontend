@@ -1,9 +1,13 @@
 .profile-stats {
   display: flex;
   gap: 0;
-  flex: 1;
   align-items: center;
-  padding-top: 8px;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 24px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .profile-stat {
@@ -11,7 +15,24 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+  align-items: center;
+
 }
+
+.profile-stat-separator {
+  width: 1px;
+  height: 32px;
+  background-color: #e2e8f0;   
+} 
+
+.province {
+ font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0;
+} 
 
 .profile-stat-value {
   font-size: 20px;
@@ -30,7 +51,7 @@
 
 @media (max-width: 480px) {
   .profile-stats {
-    gap: 32px;
+    gap: 16px;
   }
 
   .profile-stat-value {
@@ -41,4 +62,3 @@
     font-size: 12px;
   }
 }
-

@@ -1,5 +1,6 @@
 import React from 'react';
 import './ProfileStats.css';
+import { stat } from 'fs/promises';
 
 interface Stat {
   value: number | string;
@@ -19,6 +20,11 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats }) => {
           <div className="profile-stat-label">{stat.label}</div>
         </div>
       ))}
+      <div className="profile-stat-separator"></div>
+      <div className="profile-stat">
+        <img className='imgProvince' src="" alt="hola" />
+        <h2 className="province">Colombia</h2>
+      </div>
     </div>
   );
 };

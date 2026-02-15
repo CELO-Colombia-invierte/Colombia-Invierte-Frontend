@@ -136,7 +136,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
   if (loading) {
     return (
-      <IonPage>
+      <IonPage> 
         <IonContent>
           <div className="loading-container">
             <p>Cargando...</p>
@@ -158,10 +158,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     tokenizacion: 'linear-gradient(135deg, #FCD116 0%, #F59E0B 100%)',
   };
 
-  // Determinar si mostrar botón de unirse
   const showJoinButton = mode === 'join' && !isOwner;
-
-  // Mostrar botón de unirse para proyectos públicos cuando el usuario no es owner ni miembro
   const isPublicProject = project?.visibility === ProjectVisibility.PUBLIC;
   const hasPendingRequest = membershipStatus === MembershipStatus.PENDING;
   const canJoinPublicProject =
@@ -178,6 +175,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         <InvestmentHeader
           projectName={project.name}
           projectType={projectType}
+          coverImage={
+            project.cover_asset_id
+              ? `${import.meta.env.VITE_API_URL || ''}/assets/${project.cover_asset_id}`
+              : undefined
+          }
           gradient={gradients[projectType]}
           onBack={handleBack}
           onShare={isOwner ? handleShare : undefined}
@@ -228,8 +230,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             <SolicitudesTab project={project} />
           )}
         </div>
-
-        {/* Botón flotante para unirse a proyectos públicos */}
         {canJoinPublicProject && (
           <div className="join-project-footer">
             <IonButton
@@ -242,15 +242,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             </IonButton>
           </div>
         )}
-
-        {/* Mensaje si ya se unió */}
         {hasJoined && (
           <div className="join-project-footer join-project-footer--success">
             <p>Ya eres parte de este proyecto</p>
           </div>
         )}
-
-        {/* Mensaje si tiene solicitud pendiente */}
         {hasPendingRequest && !hasJoined && (
           <div className="join-project-footer join-project-footer--pending">
             <p>Tu solicitud está pendiente de aprobación</p>

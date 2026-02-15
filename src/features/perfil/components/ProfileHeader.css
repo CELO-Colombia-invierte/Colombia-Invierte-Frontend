@@ -1,19 +1,16 @@
 .profile-header {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  background: #fff;
+  padding: 12px 16px;
+  background: transparent;
   z-index: 10;
 }
 
 .profile-back-btn {
-  background: none;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   font-size: 24px;
-  color: #1e293b;
+  color: #fff;
   cursor: pointer;
   padding: 8px;
   margin-right: 12px;
@@ -26,11 +23,11 @@
 }
 
 .profile-back-btn:hover {
-  background-color: #f1f5f9;
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .profile-back-btn:active {
-  background-color: #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 .profile-username-header {
@@ -43,12 +40,12 @@
 .profile-username-text {
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+  color: #fff;
 }
 
 .verified-icon {
   font-size: 20px;
-  color: #3b82f6;
+  color: #fff;
   flex-shrink: 0;
 }
 

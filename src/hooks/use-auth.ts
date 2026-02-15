@@ -18,6 +18,10 @@ export const useAuth = () => {
 
   useEffect(() => {
     setAuthState(authService.getAuth());
+    const unsubscribe = authService.subscribe(() => {
+      setAuthState(authService.getAuth());
+    });
+    return unsubscribe;
   }, []);
 
   const verifyThirdweb = useCallback(

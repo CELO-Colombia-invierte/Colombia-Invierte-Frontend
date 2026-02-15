@@ -3,8 +3,7 @@ import { authService } from '../auth';
 
 class ApiService {
   private baseUrl: string;
-  private refreshingToken: boolean = false;
-  private refreshPromise: Promise<void> | null = null;
+  private refreshPromise: Promise<unknown> | null = null;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_URL || '';
@@ -31,27 +30,24 @@ class ApiService {
         headers,
       });
 
-      if (response.status === 401 && retry && !this.refreshingToken) {
+      if (response.status === 401 && retry) {
         if (!this.refreshPromise) {
-          this.refreshingToken = true;
           this.refreshPromise = authService.refreshToken()
-            .then(() => {
-              this.refreshingToken = false;
+            .finally(() => {
               this.refreshPromise = null;
-            })
-            .catch(() => {
-              this.refreshingToken = false;
-              this.refreshPromise = null;
-              authService.clearAuth();
-              throw {
-                message: 'Session expired',
-                status: 401,
-              } as ApiError;
             });
         }
 
-        await this.refreshPromise;
-        return this.request<T>(endpoint, options, false);
+        try {
+          await this.refreshPromise;
+          return this.request<T>(endpoint, options, false);
+        } catch {
+          authService.clearAuth();
+          throw {
+            message: 'Session expired',
+            status: 401,
+          } as ApiError;
+        }
       }
 
       if (!response.ok) {

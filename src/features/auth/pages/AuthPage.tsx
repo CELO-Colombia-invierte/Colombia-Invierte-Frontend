@@ -1,26 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { SignInModal } from '@/components/auth';
 import { useAuth } from '@/hooks/use-auth';
+import { isProfileComplete } from '@/utils/profile';
 import { cleanupThirdwebBackdrop } from '@/utils/cleanup-thirdweb';
 import './AuthPage.css';
 
 const AuthPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const history = useHistory();
+  const hasRedirected = useRef(false);
 
-  // Cerrar el modal cuando el usuario se autentica
-  // Esto asegura que el overlay de Thirdweb se elimine correctamente
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasRedirected.current) {
+      hasRedirected.current = true;
       setIsModalOpen(false);
-
-      setTimeout(cleanupThirdwebBackdrop, 200);
-      setTimeout(cleanupThirdwebBackdrop, 500);
-      setTimeout(cleanupThirdwebBackdrop, 1000);
+      cleanupThirdwebBackdrop();
+      const redirectPath = isProfileComplete(user)
+        ? '/home'
+        : '/complete-profile';
+      history.replace(redirectPath);
     }
   }, [isAuthenticated]);
-
+  
   return (
     <IonPage className="auth-page">
       <IonContent fullscreen className="auth-content">

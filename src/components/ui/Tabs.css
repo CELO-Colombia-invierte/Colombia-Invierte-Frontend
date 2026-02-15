@@ -7,7 +7,7 @@
   margin-bottom: 0;
 }
 
-.tab-button {
+.tabs-container .tab-button {
   position: relative;
   flex: 1;
   background: none;
@@ -19,25 +19,44 @@
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 }
 
-.tab-button:focus-visible {
+.tabs-container .tab-button:last-child {
+  justify-content: flex-end;
+}
+
+.tabs-container .tab-button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: #e2e8f0;
+  border-radius: 100px;
+}
+
+.tabs-container .tab-button.active::after {
+  display: none;
+}
+
+.tabs-container .tab-button:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 4px;
   border-radius: 8px;
 }
 
-.tab-label-wrapper {
+.tabs-container .tab-label-wrapper {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 100%;
   max-width: fit-content;
 }
 
-.tab-label {
+.tabs-container .tab-label {
   font-size: 15px;
   font-weight: 400;
   color: #94a3b8;
@@ -48,31 +67,20 @@
   z-index: 2;
 }
 
-.tab-button.active .tab-label {
+.tabs-container .tab-button.active .tab-label {
   color: #1e293b;
   font-weight: 600;
 }
 
-.tab-border {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 6px;
-  z-index: 1;
-  animation: fadeIn 0.2s ease;
-}
-
-.tab-indicator {
+.tabs-container .tab-indicator {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
-  height: 2px;
+  height: 5px;
   background: #3b82f6;
-  border-radius: 0;
+  border-radius: 100px;
   z-index: 1;
   animation: slideIn 0.2s ease;
 }
@@ -88,17 +96,8 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 /* Hover effect */
-.tab-button:hover:not(.active) .tab-label {
+.tabs-container .tab-button:hover:not(.active) .tab-label {
   color: #64748b;
 }
 
@@ -109,12 +108,11 @@
     padding: 0 16px;
   }
 
-  .tab-label {
+  .tabs-container .tab-label {
     font-size: 15px;
   }
 
-  .tab-button {
+  .tabs-container .tab-button {
     padding: 14px 0;
   }
 }
-

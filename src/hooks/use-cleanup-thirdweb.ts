@@ -1,10 +1,18 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { cleanupThirdwebBackdrop } from '@/utils/cleanup-thirdweb';
 
 export const useCleanupThirdweb = () => {
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/auth';
+
   useEffect(() => {
+    if (isAuthPage) return;
+
     const observer = new MutationObserver(() => {
-      const suspiciousElements = document.querySelectorAll('div[style*="position: fixed"]');
+      const suspiciousElements = document.querySelectorAll(
+        'div[style*="position: fixed"]'
+      );
       suspiciousElements.forEach((element) => {
         const style = window.getComputedStyle(element);
         if (
@@ -13,18 +21,12 @@ export const useCleanupThirdweb = () => {
           !element.closest('[data-ion-page]') &&
           !element.closest('.ion-page')
         ) {
-          const hasThirdwebContent = element.querySelector('[data-thirdweb]') ||
-                                      element.className.includes('tw-') ||
-                                      element.className.includes('thirdweb');
-
-          if (!hasThirdwebContent) {
-            setTimeout(() => {
-              const stillExists = document.body.contains(element);
-              if (stillExists && element.parentNode) {
-                element.parentNode.removeChild(element);
-              }
-            }, 1000);
-          }
+          setTimeout(() => {
+            const stillExists = document.body.contains(element);
+            if (stillExists && element.parentNode) {
+              element.parentNode.removeChild(element);
+            }
+          }, 1000);
         }
       });
     });
@@ -34,13 +36,11 @@ export const useCleanupThirdweb = () => {
       subtree: true,
     });
 
-    const intervalId = setInterval(() => {
-      cleanupThirdwebBackdrop();
-    }, 2000);
+
+    cleanupThirdwebBackdrop();
 
     return () => {
       observer.disconnect();
-      clearInterval(intervalId);
     };
-  }, []);
+  }, [isAuthPage]);
 };

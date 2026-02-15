@@ -41,13 +41,7 @@ const PortafolioPage: React.FC = () => {
     try {
       setLoadingPublic(true);
       const allProjects = await projectsService.findAll();
-
-      // Obtener IDs de proyectos donde el usuario ya es miembro
       const myProjectIds = new Set(positions.map((p) => p.projectId));
-
-      // Filtrar solo proyectos públicos que:
-      // 1. No sean del usuario actual (owner)
-      // 2. El usuario no sea ya miembro
       const publicOnly = allProjects.filter(
         (p) =>
           p.visibility === ProjectVisibility.PUBLIC &&

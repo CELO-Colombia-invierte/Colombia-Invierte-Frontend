@@ -6,7 +6,9 @@ import { usersService } from '@/services/users';
 import { projectsService } from '@/services/projects';
 import { User } from '@/models/User.model';
 import { Project } from '@/models/projects';
-import { ProfileHeader, ProfileStats, ProfileProjectCard } from '../components';
+import { ProfileHeader, ProfileStats } from '../components';
+import { PortfolioGrid } from '@/components/portfolio';
+import { PortfolioProject } from '@/types';
 import { Tabs, Tab } from '@/components/ui/Tabs';
 import './UserProfilePage.css';
 
@@ -17,7 +19,7 @@ const UserProfilePage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'proyectos' | 'sobre-mi'>('proyectos');
+  const [activeTab, setActiveTab] = useState<'proyectos' | 'sobre-mi'>('sobre-mi');
 
   useEffect(() => {
     if (username) {
@@ -30,8 +32,6 @@ const UserProfilePage: React.FC = () => {
       setLoading(true);
       const userData = await usersService.getUserByUsername(username!);
       setUser(userData);
-
-      // Obtener proyectos del usuario
       const projectsData = await projectsService.findAll();
       const userProjects = projectsData.filter(
         (p) => p.owner_user_id === userData.id
@@ -69,91 +69,116 @@ const UserProfilePage: React.FC = () => {
 
   const avatarUrl = user.getAvatarUrl();
 
+  const gradients = {
+    natillera: [
+      'linear-gradient(135deg, #E568DB 0%, #A855F7 100%)',
+      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+      'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
+    ],
+    tokenization: [
+      'linear-gradient(135deg, #FCD116 0%, #F59E0B 100%)',
+      'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+      'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
+    ],
+  };
+
+  const portfolioProjects: PortfolioProject[] = projects.map((project, index) => {
+    const isNatillera = project.type === 'NATILLERA';
+    const gradientList = isNatillera ? gradients.natillera : gradients.tokenization;
+    return {
+      id: project.id,
+      name: project.name,
+      type: isNatillera ? 'natillera' : 'tokenizacion',
+      changePercentage: 0,
+      period: 'Anual',
+      participants: 0,
+      avatars: [],
+      gradient: gradientList[index % gradientList.length],
+      amount: 0,
+      description: project.description_rich,
+      emoji: undefined,
+    };
+  });
+
   const stats = [
-    { value: projects.length, label: 'Proyectos' },
+    { value: projects.length, label: 'Inversiones' },
   ];
 
   const tabs: Tab[] = [
-    { id: 'proyectos', label: 'Proyectos' },
     { id: 'sobre-mi', label: 'Sobre mí' },
+    { id: 'proyectos', label: 'Proyectos' },
+
   ];
 
   return (
     <IonPage>
       <IonContent fullscreen className="user-profile-page">
-        {/* Header */}
-        <ProfileHeader user={user} onBack={() => history.goBack()} />
-
-        {/* Profile Info Section */}
-        <div className="profile-info-section">
-          <div className="profile-avatar-container">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={user.getDisplayName()} className="profile-avatar" />
-            ) : (
-              <div className="profile-avatar-placeholder">
-                {(user.getDisplayName() || 'U').charAt(0).toUpperCase()}
+        <div className="profile-blue-banner">
+          <ProfileHeader user={user} onBack={() => history.goBack()} />
+          <div className="profile-info-section">
+            <div className="profile-avatar-container">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={user.getDisplayName()} className="profile-avatar" />
+              ) : (
+                <div className="profile-avatar-placeholder">
+                  {(user.getDisplayName() || 'U').charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="profile-details">
+              <div className="profile-name-row">
+                <h2 className="profile-display-name">{user.getDisplayName()}</h2>
+                {user.verified && (
+                  <IonIcon icon={checkmarkCircle} className="verified-icon-small" />
+                )}
               </div>
-            )}
+            </div>
           </div>
-
+        </div>
+        <div className="profile-stats-section">
           <ProfileStats stats={stats} />
         </div>
-
-        {/* User Details */}
-        <div className="profile-details">
-          <div className="profile-name-row">
-            <h2 className="profile-display-name">{user.getDisplayName()}</h2>
-            {user.verified && (
-              <IonIcon icon={checkmarkCircle} className="verified-icon-small" />
-            )}
-          </div>
-          {user.username && (
-            <p className="profile-username">@{user.username}</p>
-          )}
-        </div>
-
-        {/* Tabs */}
         <div className="profile-tabs-wrapper">
           <Tabs
             tabs={tabs}
             activeTab={activeTab}
-            onTabChange={(tabId) => setActiveTab(tabId as 'proyectos' | 'sobre-mi')}
+            onTabChange={(tabId) => setActiveTab(tabId as 'sobre-mi' | 'proyectos')}
           />
         </div>
-
-        {/* Content */}
         <div className="profile-content">
           {activeTab === 'proyectos' && (
-            <div className="profile-projects-grid">
-              {projects.length === 0 ? (
-                <div className="profile-empty-state">
-                  <div className="profile-empty-icon">📁</div>
-                  <p className="profile-empty-text">No hay proyectos aún</p>
-                </div>
-              ) : (
-                projects.map((project) => (
-                  <ProfileProjectCard key={project.id} project={project} />
-                ))
-              )}
-            </div>
+            portfolioProjects.length === 0 ? (
+              <div className="profile-empty-state">
+                <div className="profile-empty-icon">📁</div>
+                <p className="profile-empty-text">No hay proyectos aún</p>
+              </div>
+            ) : (
+              <PortfolioGrid
+                projects={portfolioProjects}
+                onProjectClick={(project) => history.push(`/inversiones/${project.id}`)}
+              />
+            )
           )}
 
           {activeTab === 'sobre-mi' && (
-            <div className="profile-about">
-              {user.email && (
+            <div className="profile">
+              <div className="profile-about">
+                <h2 className='general-info'>General</h2>
+                {user.email && (
+                  <div className="profile-about-item">
+                    <div className="profile-about-label">Email</div>
+                    <div className="profile-about-value">{user.email}</div>
+                  </div>
+                )}
                 <div className="profile-about-item">
-                  <div className="profile-about-label">Email</div>
-                  <div className="profile-about-value">{user.email}</div>
-                </div>
-              )}
-              <div className="profile-about-item">
-                <div className="profile-about-label">Miembro desde</div>
-                <div className="profile-about-value">
-                  {new Date(user.createdAt).toLocaleDateString('es-CO', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  <div className="profile-about-label">Miembro desde</div>
+                  <div className="profile-about-value">
+                    {new Date(user.createdAt).toLocaleDateString('es-CO', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

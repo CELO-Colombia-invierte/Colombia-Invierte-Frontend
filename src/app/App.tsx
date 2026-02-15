@@ -27,6 +27,7 @@ export const thirdwebClient = createThirdwebClient({
 });
 
 const MainContent: React.FC = () => {
+  useCleanupThirdweb();
   const location = useLocation();
   const history = useHistory();
   const hideNavBar =
@@ -155,7 +156,6 @@ const OnboardingWrapper: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { showSplash, showLoading, loadingProgress, isReady } = useSplash();
-  useCleanupThirdweb();
 
   if (showSplash) {
     return <SplashScreen />;

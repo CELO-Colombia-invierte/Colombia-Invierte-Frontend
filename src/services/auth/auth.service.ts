@@ -29,15 +29,23 @@ class AuthService {
   private readonly tokenKey = 'auth_token';
   private readonly refreshTokenKey = 'auth_refresh_token';
   private readonly userKey = 'auth_user';
+  private listeners: Set<() => void> = new Set();
+
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  private notifyListeners(): void {
+    this.listeners.forEach((listener) => listener());
+  }
 
   setAuth(token: string, refreshToken: string, user: User): void {
     const sanitizedUser = sanitizeObject(user.toJSON());
     storageService.setItem(this.tokenKey, token);
     storageService.setItem(this.refreshTokenKey, refreshToken);
     storageService.setItem(this.userKey, JSON.stringify(sanitizedUser));
-
-    // Log para debugging
-    // console.log('TOKEN:', token);
+    this.notifyListeners();
   }
 
   getAuth(): AuthState {
@@ -78,6 +86,7 @@ class AuthService {
     storageService.removeItem(this.tokenKey);
     storageService.removeItem(this.refreshTokenKey);
     storageService.removeItem(this.userKey);
+    this.notifyListeners();
   }
 
   getToken(): string | null {
