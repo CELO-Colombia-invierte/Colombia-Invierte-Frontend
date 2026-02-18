@@ -9,7 +9,7 @@ interface UseBlockchainReturn {
   loading: boolean;
   error: string | null;
   approveToken: (tokenAddress: string, spenderAddress: string, amount: bigint) => Promise<string>;
-  depositToNatillera: (contractAddress: string, amount: bigint) => Promise<string>;
+  depositToNatillera: (contractAddress: string) => Promise<string>;
   buyTokens: (contractAddress: string, amount: bigint) => Promise<string>;
   deployNatillera: (params: DeployNatilleraParams) => Promise<string>;
   deployTokenizacion: (params: DeployTokenizacionParams) => Promise<string>;
@@ -46,13 +46,12 @@ export function useBlockchain(): UseBlockchainReturn {
 
   const depositToNatillera = async (
     contractAddress: string,
-    amount: bigint,
   ): Promise<string> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
     try {
-      return await blockchainService.depositToNatillera(account, contractAddress, amount);
+      return await blockchainService.depositToNatillera(account, contractAddress);
     } catch (err) {
       return handleError(err);
     } finally {
