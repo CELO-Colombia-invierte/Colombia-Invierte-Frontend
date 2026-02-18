@@ -6,6 +6,7 @@ import { projectMembershipService } from '@/services/projects/membership.service
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { MembershipStatus } from '@/models/membership/membership.model';
 import { useAuth } from '@/hooks/use-auth';
+import { useBlockchain } from '@/hooks/use-blockchain';
 import { InvestmentHeader } from '../components';
 import {
   ProjectDetailTabs,
@@ -15,6 +16,7 @@ import {
   ParticipantesTab,
   SolicitudesTab,
 } from '../components/ProjectDetailTabs';
+import { DeployProjectCard } from '../components/DeployProjectCard';
 import './ProjectDetailPage.css';
 
 interface ProjectDetailPageProps {
@@ -32,7 +34,9 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const history = useHistory();
   const [present] = useIonToast();
   const { user } = useAuth();
+  const { account } = useBlockchain();
   const [project, setProject] = useState<Project | null>(null);
+  const [isDeployed, setIsDeployed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [membershipStatus, setMembershipStatus] =
@@ -56,6 +60,14 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       }
       const data = await projectsService.findOne(identifier);
       setProject(data);
+
+      // Verificar estado de deploy en blockchain
+      try {
+        const blockchainData = await projectsService.getBlockchainData(data.id);
+        setIsDeployed(blockchainData.isDeployed);
+      } catch {
+        setIsDeployed(false);
+      }
 
       // Verificar membresía real del usuario si está autenticado
       if (user?.id) {
@@ -194,14 +206,23 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
         <div className="project-detail-content">
           {activeTab === 'resumen' && (
-            <ResumenTab
-              project={project}
-              isOwner={isOwner}
-              showJoinButton={showJoinButton}
-              onJoinAction={onJoinAction}
-              joinStatus={joinStatus}
-              isMember={isMember}
-            />
+            <>
+              {isOwner && !isDeployed && (
+                <DeployProjectCard
+                  project={project}
+                  account={account}
+                  onDeployed={() => setIsDeployed(true)}
+                />
+              )}
+              <ResumenTab
+                project={project}
+                isOwner={isOwner}
+                showJoinButton={showJoinButton}
+                onJoinAction={onJoinAction}
+                joinStatus={joinStatus}
+                isMember={isMember}
+              />
+            </>
           )}
 
           {activeTab === 'finanzas' && (

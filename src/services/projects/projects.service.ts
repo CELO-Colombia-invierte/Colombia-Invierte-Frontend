@@ -124,6 +124,25 @@ class ProjectsService {
   async deleteDocument(projectId: string, docId: string): Promise<void> {
     await apiService.delete(`/projects/${projectId}/documents/${docId}`);
   }
+
+  // ============= BLOCKCHAIN =============
+
+  async getBlockchainData(id: string): Promise<{
+    isDeployed: boolean;
+    contractAddress?: string;
+    chainId?: number;
+    deployTxHash?: string;
+    onChainData?: unknown;
+  }> {
+    const response = await apiService.get<{
+      isDeployed: boolean;
+      contractAddress?: string;
+      chainId?: number;
+      deployTxHash?: string;
+      onChainData?: unknown;
+    }>(`/projects/${id}/blockchain`);
+    return response.data;
+  }
 }
 
 export const projectsService = new ProjectsService();

@@ -6,6 +6,7 @@ export interface NatilleraDetailsDto {
   expected_annual_return_pct: number;
   duration_months: number;
   payment_deadline_at: string;
+  max_participants?: number;
 }
 
 export interface TokenizationDetailsDto {
