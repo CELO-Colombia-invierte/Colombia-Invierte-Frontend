@@ -13,6 +13,7 @@ interface Step2FinancialInfoProps {
     moneda: string;
     rendimiento: string;
     cantidadMeses: string;
+    maxParticipantes: string;
     fechaPago: string;
     horaPago: string;
   };
@@ -82,6 +83,23 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           onChange={(e) => onChange('cantidadMeses', e.target.value)}
         />
         <span className="form-hint">Rango: 1 - 120 meses</span>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">
+          Máximo de participantes
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
+        </label>
+        <input
+          type="number"
+          className="form-input"
+          placeholder="12"
+          min="2"
+          max="100"
+          value={formData.maxParticipantes}
+          onChange={(e) => onChange('maxParticipantes', e.target.value)}
+        />
+        <span className="form-hint">Rango: 2 - 100 participantes</span>
       </div>
 
       <div className="form-group">

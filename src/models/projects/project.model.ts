@@ -33,6 +33,7 @@ export interface NatilleraDetails {
   expected_annual_return_pct: number;
   duration_months: number;
   payment_deadline_at: string;
+  max_participants?: number | null;
 }
 
 export interface TokenizationDetails {

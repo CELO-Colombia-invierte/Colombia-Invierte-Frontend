@@ -28,6 +28,7 @@ interface FormData {
   moneda: string;
   rendimiento: string;
   cantidadMeses: string;
+  maxParticipantes: string;
   fechaPago: string;
   horaPago: string;
   privacidad: string;
@@ -69,6 +70,7 @@ const CrearNatilleraPage: React.FC = () => {
     moneda: 'COP',
     rendimiento: '',
     cantidadMeses: '',
+    maxParticipantes: '',
     fechaPago: '',
     horaPago: '12:00',
     privacidad: 'PRIVATE',
@@ -153,6 +155,8 @@ const CrearNatilleraPage: React.FC = () => {
         paymentDate.setHours(parseInt(hours), parseInt(minutes));
       }
 
+      const maxParticipantes = parseInt(formData.maxParticipantes);
+
       const natilleraData = {
         name: formData.nombreProyecto,
         description_rich: formData.descripcion,
@@ -165,6 +169,7 @@ const CrearNatilleraPage: React.FC = () => {
           expected_annual_return_pct: rendimiento,
           duration_months: cantidadMeses,
           payment_deadline_at: paymentDate.toISOString(),
+          ...(maxParticipantes >= 2 && { max_participants: maxParticipantes }),
         },
       };
 
