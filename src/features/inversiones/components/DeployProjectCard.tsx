@@ -7,7 +7,7 @@ import { thirdwebClient } from '@/app/App';
 import { CHAIN } from '@/contracts/config';
 import { blockchainService } from '@/services/blockchain.service';
 import { projectsService } from '@/services/projects';
-import { Project, ProjectType, Currency } from '@/models/projects/project.model';
+import { Project, ProjectType, ProjectVisibility, Currency } from '@/models/projects/project.model';
 import { BLOCKCHAIN_CONFIG, getBlockExplorerTxUrl, getBlockExplorerAddressUrl } from '@/contracts/config';
 import './DeployProjectCard.css';
 
@@ -30,13 +30,13 @@ type DeployStatus = 'idle' | 'loading' | 'pending' | 'deployed';
 interface DeployProjectCardProps {
   project: Project;
   account: Account | undefined;
-  onDeployed?: () => void;
+  onPublished?: (updatedProject: Project) => void;
 }
 
 export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
   project,
   account,
-  onDeployed,
+  onPublished,
 }) => {
   const [status, setStatus] = useState<DeployStatus>('idle');
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -56,9 +56,13 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
         const data = await projectsService.getBlockchainData(projectId);
         if (data.isDeployed && data.contractAddress) {
           setContractAddress(data.contractAddress);
-          setStatus('deployed');
           if (pollingRef.current) clearInterval(pollingRef.current);
-          onDeployed?.();
+          // Publicar el proyecto al confirmar el deploy en blockchain
+          const updatedProject = await projectsService.update(projectId, {
+            visibility: ProjectVisibility.PUBLIC,
+          });
+          setStatus('deployed');
+          onPublished?.(updatedProject);
         }
       } catch {
         // silenciar errores de polling
@@ -103,7 +107,7 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
 
   const handleDeploy = async () => {
     if (!account) {
-      setError('Conecta tu wallet para desplegar el contrato.');
+      setError('Conecta tu wallet para publicar el proyecto.');
       return;
     }
 
@@ -153,9 +157,9 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
     <div className="deploy-card">
       <IonIcon icon={cloudUploadOutline} className="deploy-card__icon" />
       <div className="deploy-card__body">
-        <p className="deploy-card__title">Tu proyecto no está en blockchain todavía</p>
+        <p className="deploy-card__title">Tu proyecto está privado</p>
         <p className="deploy-card__subtitle">
-          Despliega el contrato para que los participantes puedan invertir de forma segura y transparente.
+          Publícalo para que los participantes puedan invertir de forma segura y transparente. Al publicar se desplegará el contrato en blockchain.
         </p>
 
         {status === 'pending' && txHash && (
@@ -182,7 +186,7 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
             onClick={handleDeploy}
             disabled={status === 'loading' || !account}
           >
-            {status === 'loading' ? 'Preparando transacción...' : 'Desplegar en Blockchain'}
+            {status === 'loading' ? 'Preparando transacción...' : 'Publicar proyecto'}
           </button>
         )}
 

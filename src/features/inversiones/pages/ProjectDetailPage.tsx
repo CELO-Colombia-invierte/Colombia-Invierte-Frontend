@@ -207,11 +207,14 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         <div className="project-detail-content">
           {activeTab === 'resumen' && (
             <>
-              {isOwner && !isDeployed && (
+              {isOwner && !isDeployed && project.visibility === ProjectVisibility.PRIVATE && (
                 <DeployProjectCard
                   project={project}
                   account={account}
-                  onDeployed={() => setIsDeployed(true)}
+                  onPublished={(updatedProject) => {
+                    setIsDeployed(true);
+                    setProject(updatedProject);
+                  }}
                 />
               )}
               <ResumenTab
