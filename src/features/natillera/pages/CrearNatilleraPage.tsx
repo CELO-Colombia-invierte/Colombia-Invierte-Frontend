@@ -205,7 +205,17 @@ const CrearNatilleraPage: React.FC = () => {
         }
       }
 
-      setCreatedNatillera(project);
+      await dismissLoading();
+      await presentLoading({ message: 'Publicando en blockchain...' });
+
+      try {
+        const publishedProject = await projectsService.publish(projectId);
+        setCreatedNatillera(publishedProject);
+      } catch {
+        // Si falla el deploy blockchain, el proyecto queda PRIVADO con opción de reintento
+        setCreatedNatillera(project);
+      }
+
       setShowSuccess(true);
 
       await dismissLoading();

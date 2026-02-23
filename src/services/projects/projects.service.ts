@@ -127,6 +127,11 @@ class ProjectsService {
 
   // ============= BLOCKCHAIN =============
 
+  async publish(id: string): Promise<Project> {
+    const response = await apiService.post<Project>(`/projects/${id}/publish`);
+    return response.data;
+  }
+
   async getBlockchainData(id: string): Promise<{
     isDeployed: boolean;
     contractAddress?: string;

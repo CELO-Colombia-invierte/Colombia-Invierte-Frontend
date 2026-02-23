@@ -210,7 +210,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
               {isOwner && !isDeployed && project.visibility === ProjectVisibility.PRIVATE && (
                 <DeployProjectCard
                   project={project}
-                  account={account}
                   onPublished={(updatedProject) => {
                     setIsDeployed(true);
                     setProject(updatedProject);

@@ -252,7 +252,16 @@ const CrearTokenizacionPage: React.FC = () => {
         }
       }
 
-      setCreatedTokenizacion(project);
+      await dismissLoading();
+      await presentLoading({ message: 'Publicando en blockchain...' });
+
+      try {
+        const publishedProject = await projectsService.publish(projectId);
+        setCreatedTokenizacion(publishedProject);
+      } catch {
+        setCreatedTokenizacion(project);
+      }
+
       setShowSuccess(true);
 
       await dismissLoading();
