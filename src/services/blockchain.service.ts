@@ -229,16 +229,27 @@ class BlockchainService {
   // Esto elimina la necesidad de que el usuario tenga CELO para gas.
 
   private async sendWithFeeCurrency(account: Account, contractAddress: string, calldata: `0x${string}`): Promise<string> {
-    const tx = prepareTransaction({
-      client: thirdwebClient,
-      chain: CHAIN,
-      to: contractAddress,
-      data: calldata,
-      // feeCurrency: Celo-specific field — paga el gas con USDC
-      ...({ feeCurrency: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS } as object),
-    });
-    const result = await sendTransaction({ account, transaction: tx });
-    return result.transactionHash;
+    // Intentar con feeCurrency (paga gas con USDC, Celo-specific).
+    // Si falla por feeCurrency no soportado, enviar sin él.
+    try {
+      const result = await account.sendTransaction({
+        to: contractAddress as `0x${string}`,
+        data: calldata,
+        chainId: BLOCKCHAIN_CONFIG.CHAIN_ID,
+        feeCurrency: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS as `0x${string}`,
+      } as Parameters<Account['sendTransaction']>[0]);
+      return result.transactionHash;
+    } catch (feeErr: unknown) {
+      const msg = (feeErr as { message?: string })?.message ?? '';
+      // Si el error no es de gas, re-lanzar (podría ser rechazo del usuario, etc.)
+      if (!msg.includes('feeCurrency') && !msg.includes('fee currency') && !msg.includes('insufficient funds')) {
+        throw feeErr;
+      }
+      // Fallback: enviar sin feeCurrency (requiere CELO)
+      const tx = prepareTransaction({ client: thirdwebClient, chain: CHAIN, to: contractAddress, data: calldata });
+      const result = await sendTransaction({ account, transaction: tx });
+      return result.transactionHash;
+    }
   }
 
   // ── ESCRITURA: approve ERC20 ─────────────
