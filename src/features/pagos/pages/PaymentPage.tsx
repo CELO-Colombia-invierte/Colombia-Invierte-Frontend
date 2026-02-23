@@ -249,8 +249,15 @@ const PaymentPage: React.FC = () => {
           )}
 
           {account && !hasEnoughBalance && monthlyContribution > BigInt(0) && (
-            <div className="payment-notice payment-notice--error">
-              Saldo insuficiente. Necesitas {formatUsdt(monthlyContribution)} USDT.
+            <div className="payment-connect-wallet">
+              <p className="payment-connect-label">
+                Saldo insuficiente. Necesitas {formatUsdt(monthlyContribution)} USDT. Agrega fondos a tu wallet:
+              </p>
+              <ConnectButton
+                client={thirdwebClient}
+                chain={CHAIN}
+                wallets={wallets}
+              />
             </div>
           )}
 
