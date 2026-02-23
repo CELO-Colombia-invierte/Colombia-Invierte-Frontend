@@ -51,8 +51,15 @@ class ApiService {
       }
 
       if (!response.ok) {
+        let message = response.statusText;
+        try {
+          const body = await response.json();
+          if (body?.message) {
+            message = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+          }
+        } catch { /* body no es JSON */ }
         const error: ApiError = {
-          message: response.statusText,
+          message,
           status: response.status,
         };
         throw error;
