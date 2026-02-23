@@ -23,6 +23,15 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
     return `${address.slice(0, 5)}...${address.slice(-4)}`;
   };
 
+  // FECHA CARD
+  const formatDate = () => {
+    return new Date().toLocaleDateString('es-CO', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
   const changePercentage = balance.changePercentage ?? 0;
   const isPositive = changePercentage >= 0;
 
@@ -71,6 +80,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
           {balance.address && (
             <p className="balance-card-address">{formatAddress(balance.address)}</p>
           )}
+          <p className="balance-card-date">{formatDate()}</p>
         </div>
       </div>
     </div>
