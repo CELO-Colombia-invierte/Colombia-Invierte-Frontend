@@ -6,7 +6,6 @@ import { projectMembershipService } from '@/services/projects/membership.service
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { MembershipStatus } from '@/models/membership/membership.model';
 import { useAuth } from '@/hooks/use-auth';
-import { useBlockchain } from '@/hooks/use-blockchain';
 import { InvestmentHeader } from '../components';
 import {
   ProjectDetailTabs,
@@ -34,7 +33,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const history = useHistory();
   const [present] = useIonToast();
   const { user } = useAuth();
-  const { account } = useBlockchain();
   const [project, setProject] = useState<Project | null>(null);
   const [isDeployed, setIsDeployed] = useState(false);
   const [loading, setLoading] = useState(true);

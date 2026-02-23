@@ -122,4 +122,8 @@ export interface Project {
   token_rights?: TokenRight[];
   token_faqs?: TokenFaq[];
   documents?: ProjectDocument[];
+  contract_address?: string | null;
+  deploy_tx_hash?: string | null;
+  chain_id?: number | null;
+  deployed_at?: string | null;
 }

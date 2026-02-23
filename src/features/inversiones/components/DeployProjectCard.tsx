@@ -3,7 +3,7 @@ import { IonIcon } from '@ionic/react';
 import { cloudUploadOutline, checkmarkCircleOutline, openOutline } from 'ionicons/icons';
 import { projectsService } from '@/services/projects';
 import { Project } from '@/models/projects/project.model';
-import { getBlockExplorerAddressUrl, getBlockExplorerTxUrl } from '@/contracts/config';
+import { getBlockExplorerAddressUrl } from '@/contracts/config';
 import './DeployProjectCard.css';
 
 type DeployStatus = 'idle' | 'loading' | 'pending' | 'deployed';
@@ -19,7 +19,6 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
 }) => {
   const [status, setStatus] = useState<DeployStatus>('idle');
   const [contractAddress, setContractAddress] = useState<string | null>(null);
-  const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -36,7 +35,6 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
         if (data.isDeployed && data.contractAddress) {
           setContractAddress(data.contractAddress);
           if (pollingRef.current) clearInterval(pollingRef.current);
-          const updatedProject = await projectsService.getBlockchainData(projectId);
           setStatus('deployed');
           const refreshed = await projectsService.findOne(projectId);
           onPublished?.(refreshed);
@@ -101,18 +99,8 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
         {status === 'pending' && (
           <div className="deploy-card__pending">
             <p className="deploy-card__pending-text">
-              Transacción enviada — esperando confirmación...
+              Publicando en blockchain — esperando confirmación...
             </p>
-            {txHash && (
-              <a
-                href={getBlockExplorerTxUrl(txHash)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="deploy-card__link"
-              >
-                Ver en Celoscan <IonIcon icon={openOutline} />
-              </a>
-            )}
           </div>
         )}
 
