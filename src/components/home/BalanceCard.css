@@ -1,12 +1,112 @@
+/* ── Contenedor general ─────────────────────────────── */
 .balance-card {
-  padding: 24px 20px;
-  background-color: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  background-color: #f8f9fa;
+  padding: 0 20px 4px;
 }
 
-.balance-card-amount {
+/* ── Tab selector ───────────────────────────────────── */
+.balance-card-tabs {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 4px;
+}
+
+.balance-card-tab {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #aaa;
+  cursor: pointer;
+  padding: 4px 0;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.balance-card-tab.active {
+  color: #000;
+  font-weight: 600;
+}
+
+.balance-card-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #000;
+  border-radius: 2px;
+}
+
+.balance-card-tab:not(.active) {
+  padding-left: 12px;
+}
+
+/* ── Cuerpo de la tarjeta ───────────────────────────── */
+.balance-card-body {
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 16px 20px 20px;
+  margin-top: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Fila superior: badge/info + wallet button ──────── */
+.balance-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.balance-card-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.balance-card-badge.positive {
+  background-color: #d4f4dd;
+  color: #0d8a3a;
+}
+
+.balance-card-badge.negative {
+  background-color: #ffe4e4;
+  color: #d32f2f;
+}
+
+.balance-card-info-icon {
+  font-size: 18px;
+  color: #888;
+  cursor: default;
+}
+
+.balance-card-wallet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0f4ff;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3b6ef6;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.balance-card-wallet-btn:active {
+  background: #dce7ff;
+}
+
+/* ── Monto principal ────────────────────────────────── */
+.balance-card-amount-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -14,40 +114,22 @@
 
 .balance-card-value {
   margin: 0;
-  font-size: 42px;
-  font-weight: 600;
+  font-size: 38px;
+  font-weight: 700;
   color: #000;
   line-height: 1.1;
+  letter-spacing: -0.5px;
 }
 
 .balance-card-currency {
-  font-size: 24px;
-  font-weight: 400;
-  color: #666;
-  margin-left: 4px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #444;
 }
 
 .balance-card-address {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #999;
   font-family: monospace;
-}
-
-.balance-card-change {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 4px;
-}
-
-.balance-card-change.positive {
-  background-color: #d4f4dd;
-  color: #0d8a3a;
-}
-
-.balance-card-change.negative {
-  background-color: #ffe4e4;
-  color: #d32f2f;
 }

@@ -14,10 +14,10 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ onSend, onReceive 
       <button
         className="action-button action-button-send"
         onClick={onSend}
-        aria-label="Enviar"
+        aria-label="Transferir"
       >
         <IonIcon icon={paperPlaneOutline} />
-        <span>Enviar</span>
+        <span>Transferir</span>
       </button>
       <button
         className="action-button action-button-receive"
