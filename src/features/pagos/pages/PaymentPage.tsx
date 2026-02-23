@@ -120,7 +120,13 @@ const PaymentPage: React.FC = () => {
       setPayStep('done');
     } catch (err) {
       setPayStep('idle');
-      const msg = err instanceof Error ? err.message : 'Error al procesar el pago';
+      let msg = (err as any)?.message ?? 'Error al procesar el pago';
+      if (msg.includes('insufficient funds for gas') || msg.includes('error_forwarding_sequencer')) {
+        msg = 'Sin CELO para gas. Obtén CELO de prueba en faucet.celo.org/sepolia';
+      } else if (msg.includes('NotMember')) {
+        msg = 'Tu wallet no está registrada en este proyecto. Vuelve a unirte.';
+      }
+      console.error('[PaymentPage] error:', msg);
       await present({ message: msg, duration: 4000, color: 'danger' });
     }
   };
