@@ -31,6 +31,7 @@ const PaymentPage: React.FC = () => {
   const [monthlyContribution, setMonthlyContribution] = useState<bigint>(BigInt(0));
   // Token que el contrato Natillera espera recibir (leído del contrato, no hardcodeado)
   const [contractPaymentToken, setContractPaymentToken] = useState<string>(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS);
+  const [tokenMismatch, setTokenMismatch] = useState(false);
   const [payStep, setPayStep] = useState<PayStep>('idle');
   const [txHash, setTxHash] = useState<string | null>(null);
 
@@ -82,6 +83,9 @@ const PaymentPage: React.FC = () => {
       // Usar el token que el contrato realmente espera, no el configurado en el frontend
       if (config.paymentToken && config.paymentToken !== '0x0000000000000000000000000000000000000000') {
         setContractPaymentToken(config.paymentToken);
+        const normalizedContract = config.paymentToken.toLowerCase();
+        const normalizedExpected = BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS.toLowerCase();
+        setTokenMismatch(normalizedContract !== normalizedExpected);
       }
     } catch {
       // silenciar
@@ -221,6 +225,12 @@ const PaymentPage: React.FC = () => {
             </div>
           )}
 
+          {tokenMismatch && (
+            <div className="payment-notice payment-notice--warning">
+              Este proyecto fue creado con una versión anterior. Para pagar, crea un nuevo proyecto.
+            </div>
+          )}
+
           {!account && (
             <div className="payment-connect-wallet">
               <p className="payment-connect-label">Conecta tu wallet para pagar</p>
@@ -267,7 +277,7 @@ const PaymentPage: React.FC = () => {
               onClick={handlePay}
               // TODO: re-habilitar estas condiciones cuando el flujo de día de pago esté listo:
               // disabled={isPaying || !account || !hasEnoughBalance || !project.contract_address}
-              disabled={isPaying || !account}
+              disabled={isPaying || !account || tokenMismatch}
             >
               {payStep === 'approving'
                 ? 'Aprobando USDT...'
