@@ -128,6 +128,7 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
       startPolling(project.id);
     } catch (err) {
       setStatus('idle');
+      console.error('Deploy error:', err);
       const msg = err instanceof Error ? err.message : 'Error al desplegar';
       setError(msg);
     }
