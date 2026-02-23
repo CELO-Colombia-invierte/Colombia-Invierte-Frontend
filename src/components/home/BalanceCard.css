@@ -1,15 +1,16 @@
 /* ── Contenedor general ─────────────────────────────── */
 .balance-card {
-  background-color: #f8f9fa;
-  padding: 0 20px 4px;
+  background-color: #ffffff;
+  padding: 0 16px 12px;
 }
 
 /* ── Tab selector ───────────────────────────────────── */
 .balance-card-tabs {
   display: flex;
-  gap: 8px;
-  padding-top: 8px;
-  padding-bottom: 4px;
+  justify-content: center;
+  gap: 32px;
+  padding-top: 10px;
+  padding-bottom: 6px;
 }
 
 .balance-card-tab {
@@ -25,32 +26,28 @@
 }
 
 .balance-card-tab.active {
-  color: #000;
+  color: #111;
   font-weight: 600;
 }
 
 .balance-card-tab.active::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: -4px;
   left: 0;
   right: 0;
   height: 2px;
-  background-color: #000;
+  background-color: #3b6ef6;
   border-radius: 2px;
-}
-
-.balance-card-tab:not(.active) {
-  padding-left: 12px;
 }
 
 /* ── Cuerpo de la tarjeta ───────────────────────────── */
 .balance-card-body {
   background-color: #fff;
   border-radius: 20px;
-  padding: 16px 20px 20px;
-  margin-top: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 16px 18px 20px;
+  margin-top: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Fila superior: badge/info + wallet button ──────── */

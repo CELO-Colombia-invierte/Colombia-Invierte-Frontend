@@ -1,5 +1,5 @@
 .home-page-content {
-  --background: #f8f9fa;
+  --background: #ffffff;
 }
 
 .home-page-content::part(scroll) {

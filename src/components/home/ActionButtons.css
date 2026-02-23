@@ -1,8 +1,8 @@
 .action-buttons {
   display: flex;
   gap: 12px;
-  padding: 12px 20px 16px;
-  background-color: #f8f9fa;
+  padding: 0 16px 16px;
+  background-color: #ffffff;
 }
 
 .action-button {
