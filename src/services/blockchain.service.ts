@@ -1,4 +1,4 @@
-import { getContract, readContract, prepareContractCall, sendTransaction } from 'thirdweb';
+import { getContract, readContract, prepareContractCall, sendTransaction, encode, prepareTransaction } from 'thirdweb';
 import type { Account } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
 import { CHAIN, BLOCKCHAIN_CONFIG } from '@/contracts/config';
@@ -224,6 +224,23 @@ class BlockchainService {
     }) as Promise<bigint>;
   }
 
+  // ── Celo feeCurrency: pagar gas con USDC en vez de CELO nativo ──────────────
+  // Celo permite usar tokens ERC20 aprobados como fee currency.
+  // Esto elimina la necesidad de que el usuario tenga CELO para gas.
+
+  private async sendWithFeeCurrency(account: Account, contractAddress: string, calldata: `0x${string}`): Promise<string> {
+    const tx = prepareTransaction({
+      client: thirdwebClient,
+      chain: CHAIN,
+      to: contractAddress,
+      data: calldata,
+      // feeCurrency: Celo-specific field — paga el gas con USDC
+      ...({ feeCurrency: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS } as object),
+    });
+    const result = await sendTransaction({ account, transaction: tx });
+    return result.transactionHash;
+  }
+
   // ── ESCRITURA: approve ERC20 ─────────────
 
   async approveToken(
@@ -234,14 +251,14 @@ class BlockchainService {
   ): Promise<string> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });
 
-    const tx = prepareContractCall({
+    const contractCall = prepareContractCall({
       contract,
       method: 'function approve(address spender, uint256 amount) returns (bool)',
       params: [spenderAddress, amount],
     });
 
-    const result = await sendTransaction({ account, transaction: tx });
-    return result.transactionHash;
+    const calldata = await encode(contractCall);
+    return this.sendWithFeeCurrency(account, tokenAddress, calldata);
   }
 
   // ── ESCRITURA: deposit a Natillera ──────────
@@ -252,13 +269,13 @@ class BlockchainService {
   ): Promise<string> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: contractAddress });
 
-    const tx = prepareContractCall({
+    const contractCall = prepareContractCall({
       contract,
       method: 'function deposit()',
     });
 
-    const result = await sendTransaction({ account, transaction: tx });
-    return result.transactionHash;
+    const calldata = await encode(contractCall);
+    return this.sendWithFeeCurrency(account, contractAddress, calldata);
   }
 
   // ── ESCRITURA: comprar tokens en Tokenizacion ──
