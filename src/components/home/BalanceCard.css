@@ -34,8 +34,9 @@
   content: '';
   position: absolute;
   bottom: -4px;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
   height: 2px;
   background-color: #3b6ef6;
   border-radius: 2px;
