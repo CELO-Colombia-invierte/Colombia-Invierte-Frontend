@@ -3,9 +3,10 @@ import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
 import BankSelectionStep from '../components/BankSelectionStep';
+import DestinatarioStep from '../components/DestinatarioStep';
 import './BankTransferPage.css';
 
-export type TransferStep = 'bank' | 'recipient' | 'amount' | 'confirm' | 'status';
+export type TransferStep = 'bank' | 'destinatario' | 'amount' | 'confirm' | 'status';
 
 export interface SelectedBank {
   id: string;
@@ -14,7 +15,7 @@ export interface SelectedBank {
   initials: string;
 }
 
-export interface RecipientData {
+export interface DestinatarioData {
   accountNumber: string;
   fullName: string;
 }
@@ -29,19 +30,21 @@ const BankTransferPage: React.FC = () => {
 
   const [step, setStep] = useState<TransferStep>('bank');
   const [selectedBank, setSelectedBank] = useState<SelectedBank | null>(null);
-  const [recipient, setRecipient] = useState<RecipientData | null>(null);
+  const [destinatario, setDestinatario] = useState<DestinatarioData | null>(null);
   const [amount, setAmount] = useState<AmountData | null>(null);
+
+  
 
   const handleBack = () => {
     switch (step) {
       case 'bank':
         history.goBack();
         break;
-      case 'recipient':
+      case 'destinatario':
         setStep('bank');
         break;
       case 'amount':
-        setStep('recipient');
+        setStep('destinatario');
         break;
       case 'confirm':
         setStep('amount');
@@ -53,20 +56,20 @@ const BankTransferPage: React.FC = () => {
 
   const handleBankSelect = (bank: SelectedBank) => {
     setSelectedBank(bank);
-    setStep('recipient');
+    setStep('destinatario');
+  };
+
+  const handleDestinatarioNext = (data: DestinatarioData) => {
+    setDestinatario(data);
+    setStep('amount');
   };
 
   const renderStep = () => {
     switch (step) {
       case 'bank':
         return <BankSelectionStep onSelect={handleBankSelect} />;
-      case 'recipient':
-        return (
-          <div className="bt-placeholder">
-            <p>Paso 2: Datos del destinatario</p>
-            <p className="bt-placeholder-sub">— Tarea 3</p>
-          </div>
-        );
+      case 'destinatario':
+        return <DestinatarioStep bank={selectedBank!} onNext={handleDestinatarioNext} />;
       case 'amount':
         return (
           <div className="bt-placeholder">
