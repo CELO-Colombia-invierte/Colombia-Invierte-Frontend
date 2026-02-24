@@ -4,7 +4,10 @@ import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
 import BankSelectionStep from '../components/BankSelectionStep';
 import DestinatarioStep from '../components/DestinatarioStep';
+import MontoStep from '../components/MontoStep';
 import './BankTransferPage.css';
+
+const MOCK_BALANCE = 1_095_867; // COP — reemplazar con dato real del back
 
 export type TransferStep = 'bank' | 'destinatario' | 'amount' | 'confirm' | 'status';
 
@@ -64,6 +67,11 @@ const BankTransferPage: React.FC = () => {
     setStep('amount');
   };
 
+  const handleAmountNext = (data: AmountData) => {
+    setAmount(data);
+    setStep('confirm');
+  };
+
   const renderStep = () => {
     switch (step) {
       case 'bank':
@@ -72,10 +80,12 @@ const BankTransferPage: React.FC = () => {
         return <DestinatarioStep bank={selectedBank!} onNext={handleDestinatarioNext} />;
       case 'amount':
         return (
-          <div className="bt-placeholder">
-            <p>Paso 3: Ingresar monto</p>
-            <p className="bt-placeholder-sub">— Tarea 4</p>
-          </div>
+          <MontoStep
+            bank={selectedBank!}
+            destinatario={destinatario!}
+            balance={MOCK_BALANCE}
+            onNext={handleAmountNext}
+          />
         );
       case 'confirm':
         return (
