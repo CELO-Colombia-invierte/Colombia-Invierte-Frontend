@@ -1,0 +1,80 @@
+/* ── Overlay ────────────────────────────────────────── */
+.transfer-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* ── Sheet ──────────────────────────────────────────── */
+.transfer-modal-sheet {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 20px 40px;
+  position: relative;
+}
+
+/* ── Handle ─────────────────────────────────────────── */
+.transfer-modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+/* ── Botón cerrar ────────────────────────────────────── */
+.transfer-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f2f2f2;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.transfer-modal-close:active {
+  background: #e0e0e0;
+}
+
+/* ── Opciones ───────────────────────────────────────── */
+.transfer-modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+/* ── Botón opción (pill outlined) ───────────────────── */
+.transfer-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 20px;
+  border: 1.5px solid #3b6ef6;
+  border-radius: 50px;
+  background: transparent;
+  color: #3b6ef6;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.transfer-option-btn:active {
+  background: #f0f4ff;
+}
