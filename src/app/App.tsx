@@ -35,7 +35,8 @@ const MainContent: React.FC = () => {
     location.pathname.startsWith('/inversiones/') ||
     location.pathname === '/crear-natillera' ||
     location.pathname === '/crear-tokenizacion' ||
-    location.pathname === '/complete-profile';
+    location.pathname === '/complete-profile' ||
+    location.pathname === '/notificaciones';
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const modalOptions = [

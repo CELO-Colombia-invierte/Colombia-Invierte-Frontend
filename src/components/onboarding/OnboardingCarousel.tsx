@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonPage,
-  IonButton,
   IonIcon,
 } from '@ionic/react';
 import { chevronBack, chevronForward } from 'ionicons/icons';
@@ -11,59 +10,54 @@ import './OnboardingCarousel.css';
 interface OnboardingSlide {
   id: number;
   title: string;
-  description: string;
+  description: React.ReactNode;
   image: string;
 }
 
 const slides: OnboardingSlide[] = [
   {
     id: 1,
-    title: 'Ahorro en Grupo, Como Siempre... Pero Más Seguro',
-    description:
-      'Todos aportan al fondo común y el dinero se va sumando de forma ordenada. El grupo puede ver cómo crece el ahorro sin depender de una sola persona.',
-    image: '/assets/images/onboarding/01-ahorro-grupo.png',
+    title: 'Ahorro en Grupo Más Seguro',
+    description: (
+      <>
+        Todos aportan, el dinero <strong>crece</strong>, sin líos. El dinero se
+        mueve cuando el grupo lo <strong>aprueba</strong>.
+      </>
+    ),
+    image: '/assets/images/onboarding/05-fondo-cuidado.png',
   },
   {
     id: 2,
-    title: 'Todo Claro, Todo a la Vista',
-    description:
-      'Desde el celular podés ver tus aportes, los movimientos del fondo y cómo va el progreso, sin cuentas enredadas ni dudas.',
+    title: 'Todo Claro y a la Vista',
+    description: (
+      <>
+        <strong>Ves todo</strong> en tiempo real desde tu celular.{' '}
+        <strong>Transparencia total</strong>, sin dudas ni cuentas enredadas.
+      </>
+    ),
     image: '/assets/images/onboarding/02-todo-claro.png',
   },
   {
     id: 3,
-    title: 'Nunca Estás Solo para Entenderlo',
-    description:
-      'Un asistente te ayuda a usar la plataforma y resolver dudas. Y cuando lo necesites, también hay personas capacitadas listas para acompañarte y ayudarte paso a paso.',
+    title: 'Nunca Estás Solo',
+    description: (
+      <>
+        Te <strong>guiamos</strong> paso a paso. Siempre hay ayuda cuando la{' '}
+        <strong>necesitas</strong>.
+      </>
+    ),
     image: '/assets/images/onboarding/03-nunca-solo.png',
   },
   {
     id: 4,
-    title: 'El Dinero Se Usa Solo Como Se Acordó',
-    description:
-      'El fondo está protegido por reglas claras aceptadas por todos. Nadie puede sacar o mover el dinero sin que el grupo esté de acuerdo.',
-    image: '/assets/images/onboarding/04-dinero-acordado.png',
-  },
-  {
-    id: 5,
-    title: 'El Fondo Bien Cuidado, Siempre',
-    description:
-      'Los aportes quedan resguardados hasta que llegue el momento correcto de usarlos, sin riesgos ni manejos personales.',
-    image: '/assets/images/onboarding/05-fondo-cuidado.png',
-  },
-  {
-    id: 6,
-    title: 'Premios y Beneficios por Participar',
-    description:
-      'Vamos a premiar a los usuarios y potenciar algunas natilleras y proyectos que usen la plataforma de forma activa.',
+    title: 'Premios y Ganancias para Todos',
+    description: (
+      <>
+        Grupos activos <strong>reciben premios</strong>. Las ganancias se
+        reparten de manera <strong>justa</strong>.
+      </>
+    ),
     image: '/assets/images/onboarding/06-premios-beneficios.png',
-  },
-  {
-    id: 7,
-    title: 'Cuando Hay Ganancias, Son Para Todos',
-    description:
-      'Si el fondo genera beneficios, el sistema los reparte de forma justa según lo que aportó y cumplió cada persona.',
-    image: '/assets/images/onboarding/07-ganancias-todos.png',
   },
 ];
 
@@ -86,7 +80,7 @@ export const OnboardingCarousel: React.FC<OnboardingCarouselProps> = ({
     const checkImageStatus = () => {
       if (imgRef.current) {
         const img = imgRef.current;
-        
+
         if (img.complete && img.naturalHeight !== 0) {
           setImageLoading(false);
           setImageError(false);
@@ -137,6 +131,7 @@ export const OnboardingCarousel: React.FC<OnboardingCarouselProps> = ({
   };
 
   const currentSlideData = slides[currentSlide];
+  const isLastSlide = currentSlide === slides.length - 1;
 
   return (
     <IonPage>
@@ -167,11 +162,9 @@ export const OnboardingCarousel: React.FC<OnboardingCarouselProps> = ({
             </div>
 
             <div className="onboarding-text-container">
-              <h2 className="onboarding-title">
-                {slides[currentSlide].title}
-              </h2>
+              <h2 className="onboarding-title">{currentSlideData.title}</h2>
               <p className="onboarding-description">
-                {slides[currentSlide].description}
+                {currentSlideData.description}
               </p>
             </div>
 
@@ -200,23 +193,19 @@ export const OnboardingCarousel: React.FC<OnboardingCarouselProps> = ({
                 ))}
               </div>
 
-              {currentSlide < slides.length - 1 ? (
-                <button
-                  onClick={nextSlide}
-                  className="onboarding-nav-button onboarding-nav-button-right"
-                  aria-label="Siguiente"
-                >
-                  <IonIcon icon={chevronForward} />
-                </button>
-              ) : (
-                <IonButton
-                  fill="solid"
-                  onClick={handleComplete}
-                  className="onboarding-complete-button"
-                >
-                  Comenzar
-                </IonButton>
-              )}
+              <button
+                onClick={nextSlide}
+                className="onboarding-nav-button onboarding-nav-button-right"
+                aria-label="Siguiente"
+              >
+                <IonIcon icon={chevronForward} />
+              </button>
+            </div>
+
+            <div className="onboarding-bottom-action">
+              <button className="onboarding-skip-button" onClick={handleComplete}>
+                {isLastSlide ? 'Comenzar' : 'Omitir'}
+              </button>
             </div>
           </div>
         </div>
@@ -224,4 +213,3 @@ export const OnboardingCarousel: React.FC<OnboardingCarouselProps> = ({
     </IonPage>
   );
 };
-
