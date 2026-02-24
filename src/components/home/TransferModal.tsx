@@ -6,32 +6,42 @@ interface TransferModalProps {
   onClose: () => void;
 }
 
-// Mano dando / enviando (flecha hacia arriba con mano)
+// Enviar a otra cuenta: avión de papel (send)
 const IconSendAccount = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2v10M9 5l3-3 3 3" />
-    <path d="M8 14H6a2 2 0 0 0-2 2v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2h-2" />
-    <path d="M8 14l1.5-3.5a1.5 1.5 0 0 1 5 0L16 14" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 2L11 13" />
+    <path d="M22 2L15 22l-4-9-9-4 20-7z" />
   </svg>
 );
 
-// Flechas bidireccionales (transferencia entre cuentas)
+// Entre mis cuentas: flechas circulares (swap)
 const IconSendOwn = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 16V4m0 0L3 8m4-4l4 4" />
-    <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 1l4 4-4 4" />
+    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+    <path d="M7 23l-4-4 4-4" />
+    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
   </svg>
 );
 
-// Banco/edificio
+// Banco: edificio con columnas
 const IconBank = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 22h18" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 21h18" />
     <path d="M3 10h18" />
     <path d="M5 6l7-3 7 3" />
-    <rect x="6" y="10" width="3" height="12" />
-    <rect x="10.5" y="10" width="3" height="12" />
-    <rect x="15" y="10" width="3" height="12" />
+    <line x1="6" y1="10" x2="6" y2="21" />
+    <line x1="10" y1="10" x2="10" y2="21" />
+    <line x1="14" y1="10" x2="14" y2="21" />
+    <line x1="18" y1="10" x2="18" y2="21" />
+  </svg>
+);
+
+// X icon
+const IconClose = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
@@ -52,21 +62,23 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
     <div className="transfer-modal-overlay" onClick={onClose}>
       <div className="transfer-modal-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="transfer-modal-handle" />
-        <button className="transfer-modal-close" onClick={onClose}>✕</button>
+        <button className="transfer-modal-close" onClick={onClose}>
+          <IconClose />
+        </button>
 
         <div className="transfer-modal-options">
           <button className="transfer-option-btn" onClick={() => { console.log('Transferir a otra cuenta'); onClose(); }}>
-            <IconSendAccount />
+            <span className="transfer-option-icon"><IconSendAccount /></span>
             <span>Transferir a otra cuenta</span>
           </button>
 
           <button className="transfer-option-btn" onClick={() => { console.log('Transferir entre mis cuentas'); onClose(); }}>
-            <IconSendOwn />
+            <span className="transfer-option-icon"><IconSendOwn /></span>
             <span>Transferir entre mis cuentas</span>
           </button>
 
           <button className="transfer-option-btn" onClick={() => { console.log('Transferir a un banco'); onClose(); }}>
-            <IconBank />
+            <span className="transfer-option-icon"><IconBank /></span>
             <span>Transferir a un banco</span>
           </button>
         </div>
