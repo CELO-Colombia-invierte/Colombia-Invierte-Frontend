@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
+import BankSelectionStep from '../components/BankSelectionStep';
 import './BankTransferPage.css';
 
 export type TransferStep = 'bank' | 'recipient' | 'amount' | 'confirm' | 'status';
@@ -9,7 +10,8 @@ export type TransferStep = 'bank' | 'recipient' | 'amount' | 'confirm' | 'status
 export interface SelectedBank {
   id: string;
   name: string;
-  logo: string;
+  color: string;
+  initials: string;
 }
 
 export interface RecipientData {
@@ -49,15 +51,15 @@ const BankTransferPage: React.FC = () => {
     }
   };
 
+  const handleBankSelect = (bank: SelectedBank) => {
+    setSelectedBank(bank);
+    setStep('recipient');
+  };
+
   const renderStep = () => {
     switch (step) {
       case 'bank':
-        return (
-          <div className="bt-placeholder">
-            <p>Paso 1: Selección de banco</p>
-            <p className="bt-placeholder-sub">— Tarea 2</p>
-          </div>
-        );
+        return <BankSelectionStep onSelect={handleBankSelect} />;
       case 'recipient':
         return (
           <div className="bt-placeholder">
