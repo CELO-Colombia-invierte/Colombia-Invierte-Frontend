@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import './TransferModal.css';
 
 interface TransferModalProps {
@@ -46,6 +47,7 @@ const IconClose = () => (
 );
 
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose }) => {
+  const history = useHistory();
   useEffect(() => {
     const tabBar = document.querySelector('.bottom-navbar') as HTMLElement | null;
     if (tabBar) {
@@ -77,7 +79,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
             <span>Transferir entre mis cuentas</span>
           </button>
 
-          <button className="transfer-option-btn" onClick={() => { console.log('Transferir a un banco'); onClose(); }}>
+          <button className="transfer-option-btn" onClick={() => { onClose(); history.push('/transferir-banco'); }}>
             <span className="transfer-option-icon"><IconBank /></span>
             <span>Transferir a un banco</span>
           </button>
