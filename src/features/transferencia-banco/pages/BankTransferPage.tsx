@@ -6,6 +6,7 @@ import BankSelectionStep from '../components/BankSelectionStep';
 import DestinatarioStep from '../components/DestinatarioStep';
 import MontoStep from '../components/MontoStep';
 import ConfirmacionModal from '../components/ConfirmacionModal';
+import EstadoTransaccionModal from '../components/EstadoTransaccionModal';
 import './BankTransferPage.css';
 
 const MOCK_BALANCE = 1_095_867; // COP — reemplazar con dato real del back
@@ -90,6 +91,15 @@ const BankTransferPage: React.FC = () => {
     setStep('status');
   };
 
+  const handleViewReceipt = () => {
+    // Tarea 7 — navegar al comprobante
+    history.push('/comprobante');
+  };
+
+  const handleStatusDone = () => {
+    history.push('/home');
+  };
+
   const renderStep = () => {
     switch (step) {
       case 'bank':
@@ -106,11 +116,14 @@ const BankTransferPage: React.FC = () => {
           />
         );
       case 'status':
+        // MontoStep queda de fondo mientras el overlay cubre la pantalla
         return (
-          <div className="bt-placeholder">
-            <p>Paso 5: Estado de la transacción</p>
-            <p className="bt-placeholder-sub">— Tarea 6</p>
-          </div>
+          <MontoStep
+            bank={selectedBank!}
+            destinatario={destinatario!}
+            balance={MOCK_BALANCE}
+            onNext={handleAmountNext}
+          />
         );
     }
   };
@@ -128,7 +141,7 @@ const BankTransferPage: React.FC = () => {
           {renderStep()}
         </div>
 
-        {/* Modal de confirmacion — overlay sobre el step actual */}
+        {/* Modal de confirmacion */}
         {showConfirmModal && amount && destinatario && selectedBank && (
           <ConfirmacionModal
             bank={selectedBank}
@@ -136,6 +149,15 @@ const BankTransferPage: React.FC = () => {
             amount={amount}
             onCancel={handleConfirmCancel}
             onConfirm={handleConfirmAccept}
+          />
+        )}
+
+        {/* Modal de estado de transaccion */}
+        {step === 'status' && (
+          <EstadoTransaccionModal
+            status="success"
+            onViewReceipt={handleViewReceipt}
+            onDone={handleStatusDone}
           />
         )}
       </IonContent>
