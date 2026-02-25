@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { SelectedBank, DestinatarioData, AmountData } from '../pages/BankTransferPage';
+import { SelectedBank, AmountData } from '../pages/BankTransferPage';
 import './MontoStep.css';
 
 interface Props {
   bank: SelectedBank;
-  destinatario: DestinatarioData;
   balance: number;
   onNext: (amount: AmountData) => void;
 }
@@ -12,7 +11,7 @@ interface Props {
 const formatCOP = (value: number): string =>
   value.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-const MontoStep: React.FC<Props> = ({ bank, destinatario, balance, onNext }) => {
+const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
   const [rawValue, setRawValue] = useState('');
   const [detail, setDetail] = useState('');
   const [selectedChip, setSelectedChip] = useState<number | null>(null);

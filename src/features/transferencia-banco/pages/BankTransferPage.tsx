@@ -115,7 +115,6 @@ const BankTransferPage: React.FC = () => {
         return (
           <MontoStep
             bank={selectedBank!}
-            destinatario={destinatario!}
             balance={MOCK_BALANCE}
             onNext={handleAmountNext}
           />
@@ -125,7 +124,6 @@ const BankTransferPage: React.FC = () => {
         return (
           <MontoStep
             bank={selectedBank!}
-            destinatario={destinatario!}
             balance={MOCK_BALANCE}
             onNext={handleAmountNext}
           />
