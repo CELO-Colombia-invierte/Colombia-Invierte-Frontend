@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import { useAuth } from '@/hooks/use-auth';
 import { usePortfolio } from '@/hooks/use-portfolio';
@@ -9,11 +9,13 @@ import {
   ActionButtons,
   InvestmentList,
 } from '@/components/home';
+import { TransferModal } from '@/components/home/TransferModal';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -44,7 +46,7 @@ const HomePage: React.FC = () => {
     }) || [];
 
   const handleSend = () => {
-    console.log('Enviar');
+    setIsTransferModalOpen(true);
   };
 
   const handleReceive = () => {
@@ -79,6 +81,10 @@ const HomePage: React.FC = () => {
           onInvestmentClick={handleInvestmentClick}
         />
       </IonContent>
+      <TransferModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+      />
     </IonPage>
   );
 };

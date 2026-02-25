@@ -1,0 +1,98 @@
+/* Fondo oscuro que cubre toda la pantalla */
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+/* Tarjeta blanca centrada */
+.cm-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Icono info circular */
+.cm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #3B5BDB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cm-icon-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  font-style: italic;
+}
+
+/* Texto de confirmacion */
+.cm-text {
+  font-size: 13.5px;
+  color: #333;
+  text-align: center;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.cm-text strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+/* Fila de botones */
+.cm-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.cm-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cm-btn--cancel {
+  background: #ffffff;
+  border: 1.5px solid #d0d0d0;
+  color: #555;
+}
+
+.cm-btn--cancel:active {
+  background: #f5f5f5;
+}
+
+.cm-btn--confirm {
+  background: #ffffff;
+  border: 1.5px solid #d0d0d0;
+  color: #3B5BDB;
+}
+
+.cm-btn--confirm:active {
+  background: #f0f4ff;
+}

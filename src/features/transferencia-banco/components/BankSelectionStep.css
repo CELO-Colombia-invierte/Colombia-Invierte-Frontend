@@ -1,0 +1,63 @@
+.bs-container {
+  padding-top: 8px;
+  padding-bottom: 32px;
+}
+
+.bs-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+}
+
+.bs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.bs-card {
+  background: #EEF2FF;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bs-card:active {
+  transform: scale(0.96);
+  background: #dde4f8;
+}
+
+.bs-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bs-logo-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.bs-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #333333;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+}

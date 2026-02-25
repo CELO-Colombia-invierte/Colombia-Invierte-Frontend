@@ -1,0 +1,99 @@
+/* ── Animaciones ────────────────────────────────────── */
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Overlay ────────────────────────────────────────── */
+.transfer-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  animation: overlayFadeIn 0.25s ease;
+}
+
+/* ── Sheet ──────────────────────────────────────────── */
+.transfer-modal-sheet {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 20px 44px;
+  position: relative;
+  animation: sheetSlideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ── Handle ─────────────────────────────────────────── */
+.transfer-modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+/* ── Botón cerrar ────────────────────────────────────── */
+.transfer-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #222;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.transfer-modal-close:active {
+  opacity: 0.4;
+}
+
+/* ── Opciones ───────────────────────────────────────── */
+.transfer-modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+/* ── Botón opción (pill outlined) ───────────────────── */
+.transfer-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 20px;
+  border: 1.5px solid #3b6ef6;
+  border-radius: 50px;
+  background: transparent;
+  color: #3b6ef6;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.transfer-option-btn:active {
+  background: #f0f4ff;
+}
+
+.transfer-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

@@ -36,6 +36,7 @@ const MainContent: React.FC = () => {
     location.pathname === '/crear-natillera' ||
     location.pathname === '/crear-tokenizacion' ||
     location.pathname === '/complete-profile' ||
+    location.pathname === '/transferir-banco' ||
     location.pathname === '/notificaciones';
   const [isModalOpen, setIsModalOpen] = useState(false);
 

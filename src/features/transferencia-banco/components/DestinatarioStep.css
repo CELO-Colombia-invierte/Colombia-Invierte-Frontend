@@ -1,0 +1,169 @@
+.ds-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  padding-bottom: 24px;
+}
+
+.ds-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Banco seleccionado */
+.ds-bank-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.ds-bank-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ds-bank-initials {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.ds-bank-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Tarjeta de formulario */
+.ds-card {
+  background: #ffffff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ds-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.ds-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid #e0e0e0;
+  border-radius: 0;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: transparent;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.ds-input::placeholder {
+  color: #b0b0b0;
+}
+
+.ds-input:focus {
+  border-bottom-color: #3B5BDB;
+}
+
+.ds-input:disabled {
+  opacity: 0.5;
+}
+
+/* Texto de ayuda */
+.ds-helper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888;
+  font-size: 12px;
+}
+
+.ds-helper-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: #aaa;
+}
+
+/* Boton */
+.ds-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 50px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: auto;
+  background: #e0e0e0;
+  color: #999;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.ds-btn--active {
+  background: #3B5BDB;
+  color: #ffffff;
+}
+
+.ds-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* Overlay de carga */
+.ds-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.ds-loading-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.ds-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid #e0e0e0;
+  border-top-color: #3B5BDB;
+  border-radius: 50%;
+  animation: ds-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes ds-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ds-loading-text {
+  font-size: 15px;
+  color: #1a1a1a;
+  font-weight: 500;
+}
