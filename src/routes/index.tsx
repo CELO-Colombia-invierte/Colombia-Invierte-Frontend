@@ -34,6 +34,7 @@ const CompleteProfilePage = lazy(
 );
 const PaymentPage = lazy(() => import('@/features/pagos/pages/PaymentPage'));
 const BankTransferPage = lazy(() => import('@/features/transferencia-banco/pages/BankTransferPage'));
+const ComprobantePage = lazy(() => import('@/features/transferencia-banco/pages/ComprobantePage'));
 const NotificacionesPage = lazy(
   () => import('@/features/notificaciones/pages/NotificacionesPage')
 );
@@ -117,6 +118,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/transferir-banco',
     component: BankTransferPage,
+    exact: true,
+  },
+  {
+    path: '/comprobante',
+    component: ComprobantePage,
     exact: true,
   },
   {
