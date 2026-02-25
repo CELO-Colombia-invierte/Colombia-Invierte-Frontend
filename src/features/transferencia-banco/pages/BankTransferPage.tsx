@@ -5,11 +5,12 @@ import { arrowBackOutline } from 'ionicons/icons';
 import BankSelectionStep from '../components/BankSelectionStep';
 import DestinatarioStep from '../components/DestinatarioStep';
 import MontoStep from '../components/MontoStep';
+import ConfirmacionModal from '../components/ConfirmacionModal';
 import './BankTransferPage.css';
 
 const MOCK_BALANCE = 1_095_867; // COP — reemplazar con dato real del back
 
-export type TransferStep = 'bank' | 'destinatario' | 'amount' | 'confirm' | 'status';
+export type TransferStep = 'bank' | 'destinatario' | 'amount' | 'status';
 
 export interface SelectedBank {
   id: string;
@@ -35,10 +36,21 @@ const BankTransferPage: React.FC = () => {
   const [selectedBank, setSelectedBank] = useState<SelectedBank | null>(null);
   const [destinatario, setDestinatario] = useState<DestinatarioData | null>(null);
   const [amount, setAmount] = useState<AmountData | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  
+  useEffect(() => {
+    const tabBar = document.querySelector('.bottom-navbar') as HTMLElement | null;
+    if (tabBar) tabBar.style.display = 'none';
+    return () => {
+      if (tabBar) tabBar.style.display = '';
+    };
+  }, []);
 
   const handleBack = () => {
+    if (showConfirmModal) {
+      setShowConfirmModal(false);
+      return;
+    }
     switch (step) {
       case 'bank':
         history.goBack();
@@ -48,9 +60,6 @@ const BankTransferPage: React.FC = () => {
         break;
       case 'amount':
         setStep('destinatario');
-        break;
-      case 'confirm':
-        setStep('amount');
         break;
       default:
         history.goBack();
@@ -69,7 +78,16 @@ const BankTransferPage: React.FC = () => {
 
   const handleAmountNext = (data: AmountData) => {
     setAmount(data);
-    setStep('confirm');
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handleConfirmAccept = () => {
+    setShowConfirmModal(false);
+    setStep('status');
   };
 
   const renderStep = () => {
@@ -86,13 +104,6 @@ const BankTransferPage: React.FC = () => {
             balance={MOCK_BALANCE}
             onNext={handleAmountNext}
           />
-        );
-      case 'confirm':
-        return (
-          <div className="bt-placeholder">
-            <p>Paso 4: Confirmación</p>
-            <p className="bt-placeholder-sub">— Tarea 5</p>
-          </div>
         );
       case 'status':
         return (
@@ -116,6 +127,17 @@ const BankTransferPage: React.FC = () => {
         <div className="bt-body">
           {renderStep()}
         </div>
+
+        {/* Modal de confirmacion — overlay sobre el step actual */}
+        {showConfirmModal && amount && destinatario && selectedBank && (
+          <ConfirmacionModal
+            bank={selectedBank}
+            destinatario={destinatario}
+            amount={amount}
+            onCancel={handleConfirmCancel}
+            onConfirm={handleConfirmAccept}
+          />
+        )}
       </IonContent>
     </IonPage>
   );
