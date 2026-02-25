@@ -69,7 +69,7 @@ const ComprobantePage: React.FC = () => {
 
         {/* Header */}
         <div className="cp-header">
-          <button className="cp-back-btn" onClick={() => history.goBack()}>
+          <button className="cp-back-btn" onClick={() => history.replace('/home')}>
             <IonIcon icon={arrowBackOutline} />
           </button>
           <h1 className="cp-title">Comprobante</h1>
@@ -120,6 +120,9 @@ const ComprobantePage: React.FC = () => {
             <button className="cp-btn cp-btn--save" onClick={() => {}}>
               Guardar
               <IonIcon icon={downloadOutline} />
+            </button>
+            <button className="cp-btn cp-btn--accept" onClick={() => history.replace('/home')}>
+              Aceptar
             </button>
           </div>
         </div>

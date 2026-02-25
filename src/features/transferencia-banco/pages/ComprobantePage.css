@@ -168,3 +168,9 @@
   border: 1.5px solid #d0d0d0;
   color: #3B5BDB;
 }
+
+.cp-btn--accept {
+  background: #ffffff;
+  border: 1.5px solid #d0d0d0;
+  color: #333;
+}

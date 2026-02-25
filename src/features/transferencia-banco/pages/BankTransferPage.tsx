@@ -91,22 +91,18 @@ const BankTransferPage: React.FC = () => {
     setStep('status');
   };
 
-  const handleViewReceipt = () => {
-    history.push('/comprobante', {
+  const goToComprobante = () => {
+    history.replace('/comprobante', {
       transactionNumber: Math.floor(Math.random() * 900000000 + 100000000).toString(),
       dateTime: new Date().toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'medium' }),
-      originName:        'Usuario',            // reemplazar con nombre real del perfil
-      originAccount:     '0000000',            // reemplazar con cuenta real del usuario
+      originName:         'Usuario',   // reemplazar con nombre real del perfil
+      originAccount:      '0000000',   // reemplazar con cuenta real del usuario
       destinationAccount: destinatario!.accountNumber,
-      bank:              selectedBank!.name,
-      detail:            amount!.detail || 'Retiro desde Colombia invierte',
-      recipientName:     destinatario!.fullName,
-      amount:            amount!.value,
+      bank:               selectedBank!.name,
+      detail:             amount!.detail || 'Retiro desde Colombia invierte',
+      recipientName:      destinatario!.fullName,
+      amount:             amount!.value,
     });
-  };
-
-  const handleStatusDone = () => {
-    history.push('/home');
   };
 
   const renderStep = () => {
@@ -165,8 +161,8 @@ const BankTransferPage: React.FC = () => {
         {step === 'status' && (
           <EstadoTransaccionModal
             status="success"
-            onViewReceipt={handleViewReceipt}
-            onDone={handleStatusDone}
+            onViewReceipt={goToComprobante}
+            onDone={goToComprobante}
           />
         )}
       </IonContent>
