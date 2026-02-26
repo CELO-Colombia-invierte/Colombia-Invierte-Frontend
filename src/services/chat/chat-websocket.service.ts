@@ -43,10 +43,10 @@ class ChatWebSocketService {
     this.socket.on('connect', () => {
     });
 
-    this.socket.on('disconnect', (reason) => {
+    this.socket.on('disconnect', (_reason) => {
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', (_error) => {
     });
   }
 

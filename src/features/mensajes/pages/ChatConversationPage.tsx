@@ -125,7 +125,7 @@ const ChatConversationPage: React.FC = () => {
     onNewMessage: handleNewMessage,
     onUserTyping: handleUserTyping,
     onUserStoppedTyping: handleUserStoppedTyping,
-    onConnected: (data) => {
+    onConnected: (_data) => {
       if (conversationId) {
         joinConversation(conversationId);
       }

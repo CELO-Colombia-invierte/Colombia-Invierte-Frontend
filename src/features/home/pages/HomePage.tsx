@@ -52,7 +52,7 @@ const HomePage: React.FC = () => {
   const handleReceive = () => {
   };
 
-  const handleInvestmentClick = (investment: Investment) => {
+  const handleInvestmentClick = (_investment: Investment) => {
   };
 
   if (isLoading || !user) {
