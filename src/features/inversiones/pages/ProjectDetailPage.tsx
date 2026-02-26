@@ -20,7 +20,6 @@ import {
   DisputasTab,
   MilestonesTab,
 } from '../components/ProjectDetailTabs';
-import { DeployProjectCard } from '../components/DeployProjectCard';
 import './ProjectDetailPage.css';
 
 interface ProjectDetailPageProps {
@@ -39,7 +38,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [present] = useIonToast();
   const { user } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
-  const [isDeployed, setIsDeployed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [membershipStatus, setMembershipStatus] =
@@ -61,14 +59,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       }
       const data = await projectsService.findOne(identifier);
       setProject(data);
-
-      // Verificar estado de deploy en blockchain
-      try {
-        const blockchainData = await projectsService.getBlockchainData(data.id);
-        setIsDeployed(blockchainData.isDeployed);
-      } catch {
-        setIsDeployed(false);
-      }
 
       // Verificar membresía real del usuario si está autenticado
       if (user?.id) {
@@ -211,15 +201,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         <div className="project-detail-content">
           {activeTab === 'resumen' && (
             <>
-              {isOwner && !isDeployed && isPublicProject && (
-                <DeployProjectCard
-                  project={project}
-                  onPublished={(updatedProject) => {
-                    setIsDeployed(true);
-                    setProject(updatedProject);
-                  }}
-                />
-              )}
               <ResumenTab
                 project={project}
                 isOwner={isOwner}
@@ -270,7 +251,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           )}
 
           {activeTab === 'hitos' && hasV2 && (
-            <MilestonesTab project={project} />
+            <MilestonesTab project={project} isOwner={isOwner} />
           )}
         </div>
         {canJoinPublicProject && (

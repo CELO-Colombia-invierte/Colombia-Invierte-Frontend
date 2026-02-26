@@ -213,10 +213,9 @@ class BlockchainService {
   async investInProject(
     account: Account,
     revenueAddress: string,
-    vaultAddress: string,
     amount: bigint,
   ): Promise<string> {
-    await this.approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress, amount);
+    await this.approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, revenueAddress, amount);
 
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
     const contractCall = prepareContractCall({
@@ -451,6 +450,39 @@ class BlockchainService {
     });
     const result = await sendTransaction({ account, transaction: tx });
     return result.transactionHash;
+  }
+
+  // ── MILESTONES V2 ──────────────────
+
+  async proposeMilestoneOnChain(
+    account: Account,
+    milestonesAddress: string,
+    description: string,
+    vaultAddress: string,
+  ): Promise<string> {
+    // Leer balance actual del vault (cuánto se ha recaudado)
+    const vaultBalance = await this.getTokenBalance(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress);
+    if (vaultBalance === BigInt(0)) throw new Error('El vault no tiene fondos aún. Espera a recibir pagos.');
+
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: milestonesAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function proposeMilestone(string description, address token, address recipient, uint256 amount) returns (uint256)',
+      params: [description, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS as `0x${string}`, account.address, vaultBalance],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, milestonesAddress, calldata);
+  }
+
+  async executeMilestone(account: Account, milestonesAddress: string, milestoneId: bigint): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: milestonesAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function executeMilestone(uint256 id)',
+      params: [milestoneId],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, milestonesAddress, calldata);
   }
 
   // ── LECTURA: Token ERC20 ──────────────────

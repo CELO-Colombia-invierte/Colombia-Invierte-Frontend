@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { ConnectButton } from 'thirdweb/react';
+import { inAppWallet, createWallet } from 'thirdweb/wallets';
+import { thirdwebClient } from '@/app/App';
+import { CHAIN } from '@/contracts/config';
 import { IonIcon } from '@ionic/react';
 import {
   cashOutline,
@@ -12,7 +16,7 @@ import {
 } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { blockchainService, NatilleraState, NatilleraV2State, TokenizacionState, RevenueModuleState } from '@/services/blockchain.service';
-import { BLOCKCHAIN_CONFIG, getBlockExplorerAddressUrl } from '@/contracts/config';
+import { BLOCKCHAIN_CONFIG, getBlockExplorerAddressUrl, getBlockExplorerTxUrl } from '@/contracts/config';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import './ProjectDetailTabs.css';
 
@@ -29,13 +33,19 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
   onJoinAction,
   joinStatus,
 }) => {
-  const { account, claimRendimientos } = useBlockchain();
+  const { account, claimRendimientos, investInProject } = useBlockchain();
   const [chainState, setChainState] = useState<NatilleraState | NatilleraV2State | TokenizacionState | RevenueModuleState | null>(null);
   const [chainLoading, setChainLoading] = useState(false);
   const [projectTokenDecimals, setProjectTokenDecimals] = useState<number | null>(null);
   const [pendingRewards, setPendingRewards] = useState<bigint | null>(null);
   const [vaultBalance, setVaultBalance] = useState<bigint | null>(null);
   const [claiming, setClaiming] = useState(false);
+  const [userInvestment, setUserInvestment] = useState<bigint | null>(null);
+  const [userUsdcBalance, setUserUsdcBalance] = useState<bigint | null>(null);
+  const [investAmount, setInvestAmount] = useState('');
+  const [investing, setInvesting] = useState(false);
+  const [investTxHash, setInvestTxHash] = useState<string | null>(null);
+  const [investError, setInvestError] = useState<string | null>(null);
 
   const isV2 = !!(project.natillera_address || project.revenue_address);
 
@@ -56,8 +66,14 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
         const state = await blockchainService.getRevenueModuleState(project.revenue_address);
         setChainState(state);
         if (account?.address) {
-          const rewards = await blockchainService.getPendingRewards(project.revenue_address, account.address);
+          const [rewards, investment, usdcBal] = await Promise.all([
+            blockchainService.getPendingRewards(project.revenue_address, account.address),
+            blockchainService.getInvestment(project.revenue_address, account.address),
+            blockchainService.getTokenBalance(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, account.address),
+          ]);
           setPendingRewards(rewards);
+          setUserInvestment(investment);
+          setUserUsdcBalance(usdcBal);
         }
       } else if (project.contract_address) {
         if (project.type === 'NATILLERA') {
@@ -76,6 +92,33 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
       // silenciar
     } finally {
       setChainLoading(false);
+    }
+  };
+
+  const handleInvest = async (revenueAddress: string) => {
+    setInvestError(null);
+    setInvestTxHash(null);
+    let amount: bigint;
+    try {
+      amount = blockchainService.parseUnits(investAmount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+    } catch {
+      setInvestError('Monto inválido');
+      return;
+    }
+    if (amount <= 0n) { setInvestError('Ingresa un monto mayor a 0'); return; }
+    console.log('account:', account);
+    setInvesting(true);
+    try {
+      const txHash = await investInProject(revenueAddress, amount);
+      setInvestTxHash(txHash);
+      setInvestAmount('');
+      await loadChainState();
+    } catch (err: any) {
+      const msg: string = err?.message ?? '';
+      const isGas = msg.includes('insufficient funds') || msg.includes('gas');
+      setInvestError(isGas ? 'Sin CELO para gas. Usa faucet.celo.org/alfajores' : msg || 'Error al invertir');
+    } finally {
+      setInvesting(false);
     }
   };
 
@@ -381,6 +424,62 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
                     >
                       {claiming ? 'Cobrando...' : 'Cobrar rendimientos'}
                     </button>
+                  </div>
+                )}
+                {!s.saleFinalized && project.vault_address && (
+                  <div className="invest-section">
+                    <h4 className="invest-title">Invertir en este proyecto</h4>
+                    {!account ? (
+                      <>
+                        <p className="invest-balance">Conecta tu wallet para invertir</p>
+                        <ConnectButton
+                          client={thirdwebClient}
+                          chain={CHAIN}
+                          wallets={[inAppWallet({ auth: { options: ['email', 'google', 'apple'] } }), createWallet('io.metamask')]}
+                          connectButton={{ style: { width: '100%', borderRadius: '12px', height: '48px', fontSize: '15px', fontWeight: '600' } }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {userInvestment !== null && userInvestment > 0n && (
+                          <p className="invest-current">Tu inversión actual: <strong>{formatUsdc(userInvestment)} USDC</strong></p>
+                        )}
+                        {userUsdcBalance !== null && (
+                          <p className="invest-balance">Balance disponible: {formatUsdc(userUsdcBalance)} USDC</p>
+                        )}
+                        <div className="invest-input-row">
+                          <input
+                            type="number"
+                            className="invest-input"
+                            placeholder="Monto en USDC"
+                            value={investAmount}
+                            onChange={(e) => { setInvestAmount(e.target.value); setInvestError(null); }}
+                            min="0"
+                            step="any"
+                          />
+                          {investAmount && s.tokenPrice > 0n && (() => {
+                            try {
+                              const amt = blockchainService.parseUnits(investAmount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+                              const tokens = amt / s.tokenPrice;
+                              return <span className="invest-tokens-preview">≈ {Number(tokens).toLocaleString('es-CO')} tokens</span>;
+                            } catch { return null; }
+                          })()}
+                        </div>
+                        {investError && <p className="invest-error">{investError}</p>}
+                        <button
+                          className="invest-btn"
+                          onClick={() => handleInvest(project.revenue_address!)}
+                          disabled={investing || !investAmount || parseFloat(investAmount) <= 0}
+                        >
+                          {investing ? 'Procesando...' : 'Invertir'}
+                        </button>
+                        {investTxHash && (
+                          <a className="invest-tx-link" href={getBlockExplorerTxUrl(investTxHash)} target="_blank" rel="noopener noreferrer">
+                            Ver transacción en Celoscan
+                          </a>
+                        )}
+                      </>
+                    )}
                   </div>
                 )}
               </>

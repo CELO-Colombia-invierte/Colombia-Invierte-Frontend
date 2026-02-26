@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { IonIcon } from '@ionic/react';
-import { checkmarkCircleOutline, timeOutline, rocketOutline, cashOutline } from 'ionicons/icons';
+import { IonIcon, IonButton, IonSpinner } from '@ionic/react';
+import { checkmarkCircleOutline, timeOutline, rocketOutline, cashOutline, openOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { apiService } from '@/services/api/api.service';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import { blockchainService } from '@/services/blockchain.service';
+import { useActiveAccount } from 'thirdweb/react';
 import './ProjectDetailTabs.css';
 
 interface Milestone {
@@ -19,25 +20,35 @@ interface Milestone {
 
 interface MilestonesTabProps {
   project: Project;
+  isOwner?: boolean;
 }
 
-export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project }) => {
+const CELOSCAN_TX = (hash: string) => `https://alfajores.celoscan.io/tx/${hash}`;
+
+export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner = false }) => {
+  const account = useActiveAccount();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [txHashes, setTxHashes] = useState<Record<string, string>>({});
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const loadMilestones = async () => {
+    try {
+      const response = await apiService.get<Milestone[]>(`/projects/${project.id}/milestones`);
+      setMilestones(response.data);
+    } catch {
+      // silenciar
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
+    const init = async () => {
       setLoading(true);
-      try {
-        const response = await apiService.get<Milestone[]>(`/projects/${project.id}/milestones`);
-        setMilestones(response.data);
-      } catch {
-        // silenciar
-      } finally {
-        setLoading(false);
-      }
+      await loadMilestones();
+      setLoading(false);
     };
-    load();
+    init();
   }, [project.id]);
 
   const formatDate = (dateString: string) =>
@@ -68,6 +79,52 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project }) => {
     EXECUTED: checkmarkCircleOutline,
   };
 
+  const hasPendingOrApproved = milestones.some(m => m.status === 'PENDING' || m.status === 'APPROVED');
+  const canPropose =
+    isOwner &&
+    !hasPendingOrApproved &&
+    !!project.milestones_address &&
+    !!project.vault_address;
+
+  const handlePropose = async () => {
+    if (!account || !project.milestones_address || !project.vault_address) return;
+    setActionLoading('propose');
+    setActionError(null);
+    try {
+      const txHash = await blockchainService.proposeMilestoneOnChain(
+        account,
+        project.milestones_address,
+        'Hito de cierre — entrega de fondos al dueño',
+        project.vault_address,
+      );
+      setTxHashes(prev => ({ ...prev, propose: txHash }));
+      await loadMilestones();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Error al proponer hito');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleExecute = async (milestone: Milestone) => {
+    if (!account || !project.milestones_address) return;
+    setActionLoading(milestone.id);
+    setActionError(null);
+    try {
+      const txHash = await blockchainService.executeMilestone(
+        account,
+        project.milestones_address,
+        BigInt(milestone.milestone_chain_id),
+      );
+      setTxHashes(prev => ({ ...prev, [milestone.id]: txHash }));
+      await loadMilestones();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Error al solicitar fondos');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="milestones-tab">
@@ -80,6 +137,42 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project }) => {
   return (
     <div className="milestones-tab">
       <h2 className="milestones-title">Hitos del proyecto</h2>
+
+      {actionError && (
+        <div className="chain-error-banner" style={{ marginBottom: '12px' }}>
+          <p>{actionError}</p>
+        </div>
+      )}
+
+      {canPropose && (
+        <div className="milestone-propose-section">
+          <p className="milestone-propose-hint">
+            No hay hitos activos. Puedes proponer el hito de cierre para recibir los fondos recaudados.
+          </p>
+          <IonButton
+            expand="block"
+            className="milestone-action-btn"
+            onClick={handlePropose}
+            disabled={actionLoading === 'propose'}
+          >
+            {actionLoading === 'propose' ? (
+              <><IonSpinner name="crescent" />&nbsp;Proponiendo...</>
+            ) : (
+              'Proponer hito de cierre'
+            )}
+          </IonButton>
+          {txHashes['propose'] && (
+            <a
+              href={CELOSCAN_TX(txHashes['propose'])}
+              target="_blank"
+              rel="noreferrer"
+              className="milestone-tx-link"
+            >
+              <IonIcon icon={openOutline} /> Ver transacción
+            </a>
+          )}
+        </div>
+      )}
 
       {milestones.length === 0 ? (
         <div className="historial-empty">
@@ -109,6 +202,34 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project }) => {
                 )}
                 {milestone.executed_at && (
                   <span className="milestone-date">Ejecutado: {formatDate(milestone.executed_at)}</span>
+                )}
+
+                {isOwner && milestone.status === 'APPROVED' && (
+                  <div className="milestone-execute-section">
+                    <IonButton
+                      expand="block"
+                      color="success"
+                      className="milestone-action-btn"
+                      onClick={() => handleExecute(milestone)}
+                      disabled={actionLoading === milestone.id}
+                    >
+                      {actionLoading === milestone.id ? (
+                        <><IonSpinner name="crescent" />&nbsp;Procesando...</>
+                      ) : (
+                        'Solicitar fondos'
+                      )}
+                    </IonButton>
+                    {txHashes[milestone.id] && (
+                      <a
+                        href={CELOSCAN_TX(txHashes[milestone.id])}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="milestone-tx-link"
+                      >
+                        <IonIcon icon={openOutline} /> Ver transacción
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

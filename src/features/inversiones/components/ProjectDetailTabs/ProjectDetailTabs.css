@@ -429,6 +429,167 @@
   color: #92400e;
 }
 
+.chain-rewards-section {
+  margin-top: 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.chain-rewards-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #166534;
+}
+
+.chain-rewards-info ion-icon {
+  font-size: 20px;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.chain-rewards-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.chain-rewards-btn:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.chain-rewards-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   INVEST SECTION (Tokenización V2)
+   ========================= */
+
+.invest-section {
+  margin-top: 20px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.invest-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 0;
+}
+
+.invest-current {
+  font-size: 14px;
+  color: #1d4ed8;
+  margin: 0;
+}
+
+.invest-balance {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.invest-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.invest-input {
+  flex: 1;
+  min-width: 120px;
+  border: 1.5px solid #93c5fd;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  background: white;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.invest-input:focus {
+  border-color: #3b82f6;
+}
+
+.invest-tokens-preview {
+  font-size: 13px;
+  color: #2563eb;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.invest-error {
+  font-size: 13px;
+  color: #dc2626;
+  margin: 0;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.invest-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.invest-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.invest-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.invest-tx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #3b82f6;
+  text-decoration: none;
+  padding: 2px 0;
+}
+
+.invest-tx-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
 /* =========================
    DOCUMENTOS TAB
    ========================= */
@@ -1111,4 +1272,146 @@
 .historial-load-more:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* =========================
+   MILESTONES TAB
+   ========================= */
+
+.milestones-tab {
+  padding: 24px 20px;
+  padding-bottom: 100px;
+}
+
+.milestones-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 20px 0;
+}
+
+.milestones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.milestone-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+}
+
+.milestone-item-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.milestone-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.milestone-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.milestone-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.milestone-amount ion-icon {
+  color: #10b981;
+  font-size: 16px;
+}
+
+.milestone-description {
+  font-size: 14px;
+  color: #374151;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.milestone-date {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.milestone-propose-section {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.milestone-propose-hint {
+  font-size: 14px;
+  color: #166534;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.milestone-execute-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.milestone-action-btn {
+  --border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  height: 42px;
+}
+
+.milestone-tx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #3b82f6;
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+.milestone-tx-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.chain-error-banner {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #dc2626;
 }

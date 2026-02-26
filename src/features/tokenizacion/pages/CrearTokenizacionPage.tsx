@@ -9,11 +9,20 @@ import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
+import { ConnectButton } from 'thirdweb/react';
+import { inAppWallet, createWallet } from 'thirdweb/wallets';
+import { thirdwebClient } from '@/app/App';
 import { projectsService } from '@/services/projects';
+import { apiService } from '@/services/api/api.service';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
 import { blockchainService } from '@/services/blockchain.service';
 import { useBlockchain } from '@/hooks/use-blockchain';
-import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { CHAIN, BLOCKCHAIN_CONFIG } from '@/contracts/config';
+
+const wallets = [
+  inAppWallet({ auth: { options: ['email', 'google', 'apple'] } }),
+  createWallet('io.metamask'),
+];
 import {
   Project,
   ProjectType,
@@ -256,47 +265,46 @@ const CrearTokenizacionPage: React.FC = () => {
         }
       }
 
-      if (account) {
+      // Fondear gas si el usuario tiene menos de 0.05 CELO
+      const celoBalance = await blockchainService.getNativeBalance(account!.address);
+      const MIN_GAS = BigInt('50000000000000000'); // 0.05 CELO
+      if (celoBalance < MIN_GAS) {
         await dismissLoading();
-        await presentLoading({ message: 'Desplegando contrato en blockchain...' });
-
-        const copToUsdc = (cop: number): bigint =>
-          blockchainService.parseUnits(
-            (cop / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
-            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
-          );
-
+        await presentLoading({ message: 'Preparando wallet para gas...' });
         try {
-          const addresses = await blockchainService.deployTokenizacionV2(
-            account,
-            {
-              settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
-              fundingTarget: copToUsdc(valorActivo),
-              minimumCap: 0n,
-              tokenPrice: copToUsdc(precioPorToken),
-              saleDuration: BigInt(30 * 24 * 60 * 60),
-              name: formData.nombreToken || formData.nombreProyecto,
-              symbol: formData.simboloToken || 'TKN',
-            },
-          );
-
-          await dismissLoading();
-          await presentLoading({ message: 'Registrando contrato...' });
-
-          const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
-          setCreatedTokenizacion(publishedProject);
-        } catch (deployError: any) {
-          await dismissLoading();
-          await present({
-            message: deployError.message || 'Error al desplegar en blockchain',
-            duration: 4000,
-            color: 'warning',
-          });
-          setCreatedTokenizacion(project);
+          await apiService.post('/blockchain/fund-gas', { address: account!.address });
+        } catch {
+          // no bloquear si falla el faucet, intentar el deploy de todas formas
         }
-      } else {
-        setCreatedTokenizacion(project);
       }
+
+      await dismissLoading();
+      await presentLoading({ message: 'Desplegando contrato en blockchain...' });
+
+      const copToUsdc = (cop: number): bigint =>
+        blockchainService.parseUnits(
+          (cop / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
+          BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
+        );
+
+      const addresses = await blockchainService.deployTokenizacionV2(
+        account,
+        {
+          settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          fundingTarget: copToUsdc(valorActivo),
+          minimumCap: 0n,
+          tokenPrice: copToUsdc(precioPorToken),
+          saleDuration: BigInt(30 * 24 * 60 * 60),
+          name: formData.nombreToken || formData.nombreProyecto,
+          symbol: formData.simboloToken || 'TKN',
+        },
+      );
+
+      await dismissLoading();
+      await presentLoading({ message: 'Registrando contrato...' });
+
+      const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
+      setCreatedTokenizacion(publishedProject);
 
       setShowSuccess(true);
 
@@ -308,9 +316,16 @@ const CrearTokenizacionPage: React.FC = () => {
       });
     } catch (error: any) {
       await dismissLoading();
+      const msg: string = error?.message ?? '';
+      const isGasError =
+        msg.includes('insufficient funds') ||
+        msg.includes('error_forwarding_sequencer') ||
+        msg.includes('gas');
       await present({
-        message: error.message || 'Error al crear la tokenizacion',
-        duration: 3000,
+        message: isGasError
+          ? 'Sin CELO para gas. Obtén fondos en faucet.celo.org/alfajores'
+          : msg || 'Error al crear la tokenización',
+        duration: 6000,
         color: 'danger',
       });
     }
@@ -523,6 +538,13 @@ const CrearTokenizacionPage: React.FC = () => {
                 <button className="btn-primary" onClick={handleNext}>
                   Siguiente paso
                 </button>
+              ) : !account ? (
+                <ConnectButton
+                  client={thirdwebClient}
+                  chain={CHAIN}
+                  wallets={wallets}
+                  connectButtonStyle={{ width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' }}
+                />
               ) : (
                 <button
                   className="btn-primary"
