@@ -1,6 +1,11 @@
 export { ProjectDetailTabs } from './ProjectDetailTabs';
+export type { TabId } from './ProjectDetailTabs';
 export { ResumenTab } from './ResumenTab';
 export { FinanzasTab } from './FinanzasTab';
 export { DocumentosTab } from './DocumentosTab';
 export { SolicitudesTab } from './SolicitudesTab';
 export { ParticipantesTab } from './ParticipantesTab';
+export { HistorialTab } from './HistorialTab';
+export { GovernanceTab } from './GovernanceTab';
+export { DisputasTab } from './DisputasTab';
+export { MilestonesTab } from './MilestonesTab';

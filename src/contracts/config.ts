@@ -10,15 +10,26 @@ export const BLOCKCHAIN_CONFIG = {
   BLOCK_EXPLORER: import.meta.env.VITE_BLOCK_EXPLORER as string,
 
   CONTRACTS: {
-    PLATFORM: import.meta.env.VITE_CONTRACT_PLATFORM as string,
-    NATILLERA_IMPL: import.meta.env.VITE_CONTRACT_NATILLERA_IMPL as string,
-    TOKENIZACION_IMPL: import.meta.env.VITE_CONTRACT_TOKENIZACION_IMPL as string,
+    PLATFORM_V2: import.meta.env.VITE_CONTRACT_PLATFORM_V2 as string,
+    FEE_MANAGER: import.meta.env.VITE_CONTRACT_FEE_MANAGER as string,
+    FEE_TREASURY: import.meta.env.VITE_CONTRACT_FEE_TREASURY as string,
   },
 
   PAYMENT_TOKEN_ADDRESS: import.meta.env.VITE_PAYMENT_TOKEN_ADDRESS as string,
   PAYMENT_TOKEN_DECIMALS: Number(import.meta.env.VITE_PAYMENT_TOKEN_DECIMALS ?? 6),
   COP_TO_USDT_RATE: Number(import.meta.env.VITE_COP_TO_USDT_RATE ?? 3650),
 } as const;
+
+export { default as PlatformV2Abi } from './abis/PlatformV2.json';
+export { default as ProjectVaultAbi } from './abis/ProjectVault.json';
+export { default as RevenueModelV2Abi } from './abis/RevenueModelV2.json';
+export { default as NatilleraV2Abi } from './abis/NatilleraV2.json';
+export { default as MilestonesModuleAbi } from './abis/MilestonesModule.json';
+export { default as GovernanceModuleAbi } from './abis/GovernanceModule.json';
+export { default as DisputesModuleAbi } from './abis/DisputesModule.json';
+export { default as ProjectTokenV2Abi } from './abis/ProjectTokenv2.json';
+export { default as FeeManagerAbi } from './abis/Feemanager.json';
+export { default as FeeTreasuryAbi } from './abis/FeeTreasury.json';
 
 export const getBlockExplorerTxUrl = (txHash: string) =>
   `${BLOCKCHAIN_CONFIG.BLOCK_EXPLORER}/tx/${txHash}`;

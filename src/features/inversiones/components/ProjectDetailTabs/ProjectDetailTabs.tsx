@@ -1,18 +1,23 @@
 import React from 'react';
 import './ProjectDetailTabs.css';
 
+export type TabId =
+  | 'resumen'
+  | 'finanzas'
+  | 'documentos'
+  | 'participantes'
+  | 'solicitudes'
+  | 'historial'
+  | 'gobernanza'
+  | 'disputas'
+  | 'hitos';
+
 interface ProjectDetailTabsProps {
-  activeTab:
-    | 'resumen'
-    | 'finanzas'
-    | 'documentos'
-    | 'participantes'
-    | 'solicitudes';
-  onTabChange: (
-    tab: 'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
-  ) => void;
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
   isOwner?: boolean;
   isMember?: boolean;
+  hasV2?: boolean;
 }
 
 export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
@@ -20,6 +25,7 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
   onTabChange,
   isOwner = false,
   isMember = false,
+  hasV2 = false,
 }) => {
   return (
     <div className="project-detail-tabs">
@@ -55,6 +61,38 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
           onClick={() => onTabChange('solicitudes')}
         >
           Solicitudes
+        </button>
+      )}
+      {(isOwner || isMember) && (
+        <button
+          className={`tab-button ${activeTab === 'historial' ? 'active' : ''}`}
+          onClick={() => onTabChange('historial')}
+        >
+          Historial
+        </button>
+      )}
+      {hasV2 && (
+        <button
+          className={`tab-button ${activeTab === 'gobernanza' ? 'active' : ''}`}
+          onClick={() => onTabChange('gobernanza')}
+        >
+          Gobernanza
+        </button>
+      )}
+      {hasV2 && (
+        <button
+          className={`tab-button ${activeTab === 'disputas' ? 'active' : ''}`}
+          onClick={() => onTabChange('disputas')}
+        >
+          Disputas
+        </button>
+      )}
+      {hasV2 && (
+        <button
+          className={`tab-button ${activeTab === 'hitos' ? 'active' : ''}`}
+          onClick={() => onTabChange('hitos')}
+        >
+          Hitos
         </button>
       )}
     </div>
