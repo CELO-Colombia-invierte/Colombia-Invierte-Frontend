@@ -127,8 +127,28 @@ class ProjectsService {
 
   // ============= BLOCKCHAIN =============
 
-  async publish(id: string): Promise<Project> {
-    const response = await apiService.post<Project>(`/projects/${id}/publish`);
+  async registerContract(
+    id: string,
+    dto: { contractAddress: string; txHash: string },
+  ): Promise<Project> {
+    const response = await apiService.post<Project>(`/projects/${id}/register-contract`, dto);
+    return response.data;
+  }
+
+  async registerV2Contract(
+    id: string,
+    dto: {
+      blockchain_project_id: string;
+      vault: string;
+      module: string;
+      token: string;
+      governance: string;
+      disputes: string;
+      milestones: string;
+      tx_hash: string;
+    },
+  ): Promise<Project> {
+    const response = await apiService.post<Project>(`/projects/${id}/register-v2`, dto);
     return response.data;
   }
 

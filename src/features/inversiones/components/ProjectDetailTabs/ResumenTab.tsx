@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import {
@@ -7,8 +7,11 @@ import {
   globeOutline,
   calendarOutline,
   walletOutline,
+  trophyOutline,
 } from 'ionicons/icons';
 import { Project } from '@/models/projects';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { blockchainService } from '@/services/blockchain.service';
 import './ProjectDetailTabs.css';
 
 interface ResumenTabProps {
@@ -29,6 +32,52 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
   isMember = false,
 }) => {
   const history = useHistory();
+  const { account, claimFinalNatillera } = useBlockchain();
+  const [hasPaidCurrentCycle, setHasPaidCurrentCycle] = useState<boolean | null>(null);
+  const [v2Matured, setV2Matured] = useState(false);
+  const [v2Claimed, setV2Claimed] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+
+  useEffect(() => {
+    if (!account?.address || !isMember || project.type !== 'NATILLERA') return;
+
+    if (project.natillera_address) {
+      const checkV2 = async () => {
+        try {
+          const state = await blockchainService.getNatilleraV2State(project.natillera_address!);
+          setV2Matured(state.isMatured);
+          if (state.isMatured) {
+            const claimed = await blockchainService.hasNatilleraV2Claimed(project.natillera_address!, account.address);
+            setV2Claimed(claimed);
+          }
+          const paid = await blockchainService.hasNatilleraV2PaidMonth(
+            project.natillera_address!,
+            account.address,
+            state.currentMonth,
+          );
+          setHasPaidCurrentCycle(paid);
+        } catch {
+          // silenciar
+        }
+      };
+      checkV2();
+    } else if (project.contract_address) {
+      const checkV1 = async () => {
+        try {
+          const [state, config] = await Promise.all([
+            blockchainService.getNatilleraState(project.contract_address!),
+            blockchainService.getNatilleraConfig(project.contract_address!),
+          ]);
+          const deposits = await blockchainService.getDeposits(project.contract_address!, account.address);
+          const required = config.monthlyContribution * (BigInt(state.currentCycle) + 1n);
+          setHasPaidCurrentCycle(deposits >= required);
+        } catch {
+          setHasPaidCurrentCycle(null);
+        }
+      };
+      checkV1();
+    }
+  }, [account?.address, project.contract_address, project.natillera_address, isMember]);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -41,6 +90,19 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
 
   const handleGoToPayment = () => {
     history.push(`/pago/${project.id}`);
+  };
+
+  const handleClaimFinal = async () => {
+    if (!project.natillera_address) return;
+    setClaiming(true);
+    try {
+      await claimFinalNatillera(project.natillera_address);
+      setV2Claimed(true);
+    } catch {
+      // silenciar
+    } finally {
+      setClaiming(false);
+    }
   };
 
   return (
@@ -61,7 +123,6 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
           )}
         </div>
 
-        {/* Badges de info rápida */}
         <div className="resumen-badges">
           <div className="info-badge">
             <IonIcon
@@ -125,26 +186,38 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
         </div>
       )}
 
-      {isMember &&
-        !isOwner &&
-        !showJoinButton &&
-        (() => {
-          const deadline = project.natillera_details?.payment_deadline_at;
-          const isPastDeadline = deadline
-            ? new Date() >= new Date(deadline)
-            : false;
-          return isPastDeadline ? (
-            <div className="resumen-actions">
-              <button
-                className="action-button payment-button-highlighted"
-                onClick={handleGoToPayment}
-              >
-                <IonIcon icon={walletOutline} className="button-icon" />
-                Realizar Pago
-              </button>
-            </div>
-          ) : null;
-        })()}
+      {isMember && !isOwner && !showJoinButton && project.type === 'NATILLERA' && v2Matured && !v2Claimed && (
+        <div className="resumen-actions">
+          <button
+            className="action-button primary"
+            onClick={handleClaimFinal}
+            disabled={claiming}
+          >
+            <IonIcon icon={trophyOutline} className="button-icon" />
+            {claiming ? 'Reclamando...' : 'Reclamar pozo final'}
+          </button>
+        </div>
+      )}
+
+      {isMember && !isOwner && !showJoinButton && project.type === 'NATILLERA' && !v2Matured && (() => {
+        if (hasPaidCurrentCycle === true) return null;
+        const deadline = project.natillera_details?.payment_deadline_at;
+        const isPaymentDue = hasPaidCurrentCycle === false
+          ? true
+          : (deadline ? new Date() >= new Date(deadline) : false);
+        if (!isPaymentDue) return null;
+        return (
+          <div className="resumen-actions">
+            <button
+              className="action-button payment-button-highlighted"
+              onClick={handleGoToPayment}
+            >
+              <IonIcon icon={walletOutline} className="button-icon" />
+              Realizar Pago
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 };

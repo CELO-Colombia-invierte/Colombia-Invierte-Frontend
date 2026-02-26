@@ -11,6 +11,9 @@ import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
 import { projectsService } from '@/services/projects';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
+import { blockchainService } from '@/services/blockchain.service';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import {
   Project,
   ProjectType,
@@ -46,6 +49,7 @@ const CrearNatilleraPage: React.FC = () => {
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
   const contentRef = useRef<HTMLIonContentElement>(null);
+  const { account } = useBlockchain();
   const [createdNatillera, setCreatedNatillera] = useState<Project | null>(
     null
   );
@@ -205,10 +209,42 @@ const CrearNatilleraPage: React.FC = () => {
         }
       }
 
-      try {
-        const publishedProject = await projectsService.publish(projectId);
-        setCreatedNatillera(publishedProject);
-      } catch {
+      if (account) {
+        await dismissLoading();
+        await presentLoading({ message: 'Desplegando contrato en blockchain...' });
+
+        const copToUsdc = (cop: number): bigint =>
+          blockchainService.parseUnits(
+            (cop / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
+            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
+          );
+
+        try {
+          const addresses = await blockchainService.deployNatilleraV2(
+            account,
+            {
+              settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+              quota: copToUsdc(valorCuota),
+              duration: BigInt(cantidadMeses),
+              maxMembers: BigInt(maxParticipantes >= 2 ? maxParticipantes : 20),
+            },
+          );
+
+          await dismissLoading();
+          await presentLoading({ message: 'Registrando contrato...' });
+
+          const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
+          setCreatedNatillera(publishedProject);
+        } catch (deployError: any) {
+          await dismissLoading();
+          await present({
+            message: deployError.message || 'Error al desplegar en blockchain',
+            duration: 4000,
+            color: 'warning',
+          });
+          setCreatedNatillera(project);
+        }
+      } else {
         setCreatedNatillera(project);
       }
 

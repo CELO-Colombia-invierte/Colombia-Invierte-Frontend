@@ -9,11 +9,16 @@ import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';
 import {
   ProjectDetailTabs,
+  TabId,
   ResumenTab,
   FinanzasTab,
   DocumentosTab,
   ParticipantesTab,
   SolicitudesTab,
+  HistorialTab,
+  GovernanceTab,
+  DisputasTab,
+  MilestonesTab,
 } from '../components/ProjectDetailTabs';
 import { DeployProjectCard } from '../components/DeployProjectCard';
 import './ProjectDetailPage.css';
@@ -41,9 +46,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     useState<MembershipStatus | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
-  >('resumen');
+  const [activeTab, setActiveTab] = useState<TabId>('resumen');
 
   useEffect(() => {
     fetchProjectDetails();
@@ -144,6 +147,8 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     user?.id && project?.owner_user?.id && user.id === project.owner_user.id
   );
 
+  const hasV2 = !!(project?.vault_address);
+
   if (loading) {
     return (
       <IonPage> 
@@ -200,12 +205,13 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           onTabChange={setActiveTab}
           isOwner={isOwner}
           isMember={isMember}
+          hasV2={hasV2}
         />
 
         <div className="project-detail-content">
           {activeTab === 'resumen' && (
             <>
-              {isOwner && !isDeployed && project.visibility === ProjectVisibility.PRIVATE && (
+              {isOwner && !isDeployed && isPublicProject && (
                 <DeployProjectCard
                   project={project}
                   onPublished={(updatedProject) => {
@@ -249,6 +255,22 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
           {activeTab === 'solicitudes' && isOwner && (
             <SolicitudesTab project={project} />
+          )}
+
+          {activeTab === 'historial' && (isOwner || isMember) && (
+            <HistorialTab project={project} />
+          )}
+
+          {activeTab === 'gobernanza' && hasV2 && (
+            <GovernanceTab project={project} />
+          )}
+
+          {activeTab === 'disputas' && hasV2 && (
+            <DisputasTab project={project} />
+          )}
+
+          {activeTab === 'hitos' && hasV2 && (
+            <MilestonesTab project={project} />
           )}
         </div>
         {canJoinPublicProject && (

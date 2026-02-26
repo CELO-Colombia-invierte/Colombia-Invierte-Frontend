@@ -11,6 +11,9 @@ import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
 import { projectsService } from '@/services/projects';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
+import { blockchainService } from '@/services/blockchain.service';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import {
   Project,
   ProjectType,
@@ -57,6 +60,7 @@ const CrearTokenizacionPage: React.FC = () => {
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
   const contentRef = useRef<HTMLIonContentElement>(null);
+  const { account } = useBlockchain();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -252,10 +256,45 @@ const CrearTokenizacionPage: React.FC = () => {
         }
       }
 
-      try {
-        const publishedProject = await projectsService.publish(projectId);
-        setCreatedTokenizacion(publishedProject);
-      } catch {
+      if (account) {
+        await dismissLoading();
+        await presentLoading({ message: 'Desplegando contrato en blockchain...' });
+
+        const copToUsdc = (cop: number): bigint =>
+          blockchainService.parseUnits(
+            (cop / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
+            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
+          );
+
+        try {
+          const addresses = await blockchainService.deployTokenizacionV2(
+            account,
+            {
+              settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+              fundingTarget: copToUsdc(valorActivo),
+              minimumCap: 0n,
+              tokenPrice: copToUsdc(precioPorToken),
+              saleDuration: BigInt(30 * 24 * 60 * 60),
+              name: formData.nombreToken || formData.nombreProyecto,
+              symbol: formData.simboloToken || 'TKN',
+            },
+          );
+
+          await dismissLoading();
+          await presentLoading({ message: 'Registrando contrato...' });
+
+          const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
+          setCreatedTokenizacion(publishedProject);
+        } catch (deployError: any) {
+          await dismissLoading();
+          await present({
+            message: deployError.message || 'Error al desplegar en blockchain',
+            duration: 4000,
+            color: 'warning',
+          });
+          setCreatedTokenizacion(project);
+        }
+      } else {
         setCreatedTokenizacion(project);
       }
 
