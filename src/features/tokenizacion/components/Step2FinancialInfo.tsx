@@ -39,7 +39,6 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   const presaleEnabled = formData.ventaAnticipada === 'true';
 
   const handlePresaleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[Step2] handlePresaleToggle:', { checked: e.target.checked });
     onChange('ventaAnticipada', String(e.target.checked));
   };
 

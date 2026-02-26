@@ -69,12 +69,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
         </button>
 
         <div className="transfer-modal-options">
-          <button className="transfer-option-btn" onClick={() => { console.log('Transferir a otra cuenta'); onClose(); }}>
+          <button className="transfer-option-btn" onClick={() => { onClose(); }}>
             <span className="transfer-option-icon"><IconSendAccount /></span>
             <span>Transferir a otra cuenta</span>
           </button>
 
-          <button className="transfer-option-btn" onClick={() => { console.log('Transferir entre mis cuentas'); onClose(); }}>
+          <button className="transfer-option-btn" onClick={() => { onClose(); }}>
             <span className="transfer-option-icon"><IconSendOwn /></span>
             <span>Transferir entre mis cuentas</span>
           </button>

@@ -51,7 +51,6 @@ const MensajesPage: React.FC = () => {
   useChatWebSocket({
     onNewMessage: handleNewMessage,
     onConnected: () => {
-      console.log('WebSocket connected in MensajesPage');
     },
   });
 
@@ -63,15 +62,6 @@ const MensajesPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await chatApiService.getConversations();
-      console.log(
-        'Conversations loaded:',
-        data.map((c) => ({
-          id: c.id,
-          title: c.name || 'No name',
-          unreadCount: c.unreadCount,
-          lastMessage: c.lastMessage?.text,
-        }))
-      );
       setConversations(data);
     } catch (error) {
       console.error('Error fetching conversations:', error);

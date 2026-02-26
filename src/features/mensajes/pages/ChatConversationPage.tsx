@@ -126,7 +126,6 @@ const ChatConversationPage: React.FC = () => {
     onUserTyping: handleUserTyping,
     onUserStoppedTyping: handleUserStoppedTyping,
     onConnected: (data) => {
-      console.log('WebSocket connected:', data);
       if (conversationId) {
         joinConversation(conversationId);
       }

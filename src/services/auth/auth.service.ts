@@ -91,9 +91,6 @@ class AuthService {
 
   getToken(): string | null {
     const token = storageService.getItem(this.tokenKey);
-    // if (token) {
-    //   console.log('TOKEN:', token);
-    // }
     return token;
   }
 
@@ -109,7 +106,6 @@ class AuthService {
     if (response.data) {
       const user = UserMapper.fromAuthResponse(response.data);
 
-      // console.log('TOKEN:', response.data.access_token);
 
       this.setAuth(
         response.data.access_token,
@@ -126,8 +122,6 @@ class AuthService {
   }
 
   async login(data: LoginRequestDto): Promise<AuthResponse> {
-    // console.log(' === INICIANDO LOGIN ===');
-    // console.log(' Email:', data.email);
 
     const response = await apiService.post<AuthResponseDto>(
       '/auth/login',
@@ -136,7 +130,6 @@ class AuthService {
     if (response.data) {
       const user = UserMapper.fromAuthResponse(response.data);
 
-      // console.log('TOKEN:', response.data.access_token);
 
       this.setAuth(
         response.data.access_token,
