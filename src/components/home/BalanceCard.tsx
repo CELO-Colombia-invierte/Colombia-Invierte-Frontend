@@ -77,8 +77,13 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
             {formatAmount(balance.amount)}
             <span className="balance-card-currency"> {balance.currency}</span>
           </h1>
+          {balance.secondaryAmount !== undefined && balance.secondaryCurrency && (
+            <p className="balance-card-secondary-value" style={{ margin: '4px 0 0 0', fontSize: '15px', color: '#4b5563', fontWeight: '500' }}>
+              + {formatAmount(balance.secondaryAmount)} {balance.secondaryCurrency}
+            </p>
+          )}
           {balance.address && (
-            <p className="balance-card-address">{formatAddress(balance.address)}</p>
+            <p className="balance-card-address" style={{ marginTop: '8px' }}>{formatAddress(balance.address)}</p>
           )}
           <p className="balance-card-date">{formatDate()}</p>
         </div>

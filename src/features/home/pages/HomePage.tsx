@@ -12,10 +12,16 @@ import {
 import { TransferModal } from '@/components/home/TransferModal';
 import './HomePage.css';
 
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { blockchainService } from '@/services/blockchain.service';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const { account } = useBlockchain();
+  const [usdtBalance, setUsdtBalance] = useState<number>(0);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -23,11 +29,35 @@ const HomePage: React.FC = () => {
     }
   }, [fetchPortfolio, isAuthenticated]);
 
+  useEffect(() => {
+    const fetchUsdtBalance = async () => {
+      if (account?.address) {
+        try {
+          const rawBalance = await blockchainService.getTokenBalance(
+            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+            account.address
+          );
+          const formatted = parseFloat(
+            blockchainService.formatUnits(rawBalance, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)
+          );
+          setUsdtBalance(formatted);
+        } catch (error) {
+          console.error("Error fetching USDT balance", error);
+        }
+      } else {
+        setUsdtBalance(0);
+      }
+    };
+    fetchUsdtBalance();
+  }, [account]);
+
   const balance: Balance = {
-    amount: portfolio?.balances.ousd || 0,
-    currency: 'OUSD',
-    address: '0xc8...320f',
+    amount: usdtBalance,
+    currency: 'USDT',
+    address: account?.address || 'Por conectar...',
     changePercentage: 0,
+    secondaryAmount: portfolio?.balances.ousd || 0,
+    secondaryCurrency: 'OUSD',
   };
 
   const investments: Investment[] =

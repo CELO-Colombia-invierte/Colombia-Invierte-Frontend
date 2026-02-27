@@ -14,6 +14,10 @@ interface BlockchainEvent {
   block_number: number;
   event_data: Record<string, string>;
   created_at: string;
+  user?: {
+    name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 interface HistorialTabProps {
@@ -104,11 +108,18 @@ export const HistorialTab: React.FC<HistorialTabProps> = ({ project }) => {
             {events.map(event => (
               <div key={event.id} className="historial-item">
                 <div className="historial-item-main">
-                  <span className="historial-address">
-                    {isNatillera
-                      ? formatAddress(event.event_data.member || event.event_data.user)
-                      : formatAddress(event.event_data.buyer || event.event_data.user)}
-                  </span>
+                  <div className="historial-address-container">
+                    {event.user?.avatar_url ? (
+                      <img src={event.user.avatar_url} alt="avatar" className="historial-avatar" />
+                    ) : (
+                      <div className="historial-avatar-placeholder">
+                        {event.user?.name ? event.user.name.charAt(0).toUpperCase() : '?'}
+                      </div>
+                    )}
+                    <span className="historial-address" style={{ fontWeight: event.user?.name ? '500' : 'normal' }}>
+                      {event.user?.name || formatAddress(event.event_data.member || event.event_data.user || event.event_data.buyer)}
+                    </span>
+                  </div>
                   <span className="historial-amount">
                     {isNatillera
                       ? event.event_data.amount

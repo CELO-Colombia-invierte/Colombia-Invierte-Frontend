@@ -85,9 +85,11 @@ export interface Investment {
 
 export interface Balance {
   amount: number;
-  currency: string;
+  currency: string;      // principal (ej. OUSD)
   address?: string;
   changePercentage?: number;
+  secondaryAmount?: number;   // secundario (ej. USDT)
+  secondaryCurrency?: string;
 }
 
 export interface PortfolioProject {
