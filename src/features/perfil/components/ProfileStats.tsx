@@ -21,7 +21,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats }) => {
       ))}
       <div className="profile-stat-separator"></div>
       <div className="profile-stat">
-        <img className='imgProvince' src="" alt="hola" />
+        <img className='imgProvince' src="https://flagcdn.com/w80/co.png" alt="Colombia" />
         <h2 className="province">Colombia</h2>
       </div>
     </div>

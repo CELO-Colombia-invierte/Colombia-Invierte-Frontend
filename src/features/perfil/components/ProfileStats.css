@@ -25,6 +25,13 @@
   background-color: #e2e8f0;   
 } 
 
+.imgProvince {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .province {
  font-size: 11px;
   color: #94a3b8;
