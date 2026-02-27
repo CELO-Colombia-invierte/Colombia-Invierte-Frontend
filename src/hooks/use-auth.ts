@@ -7,7 +7,7 @@ import {
   LoginRequestDto,
   UpdateUserRequestDto,
 } from '@/dtos/auth/AuthResponse.dto';
-import { isProfileComplete } from '@/utils/profile';
+
 
 export const useAuth = () => {
   const history = useHistory();
@@ -38,19 +38,12 @@ export const useAuth = () => {
         };
         setAuthState(newAuthState);
 
-        setTimeout(() => {
-          const redirectPath = isProfileComplete(response.user)
-            ? '/home'
-            : '/complete-profile';
-          history.replace(redirectPath);
-        }, 400);
-
         return response;
       } finally {
         setIsLoading(false);
       }
     },
-    [history, isLoading]
+    [isLoading]
   );
 
   const login = useCallback(
@@ -65,19 +58,13 @@ export const useAuth = () => {
           isAuthenticated: true,
         };
         setAuthState(newAuthState);
-        setTimeout(() => {
-          const redirectPath = isProfileComplete(response.user)
-            ? '/home'
-            : '/complete-profile';
-          history.replace(redirectPath);
-        }, 400);
 
         return response;
       } finally {
         setIsLoading(false);
       }
     },
-    [history]
+    []
   );
 
   const refreshToken = useCallback(async () => {

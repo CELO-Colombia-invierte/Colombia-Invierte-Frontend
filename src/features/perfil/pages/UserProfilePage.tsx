@@ -4,6 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { checkmarkCircle } from 'ionicons/icons';
 import { usersService } from '@/services/users';
 import { projectsService } from '@/services/projects';
+import { useAuth } from '@/hooks/use-auth';
 import { User } from '@/models/User.model';
 import { Project } from '@/models/projects';
 import { ProfileHeader, ProfileStats } from '../components';
@@ -16,6 +17,7 @@ const UserProfilePage: React.FC = () => {
   const { username } = useParams<{ username: string }>();
   const history = useHistory();
   const [present] = useIonToast();
+  const { user: currentUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +116,15 @@ const UserProfilePage: React.FC = () => {
     <IonPage>
       <IonContent fullscreen className="user-profile-page">
         <div className="profile-blue-banner">
-          <ProfileHeader user={user} onBack={() => history.goBack()} />
+          <ProfileHeader
+            user={user}
+            onBack={() => history.goBack()}
+            onEdit={
+              currentUser?.id === user.id
+                ? () => history.push('/editar-perfil')
+                : undefined
+            }
+          />
           <div className="profile-info-section">
             <div className="profile-avatar-container">
               {avatarUrl ? (

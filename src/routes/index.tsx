@@ -38,6 +38,9 @@ const ComprobantePage = lazy(() => import('@/features/transferencia-banco/pages/
 const NotificacionesPage = lazy(
   () => import('@/features/notificaciones/pages/NotificacionesPage')
 );
+const EditProfilePage = lazy(
+  () => import('@/features/perfil/pages/EditProfilePage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -128,6 +131,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/notificaciones',
     component: NotificacionesPage,
+    exact: true,
+  },
+  {
+    path: '/editar-perfil',
+    component: EditProfilePage,
     exact: true,
   },
 ];

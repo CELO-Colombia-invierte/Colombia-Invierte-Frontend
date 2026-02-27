@@ -33,9 +33,11 @@ const MainContent: React.FC = () => {
   const hideNavBar =
     location.pathname.startsWith('/mensajes/') ||
     location.pathname.startsWith('/inversiones/') ||
+    location.pathname.startsWith('/perfil/') ||
     location.pathname === '/crear-natillera' ||
     location.pathname === '/crear-tokenizacion' ||
     location.pathname === '/complete-profile' ||
+    location.pathname === '/editar-perfil' ||
     location.pathname === '/transferir-banco' ||
     location.pathname === '/notificaciones';
   const [isModalOpen, setIsModalOpen] = useState(false);

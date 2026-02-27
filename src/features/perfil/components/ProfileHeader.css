@@ -49,3 +49,27 @@
   flex-shrink: 0;
 }
 
+.profile-edit-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 20px;
+  color: #fff;
+  cursor: pointer;
+  padding: 8px;
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.profile-edit-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.profile-edit-btn:active {
+  background-color: rgba(255, 255, 255, 0.4);
+}

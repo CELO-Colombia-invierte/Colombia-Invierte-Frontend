@@ -7,6 +7,17 @@ export class User {
   avatar?: string;
   avatarAssetId?: string;
   verified: boolean;
+  phone?: string;
+  phoneCountryCode?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  investmentExperience?: string;
+  employmentStatus?: string;
+  investmentExpertise?: string;
+  investmentTimeline?: string;
+  riskTolerance?: string;
+  favoriteCategories?: string[];
+  activeInterests?: string[];
   createdAt: Date;
   updatedAt: Date;
 
@@ -18,6 +29,17 @@ export class User {
     avatar?: string;
     avatarAssetId?: string;
     verified?: boolean;
+    phone?: string;
+    phoneCountryCode?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    investmentExperience?: string;
+    employmentStatus?: string;
+    investmentExpertise?: string;
+    investmentTimeline?: string;
+    riskTolerance?: string;
+    favoriteCategories?: string[];
+    activeInterests?: string[];
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -28,11 +50,22 @@ export class User {
     this.avatar = data.avatar;
     this.avatarAssetId = data.avatarAssetId;
     this.verified = data.verified ?? false;
+    this.phone = data.phone;
+    this.phoneCountryCode = data.phoneCountryCode;
+    this.dateOfBirth = data.dateOfBirth;
+    this.gender = data.gender;
+    this.investmentExperience = data.investmentExperience;
+    this.employmentStatus = data.employmentStatus;
+    this.investmentExpertise = data.investmentExpertise;
+    this.investmentTimeline = data.investmentTimeline;
+    this.riskTolerance = data.riskTolerance;
+    this.favoriteCategories = data.favoriteCategories;
+    this.activeInterests = data.activeInterests;
     this.createdAt = data.createdAt ?? new Date();
     this.updatedAt = data.updatedAt ?? new Date();
   }
 
- 
+
   getDisplayName(): string {
     if (this.displayName) return this.displayName;
     if (this.username) return this.username;
@@ -84,6 +117,17 @@ export class User {
       avatar: this.avatar,
       avatarAssetId: this.avatarAssetId,
       verified: this.verified,
+      phone: this.phone,
+      phoneCountryCode: this.phoneCountryCode,
+      dateOfBirth: this.dateOfBirth,
+      gender: this.gender,
+      investmentExperience: this.investmentExperience,
+      employmentStatus: this.employmentStatus,
+      investmentExpertise: this.investmentExpertise,
+      investmentTimeline: this.investmentTimeline,
+      riskTolerance: this.riskTolerance,
+      favoriteCategories: this.favoriteCategories,
+      activeInterests: this.activeInterests,
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
     };

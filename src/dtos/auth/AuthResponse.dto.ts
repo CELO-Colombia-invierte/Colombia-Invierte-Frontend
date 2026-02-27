@@ -11,6 +11,17 @@ export interface UserDto {
   };
   is_verified?: boolean;
   verified?: boolean;
+  phone?: string;
+  phone_country_code?: string;
+  date_of_birth?: string;
+  gender?: string;
+  investment_experience?: string;
+  employment_status?: string;
+  investment_expertise?: string;
+  investment_timeline?: string;
+  risk_tolerance?: string;
+  favorite_categories?: string[];
+  active_interests?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -45,4 +56,15 @@ export interface UpdateUserRequestDto {
   username?: string;
   display_name?: string;
   avatar_asset_id?: string;
+  phone?: string;
+  phone_country_code?: string;
+  date_of_birth?: string;
+  gender?: string;
+  investment_experience?: string;
+  employment_status?: string;
+  investment_expertise?: string;
+  investment_timeline?: string;
+  risk_tolerance?: string;
+  favorite_categories?: string[];
+  active_interests?: string[];
 }
