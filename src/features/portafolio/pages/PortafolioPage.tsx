@@ -138,7 +138,7 @@ const PortafolioPage: React.FC = () => {
     <>
       <IonPage>
         <IonContent fullscreen className="portafolio-page-content">
-          <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} />
+          <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} userAvatar={user?.getAvatarUrl()} />
           <DateHeader title="" />
           <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
           {activeTab === 'mi-portafolio' && (

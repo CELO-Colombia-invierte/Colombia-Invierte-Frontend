@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import { useActiveWallet, useDisconnect } from 'thirdweb/react';
 import { useAuth } from '@/hooks/use-auth';
 import {
   SettingsHeader,
@@ -13,6 +14,8 @@ import './ConfiguracionPage.css';
 const ConfiguracionPage: React.FC = () => {
   const history = useHistory();
   const { logout, user } = useAuth();
+  const activeWallet = useActiveWallet();
+  const { disconnect } = useDisconnect();
   const [biometricEnabled, setBiometricEnabled] = useState(true);
 
   const handleBack = () => {
@@ -52,6 +55,9 @@ const ConfiguracionPage: React.FC = () => {
 
   const handleLogout = async () => {
     try {
+      if (activeWallet) {
+        disconnect(activeWallet);
+      }
       await logout();
     } catch (error) {
       console.error('Error logging out:', error);

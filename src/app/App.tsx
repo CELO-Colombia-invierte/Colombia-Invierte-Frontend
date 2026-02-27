@@ -31,6 +31,7 @@ const MainContent: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
   const hideNavBar =
+    location.pathname === '/auth' ||
     location.pathname.startsWith('/mensajes/') ||
     location.pathname.startsWith('/inversiones/') ||
     location.pathname.startsWith('/perfil/') ||

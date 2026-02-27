@@ -88,7 +88,7 @@ const MensajesPage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="mensajes-page-content">
-        <HomeHeader userName={user?.getDisplayName() || 'Usuario'} />
+        <HomeHeader userName={user?.getDisplayName() || 'Usuario'} userAvatar={user?.getAvatarUrl()} />
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
 
         {loading ? (

@@ -125,12 +125,22 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
               (member.user as any)?.display_name ||
               member.user?.displayName ||
               'Usuario';
+            const userAny = member.user as any;
+            const avatarUrl =
+              userAny?.avatar ||
+              (userAny?.avatar_asset_id
+                ? `${import.meta.env.VITE_ASSETS_URL || import.meta.env.VITE_API_URL}/assets/${userAny.avatar_asset_id}`
+                : undefined);
             return (
               <div key={member.id} className="participant-card">
                 <div className="participant-avatar">
-                  <div className="avatar-placeholder">
-                    {userName.charAt(0).toUpperCase()}
-                  </div>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={userName} className="avatar-image" />
+                  ) : (
+                    <div className="avatar-placeholder">
+                      {userName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
                 <div className="participant-details">
                   <div className="participant-name-row">
