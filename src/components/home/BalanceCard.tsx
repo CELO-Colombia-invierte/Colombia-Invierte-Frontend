@@ -20,7 +20,10 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
 
   const formatAddress = (address?: string) => {
     if (!address) return '';
-    return `${address.slice(0, 5)}...${address.slice(-4)}`;
+    if (address.startsWith('0x') && address.length > 10) {
+      return `${address.slice(0, 5)}...${address.slice(-4)}`;
+    }
+    return address;
   };
 
   // FECHA CARD

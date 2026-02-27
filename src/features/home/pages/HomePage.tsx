@@ -54,7 +54,7 @@ const HomePage: React.FC = () => {
   const balance: Balance = {
     amount: usdtBalance,
     currency: 'USDT',
-    address: account?.address || 'Por conectar...',
+    address: account?.address || '',
     changePercentage: 0,
     secondaryAmount: portfolio?.balances.ousd || 0,
     secondaryCurrency: 'OUSD',
