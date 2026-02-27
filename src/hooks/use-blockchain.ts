@@ -11,8 +11,8 @@ interface UseBlockchainReturn {
   approveToken: (tokenAddress: string, spenderAddress: string, amount: bigint) => Promise<string>;
   depositToNatillera: (contractAddress: string) => Promise<string>;
   buyTokens: (contractAddress: string, amount: bigint) => Promise<string>;
-  deployNatillera: (params: DeployNatilleraParams) => Promise<string>;
-  deployTokenizacion: (params: DeployTokenizacionParams) => Promise<string>;
+  deployNatillera: (params: DeployNatilleraParams) => Promise<{ txHash: string; contractAddress: string }>;
+  deployTokenizacion: (params: DeployTokenizacionParams) => Promise<{ txHash: string; contractAddress: string }>;
   clearError: () => void;
 }
 
@@ -75,7 +75,7 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
-  const deployNatillera = async (params: DeployNatilleraParams): Promise<string> => {
+  const deployNatillera = async (params: DeployNatilleraParams): Promise<{ txHash: string; contractAddress: string }> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
@@ -88,7 +88,7 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
-  const deployTokenizacion = async (params: DeployTokenizacionParams): Promise<string> => {
+  const deployTokenizacion = async (params: DeployTokenizacionParams): Promise<{ txHash: string; contractAddress: string }> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);

@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { cloudUploadOutline, checkmarkCircleOutline, openOutline } from 'ionicons/icons';
 import { projectsService } from '@/services/projects';
-import { Project } from '@/models/projects/project.model';
-import { getBlockExplorerAddressUrl } from '@/contracts/config';
+import { Project, ProjectType } from '@/models/projects/project.model';
+import { getBlockExplorerAddressUrl, BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { useBlockchain } from '@/hooks/use-blockchain';
 import './DeployProjectCard.css';
 
 type DeployStatus = 'idle' | 'loading' | 'pending' | 'deployed';
@@ -45,25 +46,77 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
     }, 5000);
   };
 
+  const { deployNatillera, deployTokenizacion, account } = useBlockchain();
+
   const handlePublish = async () => {
+    if (!account) {
+      setError('Por favor conecta tu wallet primero antes de publicar el contrato');
+      return;
+    }
+
     setError(null);
     setStatus('loading');
     try {
-      const updatedProject = await projectsService.publish(project.id);
+      let result: { txHash: string; contractAddress: string };
+
+      if (project.type === ProjectType.NATILLERA) {
+        if (!project.natillera_details) {
+          throw new Error('El proyecto no tiene detalles de natillera');
+        }
+
+        const details = project.natillera_details;
+
+        result = await deployNatillera({
+          token: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          monthlyContribution: BigInt(details.monthly_fee_amount) * BigInt(10 ** BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
+          totalMonths: BigInt(details.duration_months),
+          maxMembers: BigInt(details.max_participants || 0),
+          startTime: BigInt(Math.floor(new Date(details.payment_deadline_at || Date.now()).getTime() / 1000)),
+        });
+      } else if (project.type === ProjectType.TOKENIZATION) {
+        if (!project.tokenization_details) {
+          throw new Error('El proyecto no tiene detalles de tokenización');
+        }
+
+        const details = project.tokenization_details;
+
+        result = await deployTokenizacion({
+          paymentToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          pricePerToken: BigInt(details.price_per_token_amount) * BigInt(10 ** BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
+          totalTokens: BigInt(details.total_tokens),
+          saleStart: BigInt(Math.floor(new Date(details.presale_starts_at || Date.now()).getTime() / 1000)),
+          saleDuration: BigInt(30 * 24 * 60 * 60), // TODO: Definir duración correcta o usar un valor por defecto
+        });
+      } else {
+        throw new Error('Tipo de proyecto no soportado');
+      }
+
+      setStatus('pending');
+
+      // Registrar el contrato en el backend usando V1
+      const updatedProject = await projectsService.registerContract(project.id, {
+        contractAddress: result.contractAddress,
+        txHash: result.txHash,
+      });
+
       if (updatedProject.contract_address) {
         setContractAddress(updatedProject.contract_address);
         setStatus('deployed');
         onPublished?.(updatedProject);
       } else {
-        // Deploy en curso, hacer polling
         setStatus('pending');
         startPolling(project.id);
       }
     } catch (err) {
       setStatus('idle');
       console.error('Deploy error:', err);
+      // Extraer un mensaje de error más limpio si es posible
       const msg = err instanceof Error ? err.message : 'Error al publicar';
-      setError(msg);
+      // Limpiar mensaje largo de thirdweb
+      const userMsg = msg.includes('user rejected') || msg.includes('cancel')
+        ? 'Transacción rechazada por el usuario'
+        : msg;
+      setError(userMsg);
     }
   };
 

@@ -3,10 +3,6 @@ import type { Account } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
 import { CHAIN, BLOCKCHAIN_CONFIG } from '@/contracts/config';
 
-// ─────────────────────────────────────────────
-// Tipos de retorno
-// ─────────────────────────────────────────────
-
 export interface NatilleraConfig {
   paymentToken: string;
   monthlyContribution: bigint;
@@ -52,13 +48,7 @@ export interface DeployTokenizacionParams {
   saleDuration: bigint;
 }
 
-// ─────────────────────────────────────────────
-// BlockchainService — usa firmas human-readable (thirdweb v5)
-// ─────────────────────────────────────────────
-
 class BlockchainService {
-
-  // ── LECTURA: Platform ────────────────────────
 
   async getPlatformFee(): Promise<bigint> {
     const contract = getContract({
@@ -74,12 +64,10 @@ class BlockchainService {
     return fee as bigint;
   }
 
-  // ── ESCRITURA: Deploy contratos ──────────────
-
   async deployNatillera(
     account: Account,
     params: DeployNatilleraParams,
-  ): Promise<string> {
+  ): Promise<{ txHash: string; contractAddress: string }> {
     const fee = await this.getPlatformFee();
 
     const contract = getContract({
@@ -99,13 +87,35 @@ class BlockchainService {
     });
 
     const result = await sendTransaction({ account, transaction: tx });
-    return result.transactionHash;
+
+    // Import waitForReceipt dynamically if not at top level, or just use it from thirdweb
+    const { waitForReceipt } = await import('thirdweb');
+    const receipt = await waitForReceipt({
+      client: thirdwebClient,
+      chain: CHAIN,
+      transactionHash: result.transactionHash as `0x${string}`,
+    });
+
+    // El evento NatilleraDeployed tiene la dirección en topics[1]
+    let contractAddress = '0x0000000000000000000000000000000000000000';
+    for (const log of receipt.logs) {
+      // Si tiene 3 topics, normalmente es NatilleraDeployed(address indexed natillera, uint256 indexed projectId, address creator)
+      if (log.topics && log.topics.length >= 2 && log.address.toLowerCase() === BLOCKCHAIN_CONFIG.CONTRACTS.PLATFORM.toLowerCase()) {
+        const topic1 = log.topics[1];
+        if (topic1) {
+          contractAddress = '0x' + topic1.slice(26);
+          break;
+        }
+      }
+    }
+
+    return { txHash: result.transactionHash, contractAddress };
   }
 
   async deployTokenizacion(
     account: Account,
     params: DeployTokenizacionParams,
-  ): Promise<string> {
+  ): Promise<{ txHash: string; contractAddress: string }> {
     const fee = await this.getPlatformFee();
 
     const contract = getContract({
@@ -124,10 +134,27 @@ class BlockchainService {
     });
 
     const result = await sendTransaction({ account, transaction: tx });
-    return result.transactionHash;
-  }
 
-  // ── LECTURA: Natillera ──────────────────────
+    const { waitForReceipt } = await import('thirdweb');
+    const receipt = await waitForReceipt({
+      client: thirdwebClient,
+      chain: CHAIN,
+      transactionHash: result.transactionHash as `0x${string}`,
+    });
+
+    let contractAddress = '0x0000000000000000000000000000000000000000';
+    for (const log of receipt.logs) {
+      if (log.topics && log.topics.length >= 2 && log.address.toLowerCase() === BLOCKCHAIN_CONFIG.CONTRACTS.PLATFORM.toLowerCase()) {
+        const topic1 = log.topics[1];
+        if (topic1) {
+          contractAddress = '0x' + topic1.slice(26);
+          break;
+        }
+      }
+    }
+
+    return { txHash: result.transactionHash, contractAddress };
+  }
 
   async getNatilleraConfig(contractAddress: string): Promise<NatilleraConfig> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: contractAddress });
@@ -170,7 +197,6 @@ class BlockchainService {
     return result as boolean;
   }
 
-  // ── LECTURA: Tokenizacion ───────────────────
 
   async getTokenizacionConfig(contractAddress: string): Promise<TokenizacionConfig> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: contractAddress });
@@ -202,7 +228,6 @@ class BlockchainService {
     };
   }
 
-  // ── LECTURA: Token ERC20 ──────────────────
 
   async getTokenBalance(tokenAddress: string, userAddress: string): Promise<bigint> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });
@@ -224,13 +249,8 @@ class BlockchainService {
     }) as Promise<bigint>;
   }
 
-  // ── Celo feeCurrency: pagar gas con USDC en vez de CELO nativo ──────────────
-  // Celo permite usar tokens ERC20 aprobados como fee currency.
-  // Esto elimina la necesidad de que el usuario tenga CELO para gas.
 
   private async sendWithFeeCurrency(account: Account, contractAddress: string, calldata: `0x${string}`): Promise<string> {
-    // Intentar con feeCurrency (paga gas con USDC, Celo-specific).
-    // Si falla por feeCurrency no soportado, enviar sin él.
     try {
       const result = await account.sendTransaction({
         to: contractAddress as `0x${string}`,
@@ -241,18 +261,15 @@ class BlockchainService {
       return result.transactionHash;
     } catch (feeErr: unknown) {
       const msg = (feeErr as { message?: string })?.message ?? '';
-      // Si el error no es de gas, re-lanzar (podría ser rechazo del usuario, etc.)
       if (!msg.includes('feeCurrency') && !msg.includes('fee currency') && !msg.includes('insufficient funds')) {
         throw feeErr;
       }
-      // Fallback: enviar sin feeCurrency (requiere CELO)
       const tx = prepareTransaction({ client: thirdwebClient, chain: CHAIN, to: contractAddress, data: calldata });
       const result = await sendTransaction({ account, transaction: tx });
       return result.transactionHash;
     }
   }
 
-  // ── ESCRITURA: approve ERC20 ─────────────
 
   async approveToken(
     account: Account,
@@ -272,7 +289,6 @@ class BlockchainService {
     return this.sendWithFeeCurrency(account, tokenAddress, calldata);
   }
 
-  // ── ESCRITURA: deposit a Natillera ──────────
 
   async depositToNatillera(
     account: Account,
@@ -289,7 +305,6 @@ class BlockchainService {
     return this.sendWithFeeCurrency(account, contractAddress, calldata);
   }
 
-  // ── ESCRITURA: comprar tokens en Tokenizacion ──
 
   async buyTokens(
     account: Account,
@@ -308,7 +323,6 @@ class BlockchainService {
     return result.transactionHash;
   }
 
-  // ── UTILIDADES ──────────────────────────────
 
   formatUnits(value: bigint, decimals: number): string {
     const divisor = BigInt(10 ** decimals);

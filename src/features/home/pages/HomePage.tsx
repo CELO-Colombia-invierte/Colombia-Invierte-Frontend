@@ -50,11 +50,9 @@ const HomePage: React.FC = () => {
   };
 
   const handleReceive = () => {
-    console.log('Recibir');
   };
 
   const handleInvestmentClick = (investment: Investment) => {
-    console.log('Investment clicked:', investment);
   };
 
   if (isLoading || !user) {

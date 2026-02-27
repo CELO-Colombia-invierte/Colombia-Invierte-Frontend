@@ -20,7 +20,6 @@ const ConfiguracionPage: React.FC = () => {
   };
 
   const handleQRClick = () => {
-    console.log('QR clicked');
   };
 
   const handleLanguageClick = () => {
@@ -50,7 +49,6 @@ const ConfiguracionPage: React.FC = () => {
 
   const handleBiometricToggle = (enabled: boolean) => {
     setBiometricEnabled(enabled);
-    console.log('Biometric enabled:', enabled);
   };
 
   const handleLogout = async () => {

@@ -132,6 +132,16 @@ class ProjectsService {
     return response.data;
   }
 
+  async registerContract(id: string, data: { contractAddress: string; txHash: string }): Promise<Project> {
+    const response = await apiService.post<Project>(`/projects/${id}/register-contract`, data);
+    return response.data;
+  }
+
+  async registerV2Contract(id: string, data: any): Promise<Project> {
+    const response = await apiService.post<Project>(`/projects/${id}/register-v2`, data);
+    return response.data;
+  }
+
   async getBlockchainData(id: string): Promise<{
     isDeployed: boolean;
     contractAddress?: string;

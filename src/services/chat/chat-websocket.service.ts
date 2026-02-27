@@ -32,7 +32,6 @@ class ChatWebSocketService {
       throw new Error('No authentication token available');
     }
 
-    console.log('Connecting to WebSocket:', `${this.baseUrl}/chat`);
 
     this.socket = io(`${this.baseUrl}/chat`, {
       auth: {
@@ -42,15 +41,12 @@ class ChatWebSocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected, socket id:', this.socket?.id);
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected:', reason);
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
     });
   }
 
@@ -107,9 +103,7 @@ class ChatWebSocketService {
     payload: SendMessageSocketPayload,
     callback?: (response: SocketResponse) => void
   ): void {
-    console.log('Sending message via WebSocket:', payload);
     this.socket?.emit('sendMessage', payload, (response: SocketResponse) => {
-      console.log('sendMessage response:', response);
       callback?.(response);
     });
   }
@@ -126,7 +120,6 @@ class ChatWebSocketService {
     payload: JoinConversationSocketPayload,
     callback?: (response: SocketResponse) => void
   ): void {
-    console.log('Joining conversation:', payload);
     this.socket?.emit('joinConversation', payload, callback);
   }
 
