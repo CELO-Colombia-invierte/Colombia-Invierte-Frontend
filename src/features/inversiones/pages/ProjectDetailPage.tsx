@@ -9,13 +9,17 @@ import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';
 import {
   ProjectDetailTabs,
+  TabId,
   ResumenTab,
   FinanzasTab,
   DocumentosTab,
   ParticipantesTab,
   SolicitudesTab,
+  HistorialTab,
+  GovernanceTab,
+  DisputasTab,
+  MilestonesTab,
 } from '../components/ProjectDetailTabs';
-import { DeployProjectCard } from '../components/DeployProjectCard';
 import './ProjectDetailPage.css';
 
 interface ProjectDetailPageProps {
@@ -34,16 +38,13 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [present] = useIonToast();
   const { user } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
-  const [isDeployed, setIsDeployed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [membershipStatus, setMembershipStatus] =
     useState<MembershipStatus | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
-  >('resumen');
+  const [activeTab, setActiveTab] = useState<TabId>('resumen');
 
   useEffect(() => {
     fetchProjectDetails();
@@ -58,14 +59,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       }
       const data = await projectsService.findOne(identifier);
       setProject(data);
-
-      // Verificar estado de deploy en blockchain
-      try {
-        const blockchainData = await projectsService.getBlockchainData(data.id);
-        setIsDeployed(blockchainData.isDeployed);
-      } catch {
-        setIsDeployed(false);
-      }
 
       // Verificar membresía real del usuario si está autenticado
       if (user?.id) {
@@ -144,6 +137,8 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     user?.id && project?.owner_user?.id && user.id === project.owner_user.id
   );
 
+  const hasV2 = !!(project?.vault_address);
+
   if (loading) {
     return (
       <IonPage> 
@@ -200,20 +195,12 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           onTabChange={setActiveTab}
           isOwner={isOwner}
           isMember={isMember}
+          hasV2={hasV2}
         />
 
         <div className="project-detail-content">
           {activeTab === 'resumen' && (
             <>
-              {isOwner && !isDeployed && project.visibility === ProjectVisibility.PRIVATE && (
-                <DeployProjectCard
-                  project={project}
-                  onPublished={(updatedProject) => {
-                    setIsDeployed(true);
-                    setProject(updatedProject);
-                  }}
-                />
-              )}
               <ResumenTab
                 project={project}
                 isOwner={isOwner}
@@ -249,6 +236,22 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
           {activeTab === 'solicitudes' && isOwner && (
             <SolicitudesTab project={project} />
+          )}
+
+          {activeTab === 'historial' && (isOwner || isMember) && (
+            <HistorialTab project={project} />
+          )}
+
+          {activeTab === 'gobernanza' && hasV2 && (
+            <GovernanceTab project={project} />
+          )}
+
+          {activeTab === 'disputas' && hasV2 && (
+            <DisputasTab project={project} />
+          )}
+
+          {activeTab === 'hitos' && hasV2 && (
+            <MilestonesTab project={project} isOwner={isOwner} />
           )}
         </div>
         {canJoinPublicProject && (

@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { useActiveAccount } from 'thirdweb/react';
 import type { Account } from 'thirdweb/wallets';
 import { blockchainService } from '@/services/blockchain.service';
-import type { DeployNatilleraParams, DeployTokenizacionParams } from '@/services/blockchain.service';
+import type {
+  DeployNatilleraV2Params,
+  DeployTokenizacionV2Params,
+  V2ContractAddresses,
+} from '@/services/blockchain.service';
 
 interface UseBlockchainReturn {
   account: Account | undefined;
@@ -11,8 +15,15 @@ interface UseBlockchainReturn {
   approveToken: (tokenAddress: string, spenderAddress: string, amount: bigint) => Promise<string>;
   depositToNatillera: (contractAddress: string) => Promise<string>;
   buyTokens: (contractAddress: string, amount: bigint) => Promise<string>;
-  deployNatillera: (params: DeployNatilleraParams) => Promise<string>;
-  deployTokenizacion: (params: DeployTokenizacionParams) => Promise<string>;
+  deployNatilleraV2: (params: DeployNatilleraV2Params) => Promise<V2ContractAddresses>;
+  deployTokenizacionV2: (params: DeployTokenizacionV2Params) => Promise<V2ContractAddresses>;
+  investInProject: (revenueAddress: string, amount: bigint) => Promise<string>;
+  claimRendimientos: (revenueAddress: string) => Promise<string>;
+  joinNatilleraOnChain: (natilleraAddress: string) => Promise<string>;
+  payQuota: (natilleraAddress: string, vaultAddress: string, monthId: bigint, amount: bigint) => Promise<string>;
+  claimFinalNatillera: (natilleraAddress: string) => Promise<string>;
+  proposeMilestoneOnChain: (milestonesAddress: string, description: string, vaultAddress: string) => Promise<string>;
+  executeMilestone: (milestonesAddress: string, milestoneId: bigint) => Promise<string>;
   clearError: () => void;
 }
 
@@ -27,11 +38,7 @@ export function useBlockchain(): UseBlockchainReturn {
     throw err;
   };
 
-  const approveToken = async (
-    tokenAddress: string,
-    spenderAddress: string,
-    amount: bigint,
-  ): Promise<string> => {
+  const approveToken = async (tokenAddress: string, spenderAddress: string, amount: bigint): Promise<string> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
@@ -44,9 +51,7 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
-  const depositToNatillera = async (
-    contractAddress: string,
-  ): Promise<string> => {
+  const depositToNatillera = async (contractAddress: string): Promise<string> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
@@ -59,10 +64,7 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
-  const buyTokens = async (
-    contractAddress: string,
-    amount: bigint,
-  ): Promise<string> => {
+  const buyTokens = async (contractAddress: string, amount: bigint): Promise<string> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
@@ -75,12 +77,12 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
-  const deployNatillera = async (params: DeployNatilleraParams): Promise<string> => {
+  const deployNatilleraV2 = async (params: DeployNatilleraV2Params): Promise<V2ContractAddresses> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
     try {
-      return await blockchainService.deployNatillera(account, params);
+      return await blockchainService.deployNatilleraV2(account, params);
     } catch (err) {
       return handleError(err);
     } finally {
@@ -88,12 +90,103 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
-  const deployTokenizacion = async (params: DeployTokenizacionParams): Promise<string> => {
+  const deployTokenizacionV2 = async (params: DeployTokenizacionV2Params): Promise<V2ContractAddresses> => {
     if (!account) throw new Error('Wallet no conectada');
     setLoading(true);
     setError(null);
     try {
-      return await blockchainService.deployTokenizacion(account, params);
+      return await blockchainService.deployTokenizacionV2(account, params);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const investInProject = async (revenueAddress: string, amount: bigint): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.investInProject(account, revenueAddress, amount);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const claimRendimientos = async (revenueAddress: string): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.claimRendimientos(account, revenueAddress);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const joinNatilleraOnChain = async (natilleraAddress: string): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.joinNatilleraOnChain(account, natilleraAddress);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const payQuota = async (natilleraAddress: string, vaultAddress: string, monthId: bigint, amount: bigint): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.payQuota(account, natilleraAddress, vaultAddress, monthId, amount);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const claimFinalNatillera = async (natilleraAddress: string): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.claimFinalNatillera(account, natilleraAddress);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const proposeMilestoneOnChain = async (milestonesAddress: string, description: string, vaultAddress: string): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.proposeMilestoneOnChain(account, milestonesAddress, description, vaultAddress);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const executeMilestone = async (milestonesAddress: string, milestoneId: bigint): Promise<string> => {
+    if (!account) throw new Error('Wallet no conectada');
+    setLoading(true);
+    setError(null);
+    try {
+      return await blockchainService.executeMilestone(account, milestonesAddress, milestoneId);
     } catch (err) {
       return handleError(err);
     } finally {
@@ -108,8 +201,15 @@ export function useBlockchain(): UseBlockchainReturn {
     approveToken,
     depositToNatillera,
     buyTokens,
-    deployNatillera,
-    deployTokenizacion,
+    deployNatilleraV2,
+    deployTokenizacionV2,
+    investInProject,
+    claimRendimientos,
+    joinNatilleraOnChain,
+    payQuota,
+    claimFinalNatillera,
+    proposeMilestoneOnChain,
+    executeMilestone,
     clearError: () => setError(null),
   };
 }

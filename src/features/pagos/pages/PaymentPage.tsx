@@ -6,6 +6,7 @@ import { ConnectButton } from 'thirdweb/react';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
 import { projectsService } from '@/services/projects';
+import { apiService } from '@/services/api/api.service';
 import { Project } from '@/models/projects';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
@@ -23,31 +24,37 @@ const PaymentPage: React.FC = () => {
   const history = useHistory();
   const { id } = useParams<{ id: string }>();
   const [present] = useIonToast();
-  const { account, approveToken, depositToNatillera } = useBlockchain();
+  const { account, approveToken, depositToNatillera, payQuota, joinNatilleraOnChain } = useBlockchain();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [usdtBalance, setUsdtBalance] = useState<bigint>(BigInt(0));
+  const [celoBalance, setCeloBalance] = useState<bigint>(BigInt(0));
   const [monthlyContribution, setMonthlyContribution] = useState<bigint>(BigInt(0));
-  // Token que el contrato Natillera espera recibir (leído del contrato, no hardcodeado)
   const [contractPaymentToken, setContractPaymentToken] = useState<string>(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS);
   const [tokenMismatch, setTokenMismatch] = useState(false);
+  const [currentMonthId, setCurrentMonthId] = useState<bigint>(BigInt(0));
+  const [contractLoaded, setContractLoaded] = useState(false);
   const [payStep, setPayStep] = useState<PayStep>('idle');
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [fundingUsdc, setFundingUsdc] = useState(false);
 
   useEffect(() => {
     fetchProject();
   }, [id]);
 
-  // Recargar saldo cuando cambia la cuenta o el token del contrato
   useEffect(() => {
     if (account?.address) {
       loadUsdtBalance(contractPaymentToken);
+      loadCeloBalance(account.address);
     }
   }, [account, contractPaymentToken]);
 
   useEffect(() => {
-    if (project?.contract_address) {
+    if (!project) return;
+    if (project.natillera_address) {
+      loadV2ContractConfig(project.natillera_address);
+    } else if (project.contract_address) {
       loadContractConfig();
     }
   }, [project]);
@@ -75,12 +82,32 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  const loadCeloBalance = async (address: string) => {
+    try {
+      const balance = await blockchainService.getNativeBalance(address);
+      setCeloBalance(balance);
+    } catch {
+      // silenciar
+    }
+  };
+
+  const loadV2ContractConfig = async (natilleraAddress: string) => {
+    try {
+      const state = await blockchainService.getNatilleraV2State(natilleraAddress);
+      setMonthlyContribution(state.quota);
+      setCurrentMonthId(state.currentMonth);
+    } catch {
+      // silenciar
+    } finally {
+      setContractLoaded(true);
+    }
+  };
+
   const loadContractConfig = async () => {
     if (!project?.contract_address) return;
     try {
       const config = await blockchainService.getNatilleraConfig(project.contract_address);
       setMonthlyContribution(config.monthlyContribution);
-      // Usar el token que el contrato realmente espera, no el configurado en el frontend
       if (config.paymentToken && config.paymentToken !== '0x0000000000000000000000000000000000000000') {
         setContractPaymentToken(config.paymentToken);
         const normalizedContract = config.paymentToken.toLowerCase();
@@ -89,44 +116,95 @@ const PaymentPage: React.FC = () => {
       }
     } catch {
       // silenciar
+    } finally {
+      setContractLoaded(true);
+    }
+  };
+
+  const handleDevFundUsdc = async () => {
+    setFundingUsdc(true);
+    try {
+      await apiService.post('/me/dev/fund-usdc');
+      await present({ message: '10 USDC y 0.01 CELO enviados a tu wallet. Recarga la página en unos segundos.', duration: 4000, color: 'success' });
+      if (account?.address) {
+        setTimeout(() => {
+          loadUsdtBalance(contractPaymentToken);
+          loadCeloBalance(account.address);
+        }, 3000);
+      }
+    } catch (err) {
+      const msg = (err as any)?.message ?? 'Error al enviar USDC';
+      await present({ message: msg, duration: 4000, color: 'danger' });
+    } finally {
+      setFundingUsdc(false);
     }
   };
 
   const handlePay = async () => {
-    if (!project?.contract_address || !account) {
+    if (!account) {
       await present({ message: 'Wallet no conectada', duration: 2000, color: 'warning' });
+      return;
+    }
+    const isV2 = !!project?.natillera_address;
+    if (!isV2 && !project?.contract_address) {
+      await present({ message: 'Proyecto no desplegado en blockchain', duration: 2000, color: 'warning' });
       return;
     }
 
     try {
-      const allowance = await blockchainService.getTokenAllowance(
-        contractPaymentToken,
-        account.address,
-        project.contract_address,
-      );
+      if (isV2) {
+        const natilleraAddress = project!.natillera_address!;
+        const vaultAddress = project!.vault_address!;
 
-      if (allowance < monthlyContribution) {
-        setPayStep('approving');
-        await approveToken(
-          contractPaymentToken,
-          project.contract_address,
-          monthlyContribution,
+        // Asegurar registro on-chain antes de pagar (idempotente: ignora AlreadyJoined)
+        try {
+          await joinNatilleraOnChain(natilleraAddress);
+        } catch {
+          // Ya estaba unido o no aplica — continuar
+        }
+
+        const allowance = await blockchainService.getTokenAllowance(
+          BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          account.address,
+          vaultAddress,
         );
-      }
+        if (allowance < monthlyContribution) {
+          setPayStep('approving');
+          await approveToken(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress, monthlyContribution);
+        }
 
-      setPayStep('depositing');
-      const hash = await depositToNatillera(project.contract_address);
-      setTxHash(hash);
-      setPayStep('done');
+        setPayStep('depositing');
+        const hash = await payQuota(natilleraAddress, vaultAddress, currentMonthId, monthlyContribution);
+        setTxHash(hash);
+        setPayStep('done');
+      } else {
+        const contractAddress = project!.contract_address!;
+
+        const allowance = await blockchainService.getTokenAllowance(
+          contractPaymentToken,
+          account.address,
+          contractAddress,
+        );
+        if (allowance < monthlyContribution) {
+          setPayStep('approving');
+          await approveToken(contractPaymentToken, contractAddress, monthlyContribution);
+        }
+
+        setPayStep('depositing');
+        const hash = await depositToNatillera(contractAddress);
+        setTxHash(hash);
+        setPayStep('done');
+      }
     } catch (err) {
       setPayStep('idle');
       let msg = (err as any)?.message ?? 'Error al procesar el pago';
       if (msg.includes('insufficient funds for gas') || msg.includes('error_forwarding_sequencer')) {
         msg = 'Sin CELO para gas. Obtén CELO de prueba en faucet.celo.org/sepolia';
-      } else if (msg.includes('NotMember')) {
-        msg = 'Tu wallet no está registrada en este proyecto. Vuelve a unirte.';
+      } else if (msg.includes('NotMember') || msg.includes('0x291fc442')) {
+        msg = 'Tu wallet no está registrada en este proyecto. Ve a "Resumen" y únete primero.';
+      } else if (msg.includes('AlreadyPaid') || msg.includes('0xd70a0e30') || msg.includes('AlreadyDeposited')) {
+        msg = 'Ya realizaste el pago de este ciclo. El próximo pago estará disponible el siguiente mes.';
       }
-      console.error('[PaymentPage] error:', msg);
       await present({ message: msg, duration: 4000, color: 'danger' });
     }
   };
@@ -147,7 +225,9 @@ const PaymentPage: React.FC = () => {
   if (!project) return null;
 
   const currency = project.natillera_details?.monthly_fee_currency || 'COP';
-  const hasEnoughBalance = usdtBalance >= monthlyContribution;
+  const hasEnoughBalance = contractLoaded && usdtBalance >= monthlyContribution && monthlyContribution > BigInt(0);
+  const MIN_CELO_FOR_GAS = BigInt('3000000000000000'); // 0.003 CELO mínimo para gas
+  const hasEnoughGas = celoBalance >= MIN_CELO_FOR_GAS;
   const isPaying = payStep === 'approving' || payStep === 'depositing';
 
   if (payStep === 'done' && txHash) {
@@ -225,7 +305,7 @@ const PaymentPage: React.FC = () => {
             )}
           </div>
 
-          {!project.contract_address && (
+          {!project.contract_address && !project.natillera_address && (
             <div className="payment-notice payment-notice--warning">
               Este proyecto aún no está desplegado en blockchain. El pago estará disponible una vez publicado.
             </div>
@@ -248,16 +328,28 @@ const PaymentPage: React.FC = () => {
             </div>
           )}
 
-          {account && !hasEnoughBalance && monthlyContribution > BigInt(0) && (
+          {account && (!hasEnoughBalance || !hasEnoughGas) && monthlyContribution > BigInt(0) && (
             <div className="payment-connect-wallet">
               <p className="payment-connect-label">
-                Saldo insuficiente. Necesitas {formatUsdt(monthlyContribution)} USDT. Agrega fondos a tu wallet:
+                {!hasEnoughBalance
+                  ? `Saldo insuficiente. Necesitas ${formatUsdt(monthlyContribution)} USDT. Agrega fondos a tu wallet:`
+                  : 'Sin CELO para gas. Obtén fondos de prueba:'}
               </p>
-              <ConnectButton
-                client={thirdwebClient}
-                chain={CHAIN}
-                wallets={wallets}
-              />
+              {!hasEnoughBalance && (
+                <ConnectButton
+                  client={thirdwebClient}
+                  chain={CHAIN}
+                  wallets={wallets}
+                />
+              )}
+              <button
+                className="payment-button secondary"
+                onClick={handleDevFundUsdc}
+                disabled={fundingUsdc}
+                style={{ marginTop: '8px', width: '100%' }}
+              >
+                {fundingUsdc ? 'Enviando fondos...' : 'Obtener 10 USDC + gas de prueba'}
+              </button>
             </div>
           )}
 
@@ -288,9 +380,7 @@ const PaymentPage: React.FC = () => {
             <button
               className="payment-button primary"
               onClick={handlePay}
-              // TODO: re-habilitar estas condiciones cuando el flujo de día de pago esté listo:
-              // disabled={isPaying || !account || !hasEnoughBalance || !project.contract_address}
-              disabled={isPaying || !account || tokenMismatch}
+              disabled={isPaying || !account || !hasEnoughBalance || !hasEnoughGas || (!project.contract_address && !project.natillera_address) || tokenMismatch}
             >
               {payStep === 'approving'
                 ? 'Aprobando USDT...'

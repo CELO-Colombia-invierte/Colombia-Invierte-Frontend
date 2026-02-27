@@ -126,4 +126,12 @@ export interface Project {
   deploy_tx_hash?: string | null;
   chain_id?: number | null;
   deployed_at?: string | null;
+  blockchain_project_id?: string | null;
+  vault_address?: string | null;
+  token_address?: string | null;
+  revenue_address?: string | null;
+  natillera_address?: string | null;
+  milestones_address?: string | null;
+  governance_address?: string | null;
+  disputes_address?: string | null;
 }

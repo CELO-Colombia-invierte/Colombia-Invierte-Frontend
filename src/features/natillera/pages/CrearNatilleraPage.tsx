@@ -9,8 +9,20 @@ import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
 import { useIonToast, useIonLoading } from '@ionic/react';
+import { ConnectButton } from 'thirdweb/react';
+import { inAppWallet, createWallet } from 'thirdweb/wallets';
+import { thirdwebClient } from '@/app/App';
 import { projectsService } from '@/services/projects';
+import { apiService } from '@/services/api/api.service';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
+import { blockchainService } from '@/services/blockchain.service';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { CHAIN, BLOCKCHAIN_CONFIG } from '@/contracts/config';
+
+const wallets = [
+  inAppWallet({ auth: { options: ['email', 'google', 'apple'] } }),
+  createWallet('io.metamask'),
+];
 import {
   Project,
   ProjectType,
@@ -46,6 +58,7 @@ const CrearNatilleraPage: React.FC = () => {
   const [present] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
   const contentRef = useRef<HTMLIonContentElement>(null);
+  const { account } = useBlockchain();
   const [createdNatillera, setCreatedNatillera] = useState<Project | null>(
     null
   );
@@ -205,12 +218,43 @@ const CrearNatilleraPage: React.FC = () => {
         }
       }
 
-      try {
-        const publishedProject = await projectsService.publish(projectId);
-        setCreatedNatillera(publishedProject);
-      } catch {
-        setCreatedNatillera(project);
+      // Fondear gas si el usuario tiene menos de 0.05 CELO
+      const celoBalance = await blockchainService.getNativeBalance(account!.address);
+      const MIN_GAS = BigInt('50000000000000000'); // 0.05 CELO
+      if (celoBalance < MIN_GAS) {
+        await dismissLoading();
+        await presentLoading({ message: 'Preparando wallet para gas...' });
+        try {
+          await apiService.post('/blockchain/fund-gas', { address: account!.address });
+        } catch {
+          // no bloquear si falla el faucet, intentar el deploy de todas formas
+        }
       }
+
+      await dismissLoading();
+      await presentLoading({ message: 'Desplegando contrato en blockchain...' });
+
+      const copToUsdc = (cop: number): bigint =>
+        blockchainService.parseUnits(
+          (cop / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
+          BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
+        );
+
+      const addresses = await blockchainService.deployNatilleraV2(
+        account,
+        {
+          settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          quota: copToUsdc(valorCuota),
+          duration: BigInt(cantidadMeses),
+          maxMembers: BigInt(maxParticipantes >= 2 ? maxParticipantes : 20),
+        },
+      );
+
+      await dismissLoading();
+      await presentLoading({ message: 'Registrando contrato...' });
+
+      const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
+      setCreatedNatillera(publishedProject);
 
       setShowSuccess(true);
 
@@ -222,9 +266,16 @@ const CrearNatilleraPage: React.FC = () => {
       });
     } catch (error: any) {
       await dismissLoading();
+      const msg: string = error?.message ?? '';
+      const isGasError =
+        msg.includes('insufficient funds') ||
+        msg.includes('error_forwarding_sequencer') ||
+        msg.includes('gas');
       await present({
-        message: error.message || 'Error al crear la natillera',
-        duration: 3000,
+        message: isGasError
+          ? 'Sin CELO para gas. Obtén fondos en faucet.celo.org/alfajores'
+          : msg || 'Error al crear la natillera',
+        duration: 6000,
         color: 'danger',
       });
     }
@@ -408,6 +459,13 @@ const CrearNatilleraPage: React.FC = () => {
                 <button className="btn-primary" onClick={handleNext}>
                   Siguiente paso
                 </button>
+              ) : !account ? (
+                <ConnectButton
+                  client={thirdwebClient}
+                  chain={CHAIN}
+                  wallets={wallets}
+                  connectButtonStyle={{ width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' }}
+                />
               ) : (
                 <button className="btn-primary" onClick={handleCreateNatillera}>
                   Crear Natillera

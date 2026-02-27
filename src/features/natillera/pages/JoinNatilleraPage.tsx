@@ -10,11 +10,13 @@ import { useHistory, useParams } from 'react-router-dom';
 import { checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import { projectsService, projectMembershipService } from '@/services/projects';
 import { Project } from '@/models/projects';
+import { useBlockchain } from '@/hooks/use-blockchain';
 
 
 import { InvestmentHeader } from '@/features/inversiones/components';
 import {
   ProjectDetailTabs,
+  TabId,
   ResumenTab,
   FinanzasTab,
   DocumentosTab,
@@ -25,15 +27,14 @@ const JoinNatilleraPage: React.FC = () => {
   const history = useHistory();
   const { slug } = useParams<{ slug: string }>();
   const [present] = useIonToast();
+  const { joinNatilleraOnChain } = useBlockchain();
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState<string>('');
   const [joinStatus, setJoinStatus] = useState<'pending' | 'approved' | null>(
     null
   );
-  const [activeTab, setActiveTab] = useState<
-    'resumen' | 'finanzas' | 'documentos' | 'participantes' | 'solicitudes'
-  >('resumen');
+  const [activeTab, setActiveTab] = useState<TabId>('resumen');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
@@ -78,6 +79,13 @@ const JoinNatilleraPage: React.FC = () => {
           color: 'warning',
         });
       } else if (response.position?.status === 'APPROVED') {
+        if (project.natillera_address) {
+          try {
+            await joinNatilleraOnChain(project.natillera_address);
+          } catch {
+            // Si falla el join on-chain, se completará automáticamente al hacer el primer pago
+          }
+        }
         setJoinStatus('approved');
         setShowSuccessMessage(true);
         await present({
