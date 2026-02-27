@@ -241,7 +241,7 @@ const CrearNatilleraPage: React.FC = () => {
         );
 
       const addresses = await blockchainService.deployNatilleraV2(
-        account,
+        account!,
         {
           settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
           quota: copToUsdc(valorCuota),
@@ -464,7 +464,7 @@ const CrearNatilleraPage: React.FC = () => {
                   client={thirdwebClient}
                   chain={CHAIN}
                   wallets={wallets}
-                  connectButtonStyle={{ width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' }}
+                  connectButton={{ style: { width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' } }}
                 />
               ) : (
                 <button className="btn-primary" onClick={handleCreateNatillera}>
