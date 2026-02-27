@@ -485,7 +485,6 @@ class BlockchainService {
     return this.sendWithFeeCurrency(account, milestonesAddress, calldata);
   }
 
-  // ── LECTURA: Token ERC20 ──────────────────
 
   async getTokenBalance(tokenAddress: string, userAddress: string): Promise<bigint> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });

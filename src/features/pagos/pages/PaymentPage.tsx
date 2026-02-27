@@ -18,7 +18,7 @@ const wallets = [
   createWallet('io.metamask'),
 ];
 
-type PayStep = 'idle' | 'approving' | 'depositing' | 'done';
+type PayStep = 'idle' | 'preparing' | 'approving' | 'depositing' | 'done';
 
 const PaymentPage: React.FC = () => {
   const history = useHistory();
@@ -78,7 +78,6 @@ const PaymentPage: React.FC = () => {
       const balance = await blockchainService.getTokenBalance(tokenAddress, account.address);
       setUsdtBalance(balance);
     } catch {
-      // silenciar
     }
   };
 
@@ -87,7 +86,6 @@ const PaymentPage: React.FC = () => {
       const balance = await blockchainService.getNativeBalance(address);
       setCeloBalance(balance);
     } catch {
-      // silenciar
     }
   };
 
@@ -152,6 +150,7 @@ const PaymentPage: React.FC = () => {
     }
 
     try {
+      setPayStep('preparing');
       if (isV2) {
         const natilleraAddress = project!.natillera_address!;
         const vaultAddress = project!.vault_address!;
@@ -234,7 +233,7 @@ const PaymentPage: React.FC = () => {
 
   const currency = project.natillera_details?.monthly_fee_currency || 'COP';
   const hasEnoughBalance = contractLoaded && usdtBalance >= monthlyContribution && monthlyContribution > BigInt(0);
-  const isPaying = payStep === 'approving' || payStep === 'depositing';
+  const isPaying = payStep === 'preparing' || payStep === 'approving' || payStep === 'depositing';
 
   if (payStep === 'done' && txHash) {
     return (
@@ -384,11 +383,13 @@ const PaymentPage: React.FC = () => {
               onClick={handlePay}
               disabled={isPaying || !account || !hasEnoughBalance || (!project.contract_address && !project.natillera_address) || tokenMismatch}
             >
-              {payStep === 'approving'
-                ? 'Aprobando USDT...'
-                : payStep === 'depositing'
-                  ? 'Procesando pago...'
-                  : 'Pagar con cripto'}
+              {payStep === 'preparing'
+                ? 'Preparando...'
+                : payStep === 'approving'
+                  ? 'Aprobando USDT...'
+                  : payStep === 'depositing'
+                    ? 'Procesando pago...'
+                    : 'Pagar con cripto'}
             </button>
           </div>
         </div>

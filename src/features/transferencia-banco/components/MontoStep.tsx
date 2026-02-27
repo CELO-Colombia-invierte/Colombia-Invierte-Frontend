@@ -67,7 +67,6 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
             </span>
           </div>
 
-          {/* Input oculto que captura el teclado numérico */}
           <input
             ref={inputRef}
             type="tel"
@@ -77,10 +76,8 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
             aria-hidden="true"
           />
 
-          {/* Saldo disponible */}
           <p className="ms-balance">Tu saldo: COP {formatCOP(balance)}</p>
 
-          {/* Chips de montos sugeridos */}
           <div className="ms-chips">
             {chips.map((chip) => (
               <button
@@ -93,7 +90,6 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
             ))}
           </div>
 
-          {/* Campo de detalle */}
           <input
             className="ms-detail"
             type="text"
