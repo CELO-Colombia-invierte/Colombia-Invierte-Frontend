@@ -12,7 +12,7 @@ export class UserMapper {
       email: dto.email,
       username: dto.username,
       displayName: dto.display_name,
-      avatar: dto.avatar,
+      avatar: dto.avatar_asset?.url || dto.avatar,
       avatarAssetId: dto.avatar_asset_id,
       verified: dto.verified ?? dto.is_verified ?? false,
       phone: dto.phone,
