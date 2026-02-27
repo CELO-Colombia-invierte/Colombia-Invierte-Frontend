@@ -77,16 +77,10 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       lastAddressRef.current = account.address!;
 
       try {
-        console.log('🔐 THIRDWEB ACCOUNT INFO:', {
-          address: account.address,
-          accountKeys: Object.keys(account),
-        });
-
         let userEmail: string | undefined;
 
         try {
           userEmail = await getUserEmail({ client: thirdwebClient });
-          console.log('📧 EMAIL FROM getUserEmail:', userEmail);
         } catch (emailError) {
           console.error('Error getting email:', emailError);
         }
@@ -119,11 +113,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   if (!isOpen) return null;
 
   const handleConnect = () => {
-    console.log('✅ THIRDWEB CONNECT EVENT:', {
-      account: account,
-      address: account?.address,
-      isLoading: isLoading,
-    });
     if (account?.address && !isLoading) {
       onClose();
     }

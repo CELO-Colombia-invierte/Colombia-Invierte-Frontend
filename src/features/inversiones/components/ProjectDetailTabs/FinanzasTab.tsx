@@ -106,7 +106,6 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
       return;
     }
     if (amount <= 0n) { setInvestError('Ingresa un monto mayor a 0'); return; }
-    console.log('account:', account);
     setInvesting(true);
     try {
       const txHash = await investInProject(revenueAddress, amount);

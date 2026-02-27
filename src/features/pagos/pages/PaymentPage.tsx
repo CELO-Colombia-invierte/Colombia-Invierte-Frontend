@@ -29,7 +29,7 @@ const PaymentPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [usdtBalance, setUsdtBalance] = useState<bigint>(BigInt(0));
-  const [celoBalance, setCeloBalance] = useState<bigint>(BigInt(0));
+  const [, setCeloBalance] = useState<bigint>(BigInt(0));
   const [monthlyContribution, setMonthlyContribution] = useState<bigint>(BigInt(0));
   const [contractPaymentToken, setContractPaymentToken] = useState<string>(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS);
   const [tokenMismatch, setTokenMismatch] = useState(false);
@@ -156,11 +156,14 @@ const PaymentPage: React.FC = () => {
         const natilleraAddress = project!.natillera_address!;
         const vaultAddress = project!.vault_address!;
 
-        // Asegurar registro on-chain antes de pagar (idempotente: ignora AlreadyJoined)
         try {
           await joinNatilleraOnChain(natilleraAddress);
         } catch {
-          // Ya estaba unido o no aplica — continuar
+        }
+
+        try {
+          await apiService.post('/blockchain/fund-gas', { address: account.address });
+        } catch {
         }
 
         const allowance = await blockchainService.getTokenAllowance(
@@ -179,6 +182,11 @@ const PaymentPage: React.FC = () => {
         setPayStep('done');
       } else {
         const contractAddress = project!.contract_address!;
+
+        try {
+          await apiService.post('/blockchain/fund-gas', { address: account.address });
+        } catch {
+        }
 
         const allowance = await blockchainService.getTokenAllowance(
           contractPaymentToken,
@@ -199,7 +207,7 @@ const PaymentPage: React.FC = () => {
       setPayStep('idle');
       let msg = (err as any)?.message ?? 'Error al procesar el pago';
       if (msg.includes('insufficient funds for gas') || msg.includes('error_forwarding_sequencer')) {
-        msg = 'Sin CELO para gas. Obtén CELO de prueba en faucet.celo.org/sepolia';
+        msg = 'Error al procesar la tarifa de red. Por favor intenta nuevamente en unos segundos.';
       } else if (msg.includes('NotMember') || msg.includes('0x291fc442')) {
         msg = 'Tu wallet no está registrada en este proyecto. Ve a "Resumen" y únete primero.';
       } else if (msg.includes('AlreadyPaid') || msg.includes('0xd70a0e30') || msg.includes('AlreadyDeposited')) {
@@ -226,8 +234,6 @@ const PaymentPage: React.FC = () => {
 
   const currency = project.natillera_details?.monthly_fee_currency || 'COP';
   const hasEnoughBalance = contractLoaded && usdtBalance >= monthlyContribution && monthlyContribution > BigInt(0);
-  const MIN_CELO_FOR_GAS = BigInt('3000000000000000'); // 0.003 CELO mínimo para gas
-  const hasEnoughGas = celoBalance >= MIN_CELO_FOR_GAS;
   const isPaying = payStep === 'approving' || payStep === 'depositing';
 
   if (payStep === 'done' && txHash) {
@@ -328,27 +334,23 @@ const PaymentPage: React.FC = () => {
             </div>
           )}
 
-          {account && (!hasEnoughBalance || !hasEnoughGas) && monthlyContribution > BigInt(0) && (
+          {account && !hasEnoughBalance && monthlyContribution > BigInt(0) && (
             <div className="payment-connect-wallet">
               <p className="payment-connect-label">
-                {!hasEnoughBalance
-                  ? `Saldo insuficiente. Necesitas ${formatUsdt(monthlyContribution)} USDT. Agrega fondos a tu wallet:`
-                  : 'Sin CELO para gas. Obtén fondos de prueba:'}
+                Saldo insuficiente. Necesitas {formatUsdt(monthlyContribution)} USDT. Agrega fondos a tu wallet:
               </p>
-              {!hasEnoughBalance && (
-                <ConnectButton
-                  client={thirdwebClient}
-                  chain={CHAIN}
-                  wallets={wallets}
-                />
-              )}
+              <ConnectButton
+                client={thirdwebClient}
+                chain={CHAIN}
+                wallets={wallets}
+              />
               <button
                 className="payment-button secondary"
                 onClick={handleDevFundUsdc}
                 disabled={fundingUsdc}
                 style={{ marginTop: '8px', width: '100%' }}
               >
-                {fundingUsdc ? 'Enviando fondos...' : 'Obtener 10 USDC + gas de prueba'}
+                {fundingUsdc ? 'Enviando fondos...' : 'Obtener 10 USDT de prueba'}
               </button>
             </div>
           )}
@@ -380,7 +382,7 @@ const PaymentPage: React.FC = () => {
             <button
               className="payment-button primary"
               onClick={handlePay}
-              disabled={isPaying || !account || !hasEnoughBalance || !hasEnoughGas || (!project.contract_address && !project.natillera_address) || tokenMismatch}
+              disabled={isPaying || !account || !hasEnoughBalance || (!project.contract_address && !project.natillera_address) || tokenMismatch}
             >
               {payStep === 'approving'
                 ? 'Aprobando USDT...'

@@ -125,8 +125,7 @@ const ChatConversationPage: React.FC = () => {
     onNewMessage: handleNewMessage,
     onUserTyping: handleUserTyping,
     onUserStoppedTyping: handleUserStoppedTyping,
-    onConnected: (data) => {
-      console.log('WebSocket connected:', data);
+    onConnected: () => {
       if (conversationId) {
         joinConversation(conversationId);
       }
@@ -267,9 +266,9 @@ const ChatConversationPage: React.FC = () => {
   const title = conversation?.getTitle(user?.id || '') || 'Conversacion';
   const subtitle = isGroup
     ? conversation?.members
-        .map((m) => m.user?.getDisplayName() || m.user?.username)
-        .filter(Boolean)
-        .join(', ')
+      .map((m) => m.user?.getDisplayName() || m.user?.username)
+      .filter(Boolean)
+      .join(', ')
     : undefined;
 
   // Verificar si el usuario es admin del grupo

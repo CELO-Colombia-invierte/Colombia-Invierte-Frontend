@@ -20,7 +20,6 @@ const ConfiguracionPage: React.FC = () => {
   };
 
   const handleQRClick = () => {
-    console.log('QR clicked');
   };
 
   const handleLanguageClick = () => {
@@ -31,7 +30,6 @@ const ConfiguracionPage: React.FC = () => {
     if (user?.username) {
       history.push(`/perfil/${user.username}`);
     } else {
-      // Si no tiene username, ir a la página de perfil genérica
       history.push('/perfil');
     }
   };
@@ -50,7 +48,6 @@ const ConfiguracionPage: React.FC = () => {
 
   const handleBiometricToggle = (enabled: boolean) => {
     setBiometricEnabled(enabled);
-    console.log('Biometric enabled:', enabled);
   };
 
   const handleLogout = async () => {
