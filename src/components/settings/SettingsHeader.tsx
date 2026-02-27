@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
-import { chevronBackOutline, scanOutline } from 'ionicons/icons';
+import { scanOutline } from 'ionicons/icons';
 import './SettingsHeader.css';
 
 interface SettingsHeaderProps {
