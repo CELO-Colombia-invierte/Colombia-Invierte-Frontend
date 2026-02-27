@@ -136,6 +136,7 @@
   background: #ffffff;
   min-height: calc(100vh - 180px);
   padding-bottom: 180px;
+  overflow-x: hidden;
 }
 
 .form-actions {

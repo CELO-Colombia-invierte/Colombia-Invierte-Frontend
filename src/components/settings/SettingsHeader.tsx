@@ -12,18 +12,11 @@ interface SettingsHeaderProps {
 
 export const SettingsHeader: React.FC<SettingsHeaderProps> = ({
   title,
-  onBack,
   showQRButton = false,
   onQRClick,
 }) => {
   return (
     <div className="settings-header">
-      {onBack && (
-        <button className="settings-header-back" onClick={onBack}>
-          <IonIcon icon={chevronBackOutline} />
-        </button>
-      )}
-
       <h1 className="settings-header-title">{title}</h1>
 
       {showQRButton && onQRClick ? (

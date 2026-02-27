@@ -185,6 +185,7 @@ class AuthService {
         this.userKey,
         JSON.stringify(sanitizeObject(user.toJSON()))
       );
+      this.notifyListeners();
       return user;
     }
     throw new Error('No data received from getMe');
@@ -198,6 +199,7 @@ class AuthService {
         this.userKey,
         JSON.stringify(sanitizeObject(user.toJSON()))
       );
+      this.notifyListeners();
       return user;
     }
     throw new Error('No data received from updateMe');
