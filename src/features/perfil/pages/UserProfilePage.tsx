@@ -111,6 +111,8 @@ const UserProfilePage: React.FC = () => {
     { id: 'proyectos', label: 'Proyectos' },
 
   ];
+  
+  console.log('User profile data:', { user, projects, portfolioProjects });
 
   return (
     <IonPage>
@@ -141,6 +143,7 @@ const UserProfilePage: React.FC = () => {
                 {user.verified && (
                   <IonIcon icon={checkmarkCircle} className="verified-icon-small" />
                 )}
+               <span className="profile-user-id">ID: {user.id.substring(0, 12)}</span>
               </div>
             </div>
           </div>
@@ -174,10 +177,30 @@ const UserProfilePage: React.FC = () => {
             <div className="profile">
               <div className="profile-about">
                 <h2 className='general-info'>General</h2>
+                {user.username && (
+                  <div className="profile-about-item">
+                    <div className="profile-about-label">Username</div>
+                    <div className="profile-about-value">@{user.username}</div>
+                  </div>
+                )}
                 {user.email && (
                   <div className="profile-about-item">
                     <div className="profile-about-label">Email</div>
                     <div className="profile-about-value">{user.email}</div>
+                  </div>
+                )}
+                {user.gender && (
+                  <div className="profile-about-item">
+                    <div className="profile-about-label">Género</div>
+                    <div className="profile-about-value">
+                      {user.gender === 'male' ? 'Hombre' : user.gender === 'female' ? 'Mujer' : user.gender === 'other' ? 'Otro' : 'Prefiero no decir'}
+                    </div>
+                  </div>
+                )}
+                {user.phone && (
+                  <div className="profile-about-item">
+                    <div className="profile-about-label">Teléfono</div>
+                    <div className="profile-about-value">{user.phoneCountryCode} {user.phone}</div>
                   </div>
                 )}
                 <div className="profile-about-item">
