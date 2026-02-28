@@ -21,7 +21,10 @@ const HomePage: React.FC = () => {
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { account } = useBlockchain();
-  const [usdtBalance, setUsdtBalance] = useState<number>(0);
+  const [usdtBalance, setUsdtBalance] = useState<number>(() => {
+    const saved = localStorage.getItem('usdtBalance');
+    return saved ? parseFloat(saved) : 0;
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -41,11 +44,10 @@ const HomePage: React.FC = () => {
             blockchainService.formatUnits(rawBalance, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)
           );
           setUsdtBalance(formatted);
+          localStorage.setItem('usdtBalance', formatted.toString());
         } catch (error) {
           console.error("Error fetching USDT balance", error);
         }
-      } else {
-        setUsdtBalance(0);
       }
     };
     fetchUsdtBalance();

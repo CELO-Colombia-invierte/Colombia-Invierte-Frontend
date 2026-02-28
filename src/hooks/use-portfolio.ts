@@ -3,7 +3,17 @@ import { portfolioService } from '@/services';
 import { Portfolio } from '@/models/Portfolio.model';
 
 export const usePortfolio = () => {
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(() => {
+    const saved = localStorage.getItem('user_portfolio');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -13,6 +23,7 @@ export const usePortfolio = () => {
     try {
       const data = await portfolioService.getPortfolio();
       setPortfolio(data);
+      localStorage.setItem('user_portfolio', JSON.stringify(data));
       return data;
     } catch (err) {
       const error = err as Error;
