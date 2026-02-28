@@ -524,7 +524,6 @@ class BlockchainService {
     return Number(decimals);
   }
 
-  // ── UTILIDADES ──────────────────────────────
 
   formatUnits(value: bigint, decimals: number): string {
     const divisor = BigInt(10 ** decimals);

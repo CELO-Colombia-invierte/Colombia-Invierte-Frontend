@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { IonContent, IonPage } from '@ionic/react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { IonContent, IonPage, useIonViewWillEnter } from '@ionic/react';
 import { useAuth } from '@/hooks/use-auth';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { Balance, Investment } from '@/types';
@@ -32,26 +32,34 @@ const HomePage: React.FC = () => {
     }
   }, [fetchPortfolio, isAuthenticated]);
 
-  useEffect(() => {
-    const fetchUsdtBalance = async () => {
-      if (account?.address) {
-        try {
-          const rawBalance = await blockchainService.getTokenBalance(
-            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
-            account.address
-          );
-          const formatted = parseFloat(
-            blockchainService.formatUnits(rawBalance, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)
-          );
-          setUsdtBalance(formatted);
-          localStorage.setItem('usdtBalance', formatted.toString());
-        } catch (error) {
-          console.error("Error fetching USDT balance", error);
-        }
+  const fetchUsdtBalance = useCallback(async () => {
+    if (account?.address) {
+      try {
+        const rawBalance = await blockchainService.getTokenBalance(
+          BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          account.address
+        );
+        const formatted = parseFloat(
+          blockchainService.formatUnits(rawBalance, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)
+        );
+        setUsdtBalance(formatted);
+        localStorage.setItem('usdtBalance', formatted.toString());
+      } catch (error) {
+        console.error("Error fetching USDT balance", error);
       }
-    };
+    }
+  }, [account?.address]);
+
+  useEffect(() => {
     fetchUsdtBalance();
-  }, [account]);
+  }, [fetchUsdtBalance]);
+
+  useIonViewWillEnter(() => {
+    if (isAuthenticated) {
+      fetchPortfolio();
+    }
+    fetchUsdtBalance();
+  });
 
   const balance: Balance = {
     amount: usdtBalance,

@@ -26,7 +26,6 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
     return address;
   };
 
-  // FECHA CARD
   const formatDate = () => {
     return new Date().toLocaleDateString('es-CO', {
       day: 'numeric',
