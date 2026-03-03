@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { usersService } from '@/services/users/users.service';
+import { User } from '@/models/User.model';
 import { ContactData } from '../pages/CuentaTransferPage';
 import './ContactSearchStep.css';
 
@@ -7,34 +9,43 @@ interface Props {
   onSelect: (contact: ContactData) => void;
 }
 
-// Mock — se reemplaza con GET /users/username/:username al conectar el backend
-const MOCK_RESULT: ContactData = {
-  id: 'mock-1',
-  username: 'juanperez',
-  displayName: 'Juan Pérez',
-  initials: 'JP',
-  avatarColor: '#3B5BDB',
-};
+const AVATAR_COLORS = ['#3B5BDB', '#2D8E42', '#E03131', '#F5A623', '#9B59B6', '#1A9C8E'];
+
+function mapUserToContact(user: User): ContactData {
+  const displayName = user.getDisplayName();
+  const initials = user.getInitials();
+  const username = user.username ?? user.email?.split('@')[0] ?? user.id;
+  const avatarColor = AVATAR_COLORS[user.id.charCodeAt(0) % AVATAR_COLORS.length];
+  return { id: user.id, username, displayName, initials, avatarColor };
+}
 
 const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) => {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [result, setResult] = useState<ContactData | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   const canSearch = query.trim().length >= 3 && !isSearching;
 
   const handleSearch = async () => {
     if (!canSearch) return;
     setResult(null);
+    setNotFound(false);
     setIsSearching(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSearching(false);
-    setResult(MOCK_RESULT);
+    try {
+      const user = await usersService.getUserByUsername(query.trim());
+      setResult(mapUserToContact(user));
+    } catch {
+      setNotFound(true);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     setResult(null);
+    setNotFound(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -50,7 +61,9 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
 
         {/* Input de búsqueda */}
         <div className="cs-search-row">
-          <span className="cs-search-icon-left"><SearchIcon /></span>
+          <button className="cs-search-icon-left" onClick={handleSearch} disabled={!canSearch}>
+            <SearchIcon />
+          </button>
           <input
             className="cs-search-input"
             type="text"
@@ -61,6 +74,11 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
             disabled={isSearching}
           />
         </div>
+
+        {/* Error: usuario no encontrado */}
+        {notFound && (
+          <p className="cs-not-found">Usuario no encontrado</p>
+        )}
 
         {/* Resultado de búsqueda */}
         {result && (
