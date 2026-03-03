@@ -41,6 +41,9 @@ const NotificacionesPage = lazy(
 const EditProfilePage = lazy(
   () => import('@/features/perfil/pages/EditProfilePage')
 );
+const CuentaTransferPage = lazy(
+  () => import('@/features/transferencia-cuenta/pages/CuentaTransferPage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -136,6 +139,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/editar-perfil',
     component: EditProfilePage,
+    exact: true,
+  },
+  {
+    path: '/transferir-cuenta',
+    component: CuentaTransferPage,
     exact: true,
   },
 ];
