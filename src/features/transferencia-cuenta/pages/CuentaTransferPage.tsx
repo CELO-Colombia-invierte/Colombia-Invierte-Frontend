@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
+import ContactSearchStep from '../components/ContactSearchStep';
 import './CuentaTransferPage.css';
 
 export type CuentaTransferStep = 'search' | 'amount' | 'status';
@@ -79,8 +80,7 @@ const CuentaTransferPage: React.FC = () => {
     });
   };
 
-  // Parámetros no usados aún — se usarán al integrar los componentes en tareas 2-4
-  void handleContactSelect;
+  // Parámetros no usados aún — se usarán al integrar los componentes en tareas 3-4
   void handleAmountNext;
   void handleConfirmCancel;
   void handleConfirmAccept;
@@ -90,12 +90,7 @@ const CuentaTransferPage: React.FC = () => {
   const renderStep = () => {
     switch (step) {
       case 'search':
-        return (
-          <div className="ct-placeholder">
-            <p>Búsqueda de contacto</p>
-            <p className="ct-placeholder-sub">Componente en construcción</p>
-          </div>
-        );
+        return <ContactSearchStep onSelect={handleContactSelect} />;
       case 'amount':
         return (
           <div className="ct-placeholder">
@@ -120,7 +115,7 @@ const CuentaTransferPage: React.FC = () => {
           <button className="ct-back-btn" onClick={handleBack}>
             <IonIcon icon={arrowBackOutline} />
           </button>
-          <h1 className="ct-title">Transferir a otra cuenta</h1>
+          <h1 className="ct-title">Transferir dinero</h1>
         </div>
         <div className="ct-body">
           {renderStep()}
