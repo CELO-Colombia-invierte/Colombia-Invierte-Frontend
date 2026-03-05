@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="home-page-content">
-        <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} userAvatar={user?.getAvatarUrl()} />
+        <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} />
         <BalanceCard balance={balance} />
         <ActionButtons onSend={handleSend} onReceive={handleReceive} />
         <InvestmentList

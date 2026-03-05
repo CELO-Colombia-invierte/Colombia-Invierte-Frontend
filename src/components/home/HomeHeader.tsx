@@ -1,11 +1,17 @@
 import React from 'react';
 import { NotificationBell } from '@/components/notifications';
 import './HomeHeader.css';
+import { useHistory } from 'react-router-dom';
 
 interface HomeHeaderProps {
   userName: string;
   userAvatar?: string;
 }
+
+const pushToProfile = () => {
+  const history = useHistory();
+  history.push('/perfil');
+};
 
 export const HomeHeader: React.FC<HomeHeaderProps> = ({
   userName,
@@ -13,7 +19,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
 }) => {
   return (
     <div className="home-header">
-      <div className="home-header-user">
+      <div className="home-header-user" onClick={pushToProfile} >
         {userAvatar ? (
           <img src={userAvatar} alt={userName} className="home-header-avatar" />
         ) : (
