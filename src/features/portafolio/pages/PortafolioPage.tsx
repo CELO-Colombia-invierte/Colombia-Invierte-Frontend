@@ -100,6 +100,14 @@ const PortafolioPage: React.FC = () => {
     };
   });
 
+  const handleProfileClick = () => {
+    if (user?.username) {
+      history.push(`/perfil/${user.username}`);
+    } else {
+      history.push('/perfil');
+    }
+  };
+
   const handleProjectClick = (project: PortfolioProject) => {
     history.push(`/inversiones/${project.id}`);
   };
@@ -138,7 +146,7 @@ const PortafolioPage: React.FC = () => {
     <>
       <IonPage>
         <IonContent fullscreen className="portafolio-page-content">
-          <HomeHeader userName={user?.getDisplayName() || 'Carolina Machado'} userAvatar={user?.getAvatarUrl()} />
+          <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
           <DateHeader title="" />
           <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
           {activeTab === 'mi-portafolio' && (
