@@ -98,6 +98,18 @@ class AuthService {
     return storageService.getItem(this.refreshTokenKey);
   }
 
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return true;
+      return Date.now() >= payload.exp * 1000;
+    } catch {
+      return true;
+    }
+  }
+
   async verifyThirdweb(data: ThirdwebVerifyRequestDto): Promise<AuthResponse> {
     const response = await apiService.post<AuthResponseDto>(
       '/auth/thirdweb/verify',

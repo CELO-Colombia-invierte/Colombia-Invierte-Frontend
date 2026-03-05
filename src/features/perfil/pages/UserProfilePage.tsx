@@ -112,8 +112,6 @@ const UserProfilePage: React.FC = () => {
 
   ];
   
-  console.log('User profile data:', { user, projects, portfolioProjects });
-
   return (
     <IonPage>
       <IonContent fullscreen className="user-profile-page">

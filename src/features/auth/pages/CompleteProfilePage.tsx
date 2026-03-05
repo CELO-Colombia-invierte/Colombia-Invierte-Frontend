@@ -11,6 +11,7 @@ import {
 import type { CompleteProfileDto } from '@/dtos/auth/AuthResponse.dto';
 import './CompleteProfilePage.css';
 
+
 export const CompleteProfilePage: React.FC = () => {
   const history = useHistory();
   const { user, updateMe, isLoading, isAuthenticated } = useAuth();
@@ -210,16 +211,20 @@ export const CompleteProfilePage: React.FC = () => {
   return (
     <IonPage>
       <IonContent className="complete-profile-page">
+        {/* Fondo bandera de Colombia — igual al SplashScreen */}
+        <div className="complete-profile-flag-bg" aria-hidden="true">
+          <div className="cp-band cp-band-yellow" />
+          <div className="cp-band cp-band-blue" />
+          <div className="cp-band cp-band-red" />
+        </div>
         <div className="complete-profile-container">
-          <div className="complete-profile-header">
-            <div className="complete-profile-icon">👤</div>
-            <h1 className="complete-profile-title">Completa tu perfil</h1>
-            <p className="complete-profile-subtitle">
-              Para comenzar, necesitamos algunos datos adicionales
-            </p>
-          </div>
-
           <form onSubmit={handleSubmit} className="complete-profile-form">
+            <div className="complete-profile-header">
+              <h1 className="complete-profile-title">Completa tu perfil</h1>
+              <p className="complete-profile-subtitle">
+                Para comenzar, necesitamos algunos datos adicionales
+              </p>
+            </div>
             <div className="form-group">
               <label htmlFor="display_name" className="form-label">
                 Nombre completo

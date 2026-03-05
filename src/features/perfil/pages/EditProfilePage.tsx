@@ -51,6 +51,7 @@ const EditProfilePage: React.FC = () => {
     const { user, updateMe, isLoading, getMe } = useAuth();
     const [showAvatarModal, setShowAvatarModal] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | undefined>();
+    const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [toast, setToast] = useState<string | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -107,21 +108,12 @@ const EditProfilePage: React.FC = () => {
         );
     };
 
-    const handleAvatarUpload = async (file: File) => {
-        try {
-            const previewUrl = URL.createObjectURL(file);
-            setAvatarPreview(previewUrl);
-            setShowAvatarModal(false);
-
-            const updatedUser = await avatarService.uploadAvatar(file);
-            setAvatarPreview(updatedUser.getAvatarUrl());
-            await getMe();
-            showToast('Foto de perfil actualizada');
-        } catch (error) {
-            console.error('Error subiendo avatar:', error);
-            setAvatarPreview(user?.getAvatarUrl());
-            showToast('Error al subir la foto');
-        }
+    const handleAvatarUpload = (file: File) => {
+        // Solo mostrar preview local — el upload ocurre al presionar Actualizar
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarPreview(previewUrl);
+        setPendingAvatarFile(file);
+        setShowAvatarModal(false);
     };
 
     const handleSubmit = async () => {
@@ -129,6 +121,20 @@ const EditProfilePage: React.FC = () => {
         setIsSubmitting(true);
 
         try {
+            // Si hay una foto pendiente, subirla primero
+            if (pendingAvatarFile) {
+                try {
+                    const updatedUser = await avatarService.uploadAvatar(pendingAvatarFile);
+                    setAvatarPreview(updatedUser.getAvatarUrl());
+                    setPendingAvatarFile(null);
+                } catch (error) {
+                    console.error('Error subiendo avatar:', error);
+                    showToast('Error al subir la foto de perfil');
+                    setIsSubmitting(false);
+                    return;
+                }
+            }
+
             const updateData: UpdateUserRequestDto = {
                 display_name: formData.display_name.trim() || undefined,
                 username: formData.username.trim() || undefined,
@@ -149,6 +155,7 @@ const EditProfilePage: React.FC = () => {
             };
 
             await updateMe(updateData);
+            await getMe();
             showToast('Perfil actualizado exitosamente');
             setTimeout(() => history.goBack(), 1000);
         } catch (error: any) {

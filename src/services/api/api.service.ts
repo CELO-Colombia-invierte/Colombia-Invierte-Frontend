@@ -4,9 +4,20 @@ import { authService } from '../auth';
 class ApiService {
   private baseUrl: string;
   private refreshPromise: Promise<unknown> | null = null;
+  private authFailureCallback: (() => void) | null = null;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_URL || '';
+  }
+
+  setAuthFailureCallback(callback: () => void): void {
+    this.authFailureCallback = callback;
+  }
+
+  triggerAuthFailure(): void {
+    if (this.authFailureCallback) {
+      this.authFailureCallback();
+    }
   }
 
   private async request<T>(
@@ -43,6 +54,7 @@ class ApiService {
           return this.request<T>(endpoint, options, false);
         } catch {
           authService.clearAuth();
+          this.triggerAuthFailure();
           throw {
             message: 'Session expired',
             status: 401,

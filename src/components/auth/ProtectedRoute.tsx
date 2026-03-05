@@ -11,12 +11,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   component: Component,
   ...rest
 }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isInitializing, user } = useAuth();
 
   return (
     <Route
       {...rest}
       render={(props) => {
+        if (isInitializing) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                background: 'var(--ion-background-color, #fff)',
+              }}
+            />
+          );
+        }
+
         if (!isAuthenticated) {
           return <Redirect to="/auth" />;
         }
