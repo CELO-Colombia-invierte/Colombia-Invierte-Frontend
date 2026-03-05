@@ -25,28 +25,12 @@ const ConfiguracionPage: React.FC = () => {
   const handleQRClick = () => {
   };
 
-  const handleLanguageClick = () => {
-    history.push('/configuracion/idioma');
-  };
-
   const handleProfileClick = () => {
     if (user?.username) {
       history.push(`/perfil/${user.username}`);
     } else {
       history.push('/perfil');
     }
-  };
-
-  const handleContactClick = () => {
-    history.push('/configuracion/contactanos');
-  };
-
-  const handleChangePasswordClick = () => {
-    history.push('/configuracion/cambiar-contrasena');
-  };
-
-  const handlePrivacyPolicyClick = () => {
-    history.push('/configuracion/politicas-privacidad');
   };
 
   const handleBiometricToggle = (enabled: boolean) => {
@@ -79,20 +63,17 @@ const ConfiguracionPage: React.FC = () => {
             <SettingsItem
               label="Idioma"
               value="English"
-              onClick={handleLanguageClick}
             />
             <SettingsItem label="Mi perfil" onClick={handleProfileClick} />
-            <SettingsItem label="Contactanos" onClick={handleContactClick} />
+            <SettingsItem label="Contactanos" />
           </SettingsSection>
 
           <SettingsSection title="Seguridad">
             <SettingsItem
               label="Cambiar contraseña"
-              onClick={handleChangePasswordClick}
             />
             <SettingsItem
               label="Políticas de privacidad"
-              onClick={handlePrivacyPolicyClick}
             />
             <SettingsToggle
               label="Datos biométricos"
