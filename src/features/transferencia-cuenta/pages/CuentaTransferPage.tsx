@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
 import ContactSearchStep from '../components/ContactSearchStep';
 import CuentaMontoStep from '../components/CuentaMontoStep';
+import CuentaConfirmacionModal from '../components/CuentaConfirmacionModal';
 import './CuentaTransferPage.css';
 
 export type CuentaTransferStep = 'search' | 'amount' | 'status';
@@ -81,9 +82,7 @@ const CuentaTransferPage: React.FC = () => {
     });
   };
 
-  // Parámetros pendientes — se usarán al integrar modal de confirmación y estado
-  void handleConfirmCancel;
-  void handleConfirmAccept;
+  // Se usará en Bloque D al integrar EstadoTransaccionModal
   void goToComprobante;
 
   const renderStep = () => {
@@ -120,6 +119,15 @@ const CuentaTransferPage: React.FC = () => {
         <div className="ct-body">
           {renderStep()}
         </div>
+
+        {showConfirmModal && contact && amount && (
+          <CuentaConfirmacionModal
+            contact={contact}
+            amount={amount}
+            onCancel={handleConfirmCancel}
+            onConfirm={handleConfirmAccept}
+          />
+        )}
       </IonContent>
     </IonPage>
   );
