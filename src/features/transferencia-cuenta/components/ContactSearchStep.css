@@ -177,6 +177,11 @@
   border-bottom: none;
 }
 
+.cs-contact-item:active {
+  background: #eef2ff;
+  border-radius: 8px;
+}
+
 .cs-contact-info {
   display: flex;
   flex-direction: column;
