@@ -160,7 +160,7 @@ const BankTransferPage: React.FC = () => {
           <EstadoTransaccionModal
             status="success"
             onViewReceipt={goToComprobante}
-            onDone={goToComprobante}
+            onDone={() => history.replace('/home')}
           />
         )}
       </IonContent>
