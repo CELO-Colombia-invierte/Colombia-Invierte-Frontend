@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { IonContent, IonPage, useIonViewWillEnter } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { Balance, Investment } from '@/types';
@@ -18,6 +19,7 @@ import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
+  const history = useHistory();
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { account } = useBlockchain();
@@ -85,6 +87,14 @@ const HomePage: React.FC = () => {
       };
     }) || [];
 
+  const handleProfileClick = () => {
+    if (user?.username) {
+      history.push(`/perfil/${user.username}`);
+    } else {
+      history.push('/perfil');
+    }
+  };
+
   const handleSend = () => {
     setIsTransferModalOpen(true);
   };
@@ -111,7 +121,7 @@ const HomePage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="home-page-content">
-        <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} />
+        <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
         <BalanceCard balance={balance} />
         <ActionButtons onSend={handleSend} onReceive={handleReceive} />
         <InvestmentList

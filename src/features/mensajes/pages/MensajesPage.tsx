@@ -19,6 +19,7 @@ const MensajesPage: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   const handleNewMessage = useCallback((event: NewMessageSocketEvent) => {
     const messageDto = event.message as any;
     const newMessage = MessageMapper.fromDto(messageDto);
@@ -84,11 +85,20 @@ const MensajesPage: React.FC = () => {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
   };
+  
+    const handleProfileClick = () => {
+    if (user?.username) {
+      history.push(`/perfil/${user.username}`);
+    } else {
+      history.push('/perfil');
+    }
+  };
+
 
   return (
     <IonPage>
       <IonContent fullscreen className="mensajes-page-content">
-        <HomeHeader userName={user?.getDisplayName() || 'Usuario'} userAvatar={user?.getAvatarUrl()} />
+        <HomeHeader onProfileClick={handleProfileClick} userName={user?.getDisplayName() || 'Usuario'} userAvatar={user?.getAvatarUrl()} />
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
 
         {loading ? (
