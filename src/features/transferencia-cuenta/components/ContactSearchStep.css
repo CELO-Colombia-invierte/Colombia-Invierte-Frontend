@@ -68,6 +68,47 @@
   opacity: 0.5;
 }
 
+/* Botón limpiar (X) */
+.cs-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #aaa;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tabs de filtrado — pills, solo visibles con input enfocado */
+.cs-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0;
+  margin-top: -8px;
+}
+
+.cs-tab {
+  background: none;
+  border: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #999;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cs-tab--active {
+  background: #3B5BDB;
+  color: #ffffff;
+  font-weight: 600;
+}
+
 /* Sección */
 .cs-section {
   display: flex;
@@ -108,7 +149,7 @@
 .cs-not-found {
   font-size: 13px;
   color: #E03131;
-  margin: 0;
+  margin: 4px 0 0;
 }
 
 /* Lista de contactos */
@@ -117,7 +158,7 @@
   flex-direction: column;
 }
 
-/* Item de contacto — estilo lista con divisor */
+/* Item de contacto */
 .cs-contact-item {
   display: flex;
   align-items: center;

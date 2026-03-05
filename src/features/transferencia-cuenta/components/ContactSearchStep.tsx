@@ -4,12 +4,20 @@ import { User } from '@/models/User.model';
 import { ContactData } from '../pages/CuentaTransferPage';
 import './ContactSearchStep.css';
 
+type SearchTab = 'todo' | 'natilleras' | 'tokenzaciones';
+
 interface Props {
   recentContacts?: ContactData[];
   onSelect: (contact: ContactData) => void;
 }
 
 const AVATAR_COLORS = ['#3B5BDB', '#2D8E42', '#E03131', '#F5A623', '#9B59B6', '#1A9C8E'];
+
+const TABS: { id: SearchTab; label: string }[] = [
+  { id: 'todo', label: 'Todo' },
+  { id: 'natilleras', label: 'Natilleras' },
+  { id: 'tokenzaciones', label: 'Tokenizaciones' },
+];
 
 function mapUserToContact(user: User): ContactData {
   const displayName = user.getDisplayName();
@@ -21,6 +29,8 @@ function mapUserToContact(user: User): ContactData {
 
 const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) => {
   const [query, setQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<SearchTab>('todo');
+  const [isFocused, setIsFocused] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [result, setResult] = useState<ContactData | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -52,6 +62,18 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
     if (e.key === 'Enter') handleSearch();
   };
 
+  const handleClear = () => {
+    setQuery('');
+    setResult(null);
+    setNotFound(false);
+  };
+
+  const handleTabChange = (tab: SearchTab) => {
+    setActiveTab(tab);
+    setResult(null);
+    setNotFound(false);
+  };
+
   return (
     <div className="cs-container">
       <div className="cs-content">
@@ -61,7 +83,11 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
 
         {/* Input de búsqueda */}
         <div className="cs-search-row">
-          <button className="cs-search-icon-left" onClick={handleSearch} disabled={!canSearch}>
+          <button
+            className="cs-search-icon-left"
+            onClick={handleSearch}
+            disabled={!canSearch}
+          >
             <SearchIcon />
           </button>
           <input
@@ -71,28 +97,55 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
             value={query}
             onChange={handleQueryChange}
             onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             disabled={isSearching}
           />
+          {query.length > 0 && (
+            <button
+              className="cs-clear-btn"
+              onMouseDown={e => e.preventDefault()}
+              onClick={handleClear}
+              aria-label="Limpiar búsqueda"
+            >
+              <ClearIcon />
+            </button>
+          )}
         </div>
 
-        {/* Error: usuario no encontrado */}
-        {notFound && (
-          <p className="cs-not-found">Usuario no encontrado</p>
-        )}
-
-        {/* Resultado de búsqueda */}
-        {result && (
-          <div className="cs-section">
-            <p className="cs-section-title">Resultado</p>
-            <p className="cs-section-sub">Enviar a</p>
-            <div className="cs-list">
-              <ContactItem contact={result} onSelect={onSelect} />
-            </div>
+        {/* Tabs — solo visibles cuando el input está enfocado */}
+        {isFocused && (
+          <div className="cs-tabs">
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                className={`cs-tab${activeTab === tab.id ? ' cs-tab--active' : ''}`}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => handleTabChange(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         )}
 
-        {/* Contactos recientes — solo si no hay query ni resultado */}
-        {!query && !result && (
+        {/* Sección Resultados — visible cuando hay query activo */}
+        {query.trim().length > 0 && (
+          <div className="cs-section">
+            <p className="cs-section-title">Resultados</p>
+            {result && (
+              <div className="cs-list">
+                <ContactItem contact={result} onSelect={onSelect} />
+              </div>
+            )}
+            {notFound && (
+              <p className="cs-not-found">Usuario no encontrado</p>
+            )}
+          </div>
+        )}
+
+        {/* Contactos recientes — solo cuando no hay query activo */}
+        {!query && (
           <div className="cs-section">
             <p className="cs-section-title">Recientes</p>
             {recentContacts.length > 0 ? (
@@ -148,6 +201,13 @@ const SearchIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8" />
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const ClearIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
