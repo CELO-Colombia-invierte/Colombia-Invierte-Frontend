@@ -5,9 +5,10 @@ import { arrowBackOutline } from 'ionicons/icons';
 import ContactSearchStep from '../components/ContactSearchStep';
 import CuentaMontoStep from '../components/CuentaMontoStep';
 import CuentaConfirmacionModal from '../components/CuentaConfirmacionModal';
+import EstadoTransaccionModal from '../../transferencia-banco/components/EstadoTransaccionModal';
 import './CuentaTransferPage.css';
 
-export type CuentaTransferStep = 'search' | 'amount' | 'status';
+export type CuentaTransferStep = 'search' | 'amount';
 
 export interface ContactData {
   id: string;
@@ -31,6 +32,7 @@ const CuentaTransferPage: React.FC = () => {
   const [contact, setContact] = useState<ContactData | null>(null);
   const [amount, setAmount] = useState<AmountData | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showEstadoModal, setShowEstadoModal] = useState(false);
 
   const handleBack = () => {
     if (showConfirmModal) {
@@ -44,8 +46,6 @@ const CuentaTransferPage: React.FC = () => {
       case 'amount':
         setStep('search');
         break;
-      default:
-        history.goBack();
     }
   };
 
@@ -65,7 +65,7 @@ const CuentaTransferPage: React.FC = () => {
 
   const handleConfirmAccept = () => {
     setShowConfirmModal(false);
-    setStep('status');
+    setShowEstadoModal(true);
   };
 
   const goToComprobante = () => {
@@ -74,16 +74,13 @@ const CuentaTransferPage: React.FC = () => {
       dateTime: new Date().toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'medium' }),
       originName: 'Usuario',
       originAccount: '—',
-      destinationAccount: 'Cuenta Colombia Invierte',
+      destinationAccount: contact!.id,
       bank: 'Colombia Invierte',
       detail: amount?.detail || 'Transferencia entre cuentas',
       recipientName: contact!.displayName,
       amount: amount!.value,
     });
   };
-
-  // Se usará en Bloque D al integrar EstadoTransaccionModal
-  void goToComprobante;
 
   const renderStep = () => {
     switch (step) {
@@ -96,13 +93,6 @@ const CuentaTransferPage: React.FC = () => {
             balance={MOCK_BALANCE}
             onNext={handleAmountNext}
           />
-        );
-      case 'status':
-        return (
-          <div className="ct-placeholder">
-            <p>Estado de transacción</p>
-            <p className="ct-placeholder-sub">Componente en construcción</p>
-          </div>
         );
     }
   };
@@ -126,6 +116,14 @@ const CuentaTransferPage: React.FC = () => {
             amount={amount}
             onCancel={handleConfirmCancel}
             onConfirm={handleConfirmAccept}
+          />
+        )}
+
+        {showEstadoModal && (
+          <EstadoTransaccionModal
+            status="success"
+            onViewReceipt={goToComprobante}
+            onDone={() => history.replace('/home')}
           />
         )}
       </IonContent>
