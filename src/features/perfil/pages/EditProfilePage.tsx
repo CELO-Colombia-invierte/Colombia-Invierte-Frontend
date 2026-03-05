@@ -109,7 +109,6 @@ const EditProfilePage: React.FC = () => {
     };
 
     const handleAvatarUpload = (file: File) => {
-        // Solo mostrar preview local — el upload ocurre al presionar Actualizar
         const previewUrl = URL.createObjectURL(file);
         setAvatarPreview(previewUrl);
         setPendingAvatarFile(file);
@@ -121,7 +120,6 @@ const EditProfilePage: React.FC = () => {
         setIsSubmitting(true);
 
         try {
-            // Si hay una foto pendiente, subirla primero
             if (pendingAvatarFile) {
                 try {
                     const updatedUser = await avatarService.uploadAvatar(pendingAvatarFile);
