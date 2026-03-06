@@ -5,6 +5,7 @@ import { arrowBackOutline } from 'ionicons/icons';
 import WalletSelectionStep, { SelectedNetwork, SelectedCoin } from '../components/WalletSelectionStep';
 import WalletMontoStep, { WalletAmountData } from '../components/WalletMontoStep';
 import WalletVistaPrevia from '../components/WalletVistaPrevia';
+import WalletEstadoModal from '../components/WalletEstadoModal';
 import './WalletTransferPage.css';
 
 type WalletStep = 'selection' | 'amount';
@@ -17,6 +18,7 @@ const WalletTransferPage: React.FC = () => {
   const [coin, setCoin] = useState<SelectedCoin | null>(null);
   const [amount, setAmount] = useState<WalletAmountData | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showEstado, setShowEstado] = useState(false);
 
   useEffect(() => {
     const tabBar = document.querySelector('.bottom-navbar') as HTMLElement | null;
@@ -51,7 +53,7 @@ const WalletTransferPage: React.FC = () => {
 
   const handleConfirmTransfer = () => {
     setShowPreview(false);
-    // próximo bloque: mostrar WalletEstadoModal
+    setShowEstado(true);
   };
 
   return (
@@ -83,6 +85,13 @@ const WalletTransferPage: React.FC = () => {
             amount={amount}
             onCancel={() => setShowPreview(false)}
             onConfirm={handleConfirmTransfer}
+          />
+        )}
+
+        {showEstado && (
+          <WalletEstadoModal
+            onViewTx={() => { /* placeholder: explorador de bloques */ }}
+            onDone={() => history.replace('/home')}
           />
         )}
       </IonContent>
