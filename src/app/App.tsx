@@ -41,6 +41,7 @@ const MainContent: React.FC = () => {
     location.pathname === '/editar-perfil' ||
     location.pathname === '/transferir-banco' ||
     location.pathname === '/transferir-cuenta' ||
+    location.pathname === '/transferir-wallet' ||
     location.pathname === '/comprobante' ||
     location.pathname === '/notificaciones';
   const [isModalOpen, setIsModalOpen] = useState(false);

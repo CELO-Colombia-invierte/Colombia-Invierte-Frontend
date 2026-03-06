@@ -44,6 +44,9 @@ const EditProfilePage = lazy(
 const CuentaTransferPage = lazy(
   () => import('@/features/transferencia-cuenta/pages/CuentaTransferPage')
 );
+const WalletTransferPage = lazy(
+  () => import('@/features/transferencia-wallet/pages/WalletTransferPage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -144,6 +147,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/transferir-cuenta',
     component: CuentaTransferPage,
+    exact: true,
+  },
+  {
+    path: '/transferir-wallet',
+    component: WalletTransferPage,
     exact: true,
   },
 ];
