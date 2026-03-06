@@ -1,0 +1,258 @@
+.cs-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  padding-bottom: 24px;
+}
+
+.cs-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Subtítulo */
+.cs-heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Input de búsqueda */
+.cs-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f4f5f7;
+  border-radius: 50px;
+  padding: 0 16px;
+}
+
+.cs-search-icon-left {
+  display: flex;
+  align-items: center;
+  color: #aaa;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.cs-search-icon-left:not(:disabled) {
+  color: #3B5BDB;
+}
+
+.cs-search-icon-left:disabled {
+  cursor: default;
+}
+
+.cs-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #1a1a1a;
+  outline: none;
+  padding: 13px 0;
+}
+
+.cs-search-input::placeholder {
+  color: #b0b0b0;
+}
+
+.cs-search-input:disabled {
+  opacity: 0.5;
+}
+
+/* Botón limpiar (X) */
+.cs-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #aaa;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tabs de filtrado — pills, solo visibles con input enfocado */
+.cs-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0;
+  margin-top: -8px;
+}
+
+.cs-tab {
+  background: none;
+  border: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #999;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cs-tab--active {
+  background: #3B5BDB;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Sección */
+.cs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cs-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 2px;
+}
+
+.cs-section-sub {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 4px;
+}
+
+/* Estado vacío */
+.cs-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0 0;
+}
+
+.cs-empty {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin: 0;
+  text-align: center;
+}
+
+/* Error no encontrado */
+.cs-not-found {
+  font-size: 13px;
+  color: #E03131;
+  margin: 4px 0 0;
+}
+
+/* Lista de contactos */
+.cs-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Item de contacto */
+.cs-contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cs-contact-item:last-child {
+  border-bottom: none;
+}
+
+.cs-contact-item:active {
+  background: #eef2ff;
+  border-radius: 8px;
+}
+
+.cs-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cs-contact-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.cs-contact-username {
+  font-size: 13px;
+  color: #888;
+}
+
+/* Avatar a la derecha */
+.cs-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-avatar-initials {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Overlay de carga */
+.cs-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.cs-loading-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.cs-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid #e0e0e0;
+  border-top-color: #3B5BDB;
+  border-radius: 50%;
+  animation: cs-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes cs-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cs-loading-text {
+  font-size: 15px;
+  color: #1a1a1a;
+  font-weight: 500;
+}

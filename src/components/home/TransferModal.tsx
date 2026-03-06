@@ -15,13 +15,12 @@ const IconSendAccount = () => (
   </svg>
 );
 
-// Entre mis cuentas: flechas circulares (swap)
-const IconSendOwn = () => (
+// Wallet: billetera digital
+const IconWallet = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 1l4 4-4 4" />
-    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-    <path d="M7 23l-4-4 4-4" />
-    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 3H5a2 2 0 0 0-2 2v2" />
+    <circle cx="17" cy="14" r="1" fill="currentColor" stroke="none" />
   </svg>
 );
 
@@ -69,14 +68,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
         </button>
 
         <div className="transfer-modal-options">
-          <button className="transfer-option-btn" onClick={() => { onClose(); }}>
+          <button className="transfer-option-btn" onClick={() => { onClose(); history.push('/transferir-cuenta'); }}>
             <span className="transfer-option-icon"><IconSendAccount /></span>
             <span>Transferir a otra cuenta</span>
           </button>
 
-          <button className="transfer-option-btn" onClick={() => { onClose(); }}>
-            <span className="transfer-option-icon"><IconSendOwn /></span>
-            <span>Transferir entre mis cuentas</span>
+          <button className="transfer-option-btn" onClick={() => { onClose(); history.push('/transferir-wallet'); }}>
+            <span className="transfer-option-icon"><IconWallet /></span>
+            <span>Transferir a una wallet</span>
           </button>
 
           <button className="transfer-option-btn" onClick={() => { onClose(); history.push('/transferir-banco'); }}>
