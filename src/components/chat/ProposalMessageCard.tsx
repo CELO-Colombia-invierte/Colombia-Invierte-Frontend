@@ -71,8 +71,6 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
   const formatMonto = (amount: number) =>
     amount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
-  const total = proposal.votes_yes + proposal.votes_no;
-
   const handleVerPropuesta = () => {
     history.push(`/ver-propuesta/${proposal.id}`);
   };

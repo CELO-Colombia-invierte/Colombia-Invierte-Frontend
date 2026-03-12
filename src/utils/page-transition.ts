@@ -1,11 +1,19 @@
-import { createAnimation } from '@ionic/react';
-import type { AnimationBuilder } from '@ionic/core/components';
+import { createAnimation, Animation } from '@ionic/react';
 
-export const pageTransitionAnimation: AnimationBuilder = (_baseEl, opts) => {
-  const enteringEl: HTMLElement | undefined = opts?.enteringEl;
-  const leavingEl: HTMLElement | undefined = opts?.leavingEl;
-  const direction: string = opts?.direction ?? 'forward';
-  const isForward = direction !== 'back';
+type AnimationOpts = {
+  enteringEl?: HTMLElement;
+  leavingEl?: HTMLElement;
+  direction?: string;
+  [key: string]: unknown;
+};
+
+export const pageTransitionAnimation = (
+  _baseEl: HTMLElement,
+  opts?: AnimationOpts
+): Animation => {
+  const enteringEl = opts?.enteringEl;
+  const leavingEl = opts?.leavingEl;
+  const isForward = opts?.direction !== 'back';
 
   const root = createAnimation();
 
