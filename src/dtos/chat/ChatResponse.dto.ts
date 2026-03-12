@@ -12,6 +12,8 @@ export interface MessageResponseDto {
   conversation_id: string;
   sender_user_id: string;
   body_text: string;
+  message_type: 'TEXT' | 'PROPOSAL';
+  proposal_id?: string | null;
   created_at: string;
   updated_at: string;
   sender_user?: {
@@ -59,6 +61,7 @@ export interface SendMessageRequestDto {
 export interface CreateConversationRequestDto {
   type: 'DIRECT' | 'GROUP';
   member_ids: string[];
+  project_id?: string;
 }
 
 export interface PresignMessageAttachmentResponseDto {

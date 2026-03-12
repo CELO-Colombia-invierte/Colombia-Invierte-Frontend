@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Message } from '@/models/Message.model';
 import { Conversation } from '@/models/Conversation.model';
+import { ProposalMessageCard } from './ProposalMessageCard';
 import './GroupMessageList.css';
 
 interface TypingUser {
@@ -23,7 +24,14 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
   conversation,
   typingUsers = [],
 }) => {
-  // Agrupar mensajes consecutivos del mismo usuario
+  const endRef = useRef<HTMLDivElement>(null);
+  const isInitialLoad = useRef(true);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: isInitialLoad.current ? 'instant' : 'smooth' });
+    isInitialLoad.current = false;
+  }, [messages]);
+
   const groupedMessages = messages.reduce((acc, message, index) => {
     const prevMessage = messages[index - 1];
     const isSameUser = prevMessage && prevMessage.senderId === message.senderId;
@@ -55,7 +63,6 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
     };
   };
 
-  // Generar color consistente basado en el ID del usuario
   const getColorForUser = (userId: string) => {
     const colors = [
       '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
@@ -69,7 +76,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
     return colors[Math.abs(hash) % colors.length];
   };
 
-  // Obtener info de usuarios escribiendo (maximo 3)
+
   const getTypingUsersInfo = () => {
     if (typingUsers.length === 0) return [];
     
@@ -110,7 +117,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
             key={groupIndex}
             className={`message-group ${isMine ? 'mine' : 'theirs'}`}
           >
-            {/* Avatar solo para mensajes de otros en grupos */}
+           
             {!isMine && isGroup && (
               <div className="message-group-avatar">
                 {senderInfo.avatarUrl ? (
@@ -127,7 +134,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
             )}
 
             <div className="message-group-content">
-              {/* Nombre solo para el primer mensaje del grupo en chats grupales */}
+             
               {!isMine && isGroup && (
                 <span
                   className="message-group-sender-name"
@@ -137,46 +144,62 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                 </span>
               )}
 
-              {/* Mensajes del grupo */}
-              {group.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`group-message-bubble ${isMine ? 'mine' : 'theirs'}`}
-                >
-                  {/* Imagenes */}
-                  {message.getImages().length > 0 && (
-                    <div className="group-message-images">
-                      {message.getImages().map((attachment) => (
-                        <img
-                          key={attachment.id}
-                          src={attachment.url}
-                          alt={attachment.fileName}
-                          className="group-message-image"
-                        />
-                      ))}
-                    </div>
-                  )}
+              
+              {group.messages.map((message) => {
+                if (message.type === 'PROPOSAL' && (message.proposalId || message.proposalData)) {
+                  return (
+                    <ProposalMessageCard
+                      key={message.id}
+                      proposalId={message.proposalId}
+                      proposal={message.proposalData}
+                      formattedTime={message.getFormattedTime()}
+                      isMine={isMine}
+                    />
+                  );
+                }
 
-                  {/* Texto */}
-                  {message.text && (
-                    <p className="group-message-text">{message.text}</p>
-                  )}
+                return (
+                  <div
+                    key={message.id}
+                    className={`group-message-bubble ${isMine ? 'mine' : 'theirs'}`}
+                  >
+                  
+                    {message.getImages().length > 0 && (
+                      <div className="group-message-images">
+                        {message.getImages().map((attachment) => (
+                          <img
+                            key={attachment.id}
+                            src={attachment.url}
+                            alt={attachment.fileName}
+                            className="group-message-image"
+                          />
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Hora */}
-                  <span className="group-message-time">
-                    {message.getFormattedTime()}
-                  </span>
-                </div>
-              ))}
+                  
+                    {message.text && (
+                      <p className="group-message-text">{message.text}</p>
+                    )}
+
+                    <span className="group-message-time">
+                      {message.getFormattedTime()}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
       })}
 
-      {/* Indicador de typing */}
+     
+      <div ref={endRef} />
+
+    
       {typingUsersInfo.length > 0 && (
         <div className="message-group theirs typing-indicator-group">
-          {/* Avatares apilados si hay multiples usuarios escribiendo */}
+      
           {isGroup && (
             <div className="typing-avatars-stack">
               {typingUsersInfo.map((userInfo) => (

@@ -11,7 +11,6 @@ import {
   UserDto,
 } from '@/dtos/auth/AuthResponse.dto';
 
-// Tipos exportados para el servicio
 export type AuthState = {
   user: User | null;
   token: string | null;
@@ -180,12 +179,14 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
+    apiService.setLoggingOut(true);
     try {
       await apiService.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       this.clearAuth();
+      apiService.setLoggingOut(false);
     }
   }
 

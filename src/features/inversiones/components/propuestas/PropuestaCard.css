@@ -1,0 +1,58 @@
+.propuesta-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 80px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.15s ease;
+}
+
+.propuesta-card:active {
+  transform: scale(0.98);
+}
+
+.propuesta-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.propuesta-card-content {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.propuesta-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.propuesta-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.propuesta-card-arrow {
+  color: #fff;
+  font-size: 18px;
+}
+
+.propuesta-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.propuesta-card-votes,
+.propuesta-card-date {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}

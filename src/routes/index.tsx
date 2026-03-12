@@ -47,6 +47,15 @@ const CuentaTransferPage = lazy(
 const WalletTransferPage = lazy(
   () => import('@/features/transferencia-wallet/pages/WalletTransferPage')
 );
+const CrearPropuestaPage = lazy(
+  () => import('@/features/inversiones/pages/CrearPropuestaPage')
+);
+const PropuestaPreviewPage = lazy(
+  () => import('@/features/inversiones/pages/PropuestaPreviewPage')
+);
+const PropuestaDetallePage = lazy(
+  () => import('@/features/inversiones/pages/PropuestaDetallePage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -112,6 +121,21 @@ export const routes: RouteConfig[] = [
   {
     path: '/configuracion',
     component: ConfiguracionPage,
+    exact: true,
+  },
+  {
+    path: '/crear-propuesta/:id',
+    component: CrearPropuestaPage,
+    exact: true,
+  },
+  {
+    path: '/preview-propuesta/:id',
+    component: PropuestaPreviewPage,
+    exact: true,
+  },
+  {
+    path: '/ver-propuesta/:propuestaId',
+    component: PropuestaDetallePage,
     exact: true,
   },
   {

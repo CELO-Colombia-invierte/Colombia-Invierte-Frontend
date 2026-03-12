@@ -19,7 +19,7 @@ export const useAuth = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const callbackRegistered = useRef(false);
 
-  // Registrar el callback de fallo de auth en apiService (solo una vez)
+ 
   useEffect(() => {
     if (callbackRegistered.current) return;
     callbackRegistered.current = true;
@@ -36,24 +36,24 @@ export const useAuth = () => {
     });
   }, [history]);
 
-  // Al montar, verificar si el token expiró y hacer refresh automático
+
   useEffect(() => {
     const initAuth = async () => {
       const currentAuth = authService.getAuth();
 
-      // Si no hay sesión guardada, no hay nada que hacer
+
       if (!currentAuth.isAuthenticated) {
         setIsInitializing(false);
         return;
       }
 
-      // Si el access_token NO está expirado, todo bien
+
       if (!authService.isTokenExpired()) {
         setIsInitializing(false);
         return;
       }
 
-      // El access_token expiró → intentar refresh silencioso
+
       const refreshToken = authService.getRefreshToken();
       if (!refreshToken) {
         authService.clearAuth();
@@ -72,7 +72,7 @@ export const useAuth = () => {
           isAuthenticated: true,
         });
       } catch {
-        // El refresh también falló (token revocado, expirado, secret cambiado)
+        
         authService.clearAuth();
         setAuthState({ user: null, token: null, refreshToken: null, isAuthenticated: false });
         history.replace('/auth');
@@ -82,10 +82,10 @@ export const useAuth = () => {
     };
 
     initAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
-  // Suscribirse a cambios externos del authService
+
   useEffect(() => {
     setAuthState(authService.getAuth());
     const unsubscribe = authService.subscribe(() => {
@@ -165,18 +165,13 @@ export const useAuth = () => {
     setIsLoading(true);
     try {
       await authService.logout();
-      const emptyAuthState: AuthState = {
-        user: null,
-        token: null,
-        refreshToken: null,
-        isAuthenticated: false,
-      };
-      setAuthState(emptyAuthState);
-      history.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      authService.clearAuth();
+      setAuthState({ user: null, token: null, refreshToken: null, isAuthenticated: false });
       setIsLoading(false);
+      history.replace('/auth');
     }
   }, [history]);
 

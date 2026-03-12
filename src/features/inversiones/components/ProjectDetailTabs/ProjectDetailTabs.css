@@ -1,21 +1,28 @@
-/* =========================
-   TABS NAVIGATION
-   ========================= */
+
+.tabs-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 1px 0 0 #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 8px 4px;
+  gap: 2px;
+}
 
 .project-detail-tabs {
   display: flex;
   align-items: center;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 0 8px;
-  margin: 0;
+  flex: 1;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   gap: 4px;
+  padding: 0 8px;
+  min-width: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
 }
 
 .project-detail-tabs::-webkit-scrollbar {
@@ -26,43 +33,76 @@
   flex-shrink: 0;
   background: transparent;
   border: none;
-  padding: 16px 16px;
-  font-size: 14px;
+  border-radius: 20px;
+  padding: 0 14px;
+  height: 32px;
+  font-size: 13px;
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
-  position: relative;
-  transition: color 0.2s ease;
-  border-bottom: 3px solid transparent;
   white-space: nowrap;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
 
 .tab-button.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  background: #3b82f6;
+  color: #ffffff !important;
+  font-weight: 600;
 }
 
 .tab-button:hover:not(.active) {
+  background: #f3f4f6;
   color: #374151;
-  background: #f9fafb;
 }
 
-/* =========================
-   CONTENT CONTAINER
-   ========================= */
+.tab-button:active:not(.active) {
+  background: #e5e7eb;
+}
+
+
+.tabs-scroll-btn {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  transition: color 0.15s, background 0.15s, opacity 0.15s;
+  padding: 0;
+}
+
+.tabs-scroll-btn--hidden {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  overflow: hidden;
+}
+
+.tabs-scroll-btn:hover:not(.tabs-scroll-btn--hidden) {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+
 
 .project-detail-content {
   padding: 0;
   min-height: 400px;
 }
 
-/* =========================
-   RESUMEN TAB
-   ========================= */
+
 
 .resumen-tab {
   padding: 24px 20px;
-  padding-bottom: 220px;
 }
 
 .resumen-section {
@@ -147,7 +187,7 @@
 
 .resumen-actions {
   position: fixed;
-  bottom: 60px;
+  bottom: 0px;
   left: 0;
   right: 0;
   background: white;
@@ -159,13 +199,10 @@
   z-index: 9;
 }
 
-/* =========================
-   FINANZAS TAB
-   ========================= */
+
 
 .finanzas-tab {
   padding: 24px 20px;
-  padding-bottom: 220px;
 }
 
 .finanzas-title {
@@ -1019,11 +1056,6 @@
    ========================= */
 
 @media (min-width: 768px) {
-  .project-detail-tabs {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
   .project-detail-content {
     max-width: 900px;
     margin: 0 auto;
@@ -1033,7 +1065,6 @@
   .finanzas-tab,
   .documentos-tab {
     padding: 40px 32px;
-    padding-bottom: 120px;
   }
 
   .resumen-title {
@@ -1159,6 +1190,21 @@
 }
 
 .historial-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 20px 0;
+}
+
+.governance-title{
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 20px 0;
+
+}
+
+.disputas-title{
   font-size: 20px;
   font-weight: 600;
   color: #111827;

@@ -43,7 +43,10 @@ const MainContent: React.FC = () => {
     location.pathname === '/transferir-cuenta' ||
     location.pathname === '/transferir-wallet' ||
     location.pathname === '/comprobante' ||
-    location.pathname === '/notificaciones';
+    location.pathname === '/notificaciones' ||
+    location.pathname.startsWith('/crear-propuesta/') ||
+    location.pathname.startsWith('/preview-propuesta/') ||
+    location.pathname.startsWith('/ver-propuesta/');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const modalOptions = [

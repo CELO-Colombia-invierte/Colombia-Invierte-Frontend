@@ -28,6 +28,8 @@ const getNotificationIcon = (type: NotificationType): string => {
       return '⚠️';
     case NotificationType.SYSTEM_ANNOUNCEMENT:
       return '📢';
+    case NotificationType.NEW_PROPOSAL:
+      return '📋';
     default:
       return '🔔';
   }
@@ -68,21 +70,21 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     | string
     | undefined;
 
-  // Leer el status desde metadata (persistente en el servidor)
+  
   const invitationStatus = notification.metadata?.status as
     | 'accepted'
     | 'declined'
     | undefined;
 
-  // Determinar si ya respondió (desde metadata o estado local)
+  
   const hasResponded = invitationStatus || responded;
 
-  // Determinar si la invitación fue rechazada
+
   const wasDeclined =
     invitationStatus === 'declined' || responseType === 'declined';
 
   const handleClick = () => {
-    // No navegar si es una invitación pendiente o si fue rechazada
+   
     if (isInvitation && (!hasResponded || wasDeclined)) {
       return;
     }
@@ -191,7 +193,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         </p>
         <p className="notification-item__body">{notification.body}</p>
 
-        {/* Botones de Aceptar/Rechazar para invitaciones (solo si NO ha respondido) */}
+      
         {isInvitation && invitationId && !hasResponded && (
           <div className="notification-item__actions">
             <button
@@ -211,7 +213,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           </div>
         )}
 
-        {/* Mensaje de respuesta (desde metadata del servidor o estado local) */}
+       
         {isInvitation && hasResponded && !error && (
           <p
             className={`notification-item__response notification-item__response--${invitationStatus || responseType}`}

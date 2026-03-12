@@ -21,9 +21,10 @@ class ChatApiService {
 
   async createConversation(
     type: 'DIRECT' | 'GROUP',
-    memberIds: string[]
+    memberIds: string[],
+    projectId?: string,
   ): Promise<Conversation> {
-    const requestData = ConversationMapper.toCreateRequest(type, memberIds);
+    const requestData = ConversationMapper.toCreateRequest(type, memberIds, projectId);
     const response = await apiService.post<ConversationResponseDto>(
       '/conversations',
       requestData

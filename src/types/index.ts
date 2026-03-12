@@ -136,6 +136,7 @@ export enum NotificationType {
   PAYMENT_LATE = 'PAYMENT_LATE',
   NEW_MESSAGE = 'NEW_MESSAGE',
   SYSTEM_ANNOUNCEMENT = 'SYSTEM_ANNOUNCEMENT',
+  NEW_PROPOSAL = 'NEW_PROPOSAL',
 }
 
 export interface NotificationActor {

@@ -5,6 +5,7 @@ class ApiService {
   private baseUrl: string;
   private refreshPromise: Promise<unknown> | null = null;
   private authFailureCallback: (() => void) | null = null;
+  private loggingOut = false;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_URL || '';
@@ -18,6 +19,10 @@ class ApiService {
     if (this.authFailureCallback) {
       this.authFailureCallback();
     }
+  }
+
+  setLoggingOut(value: boolean): void {
+    this.loggingOut = value;
   }
 
   private async request<T>(
@@ -42,6 +47,17 @@ class ApiService {
       });
 
       if (response.status === 401 && retry) {
+        if (this.loggingOut) {
+          throw { message: 'Session expired', status: 401 } as ApiError;
+        }
+
+        const refreshToken = authService.getRefreshToken();
+
+        if (!refreshToken) {
+          this.triggerAuthFailure();
+          throw { message: 'Session expired', status: 401 } as ApiError;
+        }
+
         if (!this.refreshPromise) {
           this.refreshPromise = authService.refreshToken()
             .finally(() => {
@@ -69,7 +85,7 @@ class ApiService {
           if (body?.message) {
             message = Array.isArray(body.message) ? body.message.join(', ') : body.message;
           }
-        } catch { /* body no es JSON */ }
+        } catch {}
         const error: ApiError = {
           message,
           status: response.status,

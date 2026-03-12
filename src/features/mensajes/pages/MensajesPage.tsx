@@ -10,6 +10,7 @@ import { ConversationList } from '@/components/chat/ConversationList';
 import { useChatWebSocket } from '@/hooks/use-chat-websocket';
 import { MessageMapper } from '@/mappers/MessageMapper';
 import { NewMessageSocketEvent } from '@/types/chat';
+import { ConversationTabs } from '../components/ConversationTabs';
 import './MensajesPage.css';
 
 const MensajesPage: React.FC = () => {
@@ -18,6 +19,7 @@ const MensajesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<'chats' | 'grupos'>('chats');
 
 
   const handleNewMessage = useCallback((event: NewMessageSocketEvent) => {
@@ -72,7 +74,12 @@ const MensajesPage: React.FC = () => {
     }
   };
 
-  const filteredConversations = conversations.filter((conversation) => {
+  const directConversations = conversations.filter((c) => !c.isGroup());
+  const groupConversations = conversations.filter((c) => c.isGroup());
+
+  const activeConversations = activeSection === 'chats' ? directConversations : groupConversations;
+
+  const filteredConversations = activeConversations.filter((conversation) => {
     if (!searchQuery) return true;
     const title = conversation.getTitle(user?.id || '');
     return title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -100,6 +107,12 @@ const MensajesPage: React.FC = () => {
       <IonContent fullscreen className="mensajes-page-content">
         <HomeHeader onProfileClick={handleProfileClick} userName={user?.getDisplayName() || 'Usuario'} userAvatar={user?.getAvatarUrl()} />
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
+        <ConversationTabs
+          activeSection={activeSection}
+          chatsCount={directConversations.length}
+          gruposCount={groupConversations.length}
+          onSectionChange={setActiveSection}
+        />
 
         {loading ? (
           <div className="mensajes-loading">

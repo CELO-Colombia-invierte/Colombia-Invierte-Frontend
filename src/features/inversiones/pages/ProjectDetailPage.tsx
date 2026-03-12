@@ -19,6 +19,7 @@ import {
   GovernanceTab,
   DisputasTab,
   MilestonesTab,
+  PropuestasTab,
 } from '../components/ProjectDetailTabs';
 import './ProjectDetailPage.css';
 
@@ -60,7 +61,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       const data = await projectsService.findOne(identifier);
       setProject(data);
 
-      // Verificar membresía real del usuario si está autenticado
+   
       if (user?.id) {
         try {
           const membership = await projectMembershipService.checkMembership(
@@ -69,7 +70,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           setIsMember(membership.isMember);
           setMembershipStatus(membership.status);
         } catch (membershipError) {
-          // Si falla la verificación, asumir que no es miembro
+         
           console.error('Error checking membership:', membershipError);
           setIsMember(false);
           setMembershipStatus(null);
@@ -252,6 +253,10 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
           {activeTab === 'hitos' && hasV2 && (
             <MilestonesTab project={project} isOwner={isOwner} />
+          )}
+
+          {activeTab === 'propuestas' && (isOwner || isMember) && (
+            <PropuestasTab project={project} />
           )}
         </div>
         {canJoinPublicProject && (

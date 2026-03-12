@@ -30,7 +30,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
         const response = await apiService.get<Proposal[]>(`/projects/${project.id}/proposals`);
         setProposals(response.data);
       } catch {
-        // silenciar
+
       } finally {
         setLoading(false);
       }
@@ -65,7 +65,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
 
   if (loading) {
     return (
-      <div className="governance-tab">
+      <div className="historial-tab">
         <h2 className="governance-title">Gobernanza</h2>
         <p className="chain-state-loading">Cargando propuestas...</p>
       </div>
@@ -73,7 +73,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
   }
 
   return (
-    <div className="governance-tab">
+    <div className="historial-tab">
       <h2 className="governance-title">Gobernanza</h2>
 
       {proposals.length === 0 ? (

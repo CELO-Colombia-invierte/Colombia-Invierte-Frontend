@@ -31,7 +31,6 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         const response = await apiService.get<Dispute[]>(`/projects/${project.id}/disputes`);
         setDisputes(response.data);
       } catch {
-        // silenciar
       } finally {
         setLoading(false);
       }
@@ -51,7 +50,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
 
   if (loading) {
     return (
-      <div className="disputas-tab">
+      <div className="historial-tab">
         <h2 className="disputas-title">Disputas</h2>
         <p className="chain-state-loading">Cargando disputas...</p>
       </div>
@@ -59,7 +58,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   }
 
   return (
-    <div className="disputas-tab">
+    <div className="historial-tab">
       <h2 className="disputas-title">Disputas</h2>
 
       {disputes.length === 0 ? (

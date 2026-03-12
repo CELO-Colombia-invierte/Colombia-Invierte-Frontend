@@ -121,7 +121,6 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--ion-color-primary, #3880ff);
 }
 
 .chat-info-modal-content {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonButton, IonSpinner, useIonToast } from '@ionic/react';
+import { IonSpinner, useIonToast } from '@ionic/react';
 import { Project } from '@/models/projects';
 import { projectMembershipService } from '@/services/projects';
 import { InvestmentPosition } from '@/models/membership';
@@ -78,7 +78,8 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
 
       const conversation = await chatApiService.createConversation(
         'GROUP',
-        uniqueMemberIds
+        uniqueMemberIds,
+        project.id,
       );
 
       await chatApiService.updateConversationName(
@@ -113,13 +114,78 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
     }
   };
 
+  const renderChatActionCard = () => {
+    if (groupConversation) {
+      return (
+        <div className="chat-action-card chat-action-card--active" onClick={handleOpenChat}>
+          <div className="chat-action-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <div className="chat-action-text">
+            <strong>Abrir chat grupal</strong>
+            <span>Comunícate con todos los participantes</span>
+          </div>
+          <div className="chat-action-chevron">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+      );
+    }
+
+    if (isOwner) {
+      return (
+        <div
+          className={`chat-action-card${creatingChat ? ' chat-action-card--loading' : ''}`}
+          onClick={!creatingChat ? handleCreateGroupChat : undefined}
+        >
+          <div className="chat-action-icon">
+            {creatingChat ? (
+              <IonSpinner name="crescent" style={{ width: 20, height: 20, color: 'white' }} />
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            )}
+          </div>
+          <div className="chat-action-text">
+            <strong>{creatingChat ? 'Creando chat...' : 'Crear chat grupal'}</strong>
+            <span>Conecta a todos los participantes del proyecto</span>
+          </div>
+          {!creatingChat && (
+            <div className="chat-action-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="chat-action-card chat-action-card--disabled">
+        <div className="chat-action-icon chat-action-icon--gray">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </div>
+        <div className="chat-action-text">
+          <strong>Chat grupal</strong>
+          <span>El administrador aún no ha creado el chat</span>
+        </div>
+      </div>
+    );
+  };
+
   const renderParticipantsList = () => {
     return (
       <div className="participants-list">
-        <div className="participants-info">
-          <p>Participantes: {members.length}</p>
-        </div>
-        <div className="participants-grid">
+        <p className="participants-count">Participantes ({members.length})</p>
+        <div className="participants-list-items">
           {members.map((member) => {
             const userName =
               (member.user as any)?.display_name ||
@@ -132,7 +198,7 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
                 ? `${import.meta.env.VITE_ASSETS_URL || import.meta.env.VITE_API_URL}/assets/${userAny.avatar_asset_id}`
                 : undefined);
             return (
-              <div key={member.id} className="participant-card">
+              <div key={member.id} className="participant-list-item">
                 <div className="participant-avatar">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt={userName} className="avatar-image" />
@@ -174,73 +240,11 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
     <div className="participantes-tab">
       <div className="participantes-header">
         <h2>Chat del Proyecto</h2>
-        {!groupConversation && isOwner && (
-          <IonButton
-            onClick={handleCreateGroupChat}
-            disabled={creatingChat}
-            size="small"
-          >
-            {creatingChat ? (
-              <>
-                <IonSpinner name="crescent" />
-                Creando chat...
-              </>
-            ) : (
-              'Crear chat grupal'
-            )}
-          </IonButton>
-        )}
-        {groupConversation && (
-          <IonButton onClick={handleOpenChat} size="small" color="primary">
-            Abrir chat grupal
-          </IonButton>
-        )}
       </div>
 
-      {!isOwner && !groupConversation ? (
-        <div>
-          <div className="empty-state">
-            <p>El chat grupal aún no ha sido creado por el administrador</p>
-          </div>
-          {members.length > 0 && renderParticipantsList()}
-        </div>
-      ) : !groupConversation && members.length === 0 ? (
-        <div className="empty-state">
-          <p>No hay participantes en este proyecto para crear el chat</p>
-        </div>
-      ) : isOwner && !groupConversation ? (
-        <div>
-          <div className="empty-state">
-            <p>
-              Crea un chat grupal para comunicarte con todos los participantes
-              del proyecto
-            </p>
-          </div>
-          {members.length > 0 && renderParticipantsList()}
-        </div>
-      ) : groupConversation ? (
-        <div>
-          <div className="chat-ready-state">
-            <div className="chat-info">
-              <div className="chat-icon">
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
-              </div>
-              <h3>Chat grupal activo</h3>
-              <p>Comunícate con todos los participantes del proyecto</p>
-            </div>
-          </div>
-          {members.length > 0 && renderParticipantsList()}
-        </div>
-      ) : null}
+      {renderChatActionCard()}
+
+      {members.length > 0 && renderParticipantsList()}
     </div>
   );
 };

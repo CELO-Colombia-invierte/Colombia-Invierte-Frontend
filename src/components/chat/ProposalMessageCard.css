@@ -1,0 +1,167 @@
+.proposal-message-card {
+  margin: 0 16px 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 320px;
+}
+
+.proposal-message-card.mine {
+  margin-left: auto;
+  background: #1e3a5f;
+}
+
+.proposal-message-card.theirs {
+  margin-right: auto;
+  background: #1e293b;
+}
+
+.proposal-card-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
+.proposal-card-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.proposal-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.proposal-card-desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.proposal-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.proposal-field-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.proposal-field-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.proposal-card-votes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.proposal-vote-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.proposal-vote-row:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.proposal-vote-row:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.proposal-vote-row.disabled {
+  cursor: default;
+}
+
+.proposal-vote-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.proposal-vote-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.proposal-vote-count {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.proposal-vote-count.yes {
+  color: #60a5fa;
+}
+
+.proposal-vote-count.no {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.proposal-vote-bar-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.proposal-vote-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.proposal-vote-bar-fill.yes {
+  background: #3b82f6;
+}
+
+.proposal-vote-bar-fill.no {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.proposal-card-footer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.proposal-card-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.proposal-card-link {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.proposal-card-link:hover {
+  color: #fff;
+}

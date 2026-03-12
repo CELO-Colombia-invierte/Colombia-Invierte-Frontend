@@ -7,13 +7,8 @@ import {
 } from '@/dtos/chat/ChatResponse.dto';
 import { UserMapper } from './UserMapper';
 
-/**
- * MessageMapper - Transforma entre DTOs del API y Models del dominio
- */
+
 export class MessageMapper {
-  /**
-   * Convierte un MessageAttachmentDto a MessageAttachment Model
-   */
   static attachmentFromDto(dto: MessageAttachmentDto): MessageAttachment {
     return new MessageAttachment({
       id: dto.id,
@@ -25,15 +20,15 @@ export class MessageMapper {
     });
   }
 
-  /**
-   * Convierte un MessageResponseDto a Message Model
-   */
+
   static fromDto(dto: MessageResponseDto): Message {
     return new Message({
       id: dto.id,
       conversationId: dto.conversation_id,
       senderId: dto.sender_user_id,
       text: dto.body_text,
+      type: dto.message_type ?? 'TEXT',
+      proposalId: dto.proposal_id ?? undefined,
       createdAt: new Date(dto.created_at),
       updatedAt: new Date(dto.updated_at),
       sender: dto.sender_user
@@ -43,26 +38,19 @@ export class MessageMapper {
     });
   }
 
-  /**
-   * Convierte un array de MessageResponseDto a Message Models
-   */
+
   static fromDtoArray(dtos: MessageResponseDto[]): Message[] {
     return dtos.map(dto => this.fromDto(dto));
   }
 
-  /**
-   * Convierte texto a SendMessageRequestDto
-   */
+
   static toSendRequest(text: string): SendMessageRequestDto {
     return {
       body_text: text,
     };
   }
 
-  /**
-   * Crea un mensaje optimista (antes de que el API responda)
-   * Útil para UI optimista donde el mensaje aparece inmediatamente
-   */
+
   static createOptimistic(
     text: string,
     conversationId: string,
@@ -82,9 +70,7 @@ export class MessageMapper {
     });
   }
 
-  /**
-   * Reemplaza un mensaje optimista con la respuesta real del API
-   */
+ 
   static replaceOptimistic(
     messages: Message[],
     optimisticId: string,
@@ -93,9 +79,7 @@ export class MessageMapper {
     return messages.map(m => m.id === optimisticId ? realMessage : m);
   }
 
-  /**
-   * Marca un mensaje optimista como fallido
-   */
+
   static markOptimisticAsFailed(
     message: Message,
     error: string

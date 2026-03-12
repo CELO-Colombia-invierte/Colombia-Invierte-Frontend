@@ -1,4 +1,5 @@
 import { User } from './User.model';
+import type { PropuestaPreview } from '@/types/propuesta';
 
 export class MessageAttachment {
   readonly id: string;
@@ -59,6 +60,9 @@ export class Message {
   readonly conversationId: string;
   senderId: string;
   text: string;
+  type: 'TEXT' | 'PROPOSAL';
+  proposalId?: string;
+  proposalData?: PropuestaPreview;
   createdAt: Date;
   updatedAt: Date;
   sender?: User;
@@ -72,6 +76,9 @@ export class Message {
     conversationId: string;
     senderId: string;
     text: string;
+    type?: 'TEXT' | 'PROPOSAL';
+    proposalId?: string;
+    proposalData?: PropuestaPreview;
     createdAt?: Date;
     updatedAt?: Date;
     sender?: User;
@@ -84,6 +91,9 @@ export class Message {
     this.conversationId = data.conversationId;
     this.senderId = data.senderId;
     this.text = data.text;
+    this.type = data.type ?? 'TEXT';
+    this.proposalId = data.proposalId;
+    this.proposalData = data.proposalData;
     this.createdAt = data.createdAt ?? new Date();
     this.updatedAt = data.updatedAt ?? new Date();
     this.sender = data.sender;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { IonContent, IonPage, IonIcon, IonSpinner } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
@@ -22,6 +22,7 @@ import './PortafolioPage.css';
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
   const [positions, setPositions] = useState<Position[]>([]);
+  const positionsRef = useRef<Position[]>([]);
   const [publicProjects, setPublicProjects] = useState<Project[]>([]);
   const [loadingPublic, setLoadingPublic] = useState(false);
   const history = useHistory();
@@ -31,6 +32,7 @@ const PortafolioPage: React.FC = () => {
   const fetchPortfolio = useCallback(async () => {
     try {
       const portfolio = await portfolioService.getPortfolio();
+      positionsRef.current = portfolio.positions;
       setPositions(portfolio.positions);
     } catch (error) {
       console.error('Error fetching portfolio:', error);
@@ -41,7 +43,7 @@ const PortafolioPage: React.FC = () => {
     try {
       setLoadingPublic(true);
       const allProjects = await projectsService.findAll();
-      const myProjectIds = new Set(positions.map((p) => p.projectId));
+      const myProjectIds = new Set(positionsRef.current.map((p) => p.projectId));
       const publicOnly = allProjects.filter(
         (p) =>
           p.visibility === ProjectVisibility.PUBLIC &&
@@ -54,7 +56,7 @@ const PortafolioPage: React.FC = () => {
     } finally {
       setLoadingPublic(false);
     }
-  }, [user?.id, positions]);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchPortfolio();

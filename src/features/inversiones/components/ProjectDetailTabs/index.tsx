@@ -9,3 +9,4 @@ export { HistorialTab } from './HistorialTab';
 export { GovernanceTab } from './GovernanceTab';
 export { DisputasTab } from './DisputasTab';
 export { MilestonesTab } from './MilestonesTab';
+export { PropuestasTab } from './PropuestasTab';
