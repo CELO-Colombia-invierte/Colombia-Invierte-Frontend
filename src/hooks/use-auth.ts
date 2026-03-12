@@ -161,18 +161,13 @@ export const useAuth = () => {
     }
   }, []);
 
-  const logout = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      authService.clearAuth();
-      setAuthState({ user: null, token: null, refreshToken: null, isAuthenticated: false });
-      setIsLoading(false);
-      history.replace('/auth');
-    }
+  const logout = useCallback(() => {
+   
+    authService.clearAuth();
+    setAuthState({ user: null, token: null, refreshToken: null, isAuthenticated: false });
+    history.replace('/auth');
+    
+    authService.logout().catch(() => {});
   }, [history]);
 
   const getMe = useCallback(async () => {

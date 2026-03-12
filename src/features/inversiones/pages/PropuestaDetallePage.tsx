@@ -7,6 +7,9 @@ import { propuestasService } from '@/services/propuestas/propuestas.service';
 import { VotingResults } from '../components/propuestas/VotingResults';
 import { WithdrawBlockedModal } from '../components/propuestas/WithdrawBlockedModal';
 import './PropuestaDetallePage.css';
+import { IonIcon } from '@ionic/react';
+import { arrowBackOutline } from 'ionicons/icons'; 
+
 
 const PropuestaDetallePage: React.FC = () => {
   const { propuestaId } = useParams<{ propuestaId: string }>();
@@ -88,6 +91,7 @@ const PropuestaDetallePage: React.FC = () => {
   const isApproved = propuesta.status === 'APPROVED';
   const isRejected = propuesta.status === 'REJECTED';
   const hasVoted = propuesta.user_vote != null;
+  const canVote = propuesta.can_vote ?? true;
 
   const getStatusIndicator = () => {
     if (isPending) {
@@ -139,8 +143,8 @@ const PropuestaDetallePage: React.FC = () => {
     <IonPage>
       <IonContent fullscreen className="propuesta-detalle-page">
         <div className="propuesta-detalle-header">
-          <button className="propuesta-detalle-back" onClick={() => history.goBack()}>
-            ←
+          <button className="header-back-btn " onClick={() => history.goBack()}>
+              <IonIcon icon={arrowBackOutline} />
           </button>
           <h1 className="propuesta-detalle-titulo">Propuesta</h1>
         </div>
@@ -178,7 +182,18 @@ const PropuestaDetallePage: React.FC = () => {
 
           {getStatusIndicator()}
 
-          {isPending && !hasVoted && (
+          {isPending && !canVote && (
+            <div className="propuesta-no-vote-notice">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>Te uniste después de que se creó esta propuesta</span>
+            </div>
+          )}
+
+          {isPending && canVote && !hasVoted && (
             <div className="propuesta-detalle-voting">
               <button
                 className="propuesta-vote-btn yes"

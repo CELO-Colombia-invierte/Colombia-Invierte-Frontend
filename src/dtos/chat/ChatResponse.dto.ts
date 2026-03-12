@@ -12,8 +12,9 @@ export interface MessageResponseDto {
   conversation_id: string;
   sender_user_id: string;
   body_text: string;
-  message_type: 'TEXT' | 'PROPOSAL';
+  type: 'TEXT' | 'PROPOSAL';
   proposal_id?: string | null;
+  proposal_data?: object | null;
   created_at: string;
   updated_at: string;
   sender_user?: {

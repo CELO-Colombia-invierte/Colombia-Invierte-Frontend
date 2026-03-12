@@ -11,6 +11,7 @@ import { ThirdwebProvider } from 'thirdweb/react';
 import { createThirdwebClient } from 'thirdweb';
 import { walletOutline, businessOutline } from 'ionicons/icons';
 import { routes } from '@/routes';
+import { pageTransitionAnimation } from '@/utils/page-transition';
 import { SplashScreen, LoadingScreen } from '@/components/layout';
 import { OnboardingCarousel } from '@/components/onboarding';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -72,7 +73,7 @@ const MainContent: React.FC = () => {
 
   return (
     <>
-      <IonRouterOutlet>
+      <IonRouterOutlet animation={pageTransitionAnimation}>
         <Suspense
           fallback={
             <div

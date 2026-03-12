@@ -136,10 +136,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
             <div className="message-group-content">
              
               {!isMine && isGroup && (
-                <span
-                  className="message-group-sender-name"
-                  style={{ color: userColor }}
-                >
+                <span className="message-group-sender-name">
                   {senderInfo.name}
                 </span>
               )}

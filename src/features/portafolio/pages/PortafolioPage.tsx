@@ -17,6 +17,7 @@ import {
 } from '@/components/portfolio';
 import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import { Tabs, Tab } from '@/components/ui/Tabs';
+import { PageTransition } from '@/components/ui';
 import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
@@ -148,58 +149,60 @@ const PortafolioPage: React.FC = () => {
     <>
       <IonPage>
         <IonContent fullscreen className="portafolio-page-content">
-          <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
-          <DateHeader title="" />
-          <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-          {activeTab === 'mi-portafolio' && (
-            <PortfolioGrid
-              projects={projects}
-              onProjectClick={handleProjectClick}
-            >
-              <NewProjectCard onClick={handleNewProject} />
-            </PortfolioGrid>
-          )}
-          {activeTab === 'comunidad' && (
-            <div className="comunidad-content">
-              {loadingPublic && (
-                <div className="comunidad-loading">
-                  <IonSpinner name="crescent" />
-                </div>
-              )}
-              {!loadingPublic && publicProjects.length === 0 && (
-                <p className="comunidad-placeholder">
-                  No hay proyectos públicos disponibles
-                </p>
-              )}
-              {!loadingPublic && publicProjects.length > 0 && (
-                <PortfolioGrid
-                  projects={publicProjects.map((project, index) => {
-                    const isNatillera = project.type === 'NATILLERA';
-                    const gradientList = isNatillera
-                      ? gradients.natillera
-                      : gradients.tokenization;
-                    return {
-                      id: project.id,
-                      name: project.name,
-                      type: isNatillera ? 'natillera' : 'tokenizacion',
-                      changePercentage: 0,
-                      period: 'Anual',
-                      participants: 0,
-                      avatars: [],
-                      gradient: gradientList[index % gradientList.length],
-                      amount: 0,
-                      description: project.description_rich,
-                      emoji: undefined,
-                      ownerName:
-                        project.owner_user?.displayName ||
-                        project.owner_user?.username,
-                    };
-                  })}
-                  onProjectClick={handleProjectClick}
-                />
-              )}
-            </div>
-          )}
+          <PageTransition>
+            <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
+            <DateHeader title="" />
+            <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+            {activeTab === 'mi-portafolio' && (
+              <PortfolioGrid
+                projects={projects}
+                onProjectClick={handleProjectClick}
+              >
+                <NewProjectCard onClick={handleNewProject} />
+              </PortfolioGrid>
+            )}
+            {activeTab === 'comunidad' && (
+              <div className="comunidad-content">
+                {loadingPublic && (
+                  <div className="comunidad-loading">
+                    <IonSpinner name="crescent" />
+                  </div>
+                )}
+                {!loadingPublic && publicProjects.length === 0 && (
+                  <p className="comunidad-placeholder">
+                    No hay proyectos públicos disponibles
+                  </p>
+                )}
+                {!loadingPublic && publicProjects.length > 0 && (
+                  <PortfolioGrid
+                    projects={publicProjects.map((project, index) => {
+                      const isNatillera = project.type === 'NATILLERA';
+                      const gradientList = isNatillera
+                        ? gradients.natillera
+                        : gradients.tokenization;
+                      return {
+                        id: project.id,
+                        name: project.name,
+                        type: isNatillera ? 'natillera' : 'tokenizacion',
+                        changePercentage: 0,
+                        period: 'Anual',
+                        participants: 0,
+                        avatars: [],
+                        gradient: gradientList[index % gradientList.length],
+                        amount: 0,
+                        description: project.description_rich,
+                        emoji: undefined,
+                        ownerName:
+                          project.owner_user?.displayName ||
+                          project.owner_user?.username,
+                      };
+                    })}
+                    onProjectClick={handleProjectClick}
+                  />
+                )}
+              </div>
+            )}
+          </PageTransition>
         </IonContent>
       </IonPage>
       {createPortal(

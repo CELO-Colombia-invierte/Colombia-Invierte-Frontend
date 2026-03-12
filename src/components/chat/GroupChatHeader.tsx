@@ -33,7 +33,7 @@ export const GroupChatHeader: React.FC<GroupChatHeaderProps> = ({
   return (
     <div className="group-chat-header">
       <button
-        className="group-chat-header-back"
+        className="header-back-btn"
         onClick={onBack}
         aria-label="Volver"
       >

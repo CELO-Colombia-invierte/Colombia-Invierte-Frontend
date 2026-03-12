@@ -92,6 +92,14 @@
   cursor: default;
 }
 
+.proposal-vote-row.voted-yes {
+  border-radius: 8px;
+}
+
+.proposal-vote-row.voted-no {
+  border-radius: 8px;
+}
+
 .proposal-vote-row-header {
   display: flex;
   align-items: center;

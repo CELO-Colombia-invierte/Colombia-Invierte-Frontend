@@ -6,6 +6,7 @@ import {
   SendMessageRequestDto
 } from '@/dtos/chat/ChatResponse.dto';
 import { UserMapper } from './UserMapper';
+import type { PropuestaPreview } from '@/types/propuesta';
 
 
 export class MessageMapper {
@@ -27,8 +28,9 @@ export class MessageMapper {
       conversationId: dto.conversation_id,
       senderId: dto.sender_user_id,
       text: dto.body_text,
-      type: dto.message_type ?? 'TEXT',
+      type: dto.type ?? 'TEXT',
       proposalId: dto.proposal_id ?? undefined,
+      proposalData: dto.proposal_data ? (dto.proposal_data as PropuestaPreview) : undefined,
       createdAt: new Date(dto.created_at),
       updatedAt: new Date(dto.updated_at),
       sender: dto.sender_user

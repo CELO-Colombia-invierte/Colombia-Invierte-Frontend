@@ -11,6 +11,7 @@ import {
   InvestmentList,
 } from '@/components/home';
 import { TransferModal } from '@/components/home/TransferModal';
+import { PageTransition } from '@/components/ui';
 import './HomePage.css';
 
 import { useBlockchain } from '@/hooks/use-blockchain';
@@ -121,13 +122,15 @@ const HomePage: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen className="home-page-content">
-        <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
-        <BalanceCard balance={balance} />
-        <ActionButtons onSend={handleSend} onReceive={handleReceive} />
-        <InvestmentList
-          investments={investments}
-          onInvestmentClick={handleInvestmentClick}
-        />
+        <PageTransition>
+          <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
+          <BalanceCard balance={balance} />
+          <ActionButtons onSend={handleSend} onReceive={handleReceive} />
+          <InvestmentList
+            investments={investments}
+            onInvestmentClick={handleInvestmentClick}
+          />
+        </PageTransition>
       </IonContent>
       <TransferModal
         isOpen={isTransferModalOpen}

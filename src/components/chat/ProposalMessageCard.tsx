@@ -20,10 +20,10 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
   const history = useHistory();
   const [proposal, setProposal] = useState<PropuestaPreview | undefined>(initialProposal);
   const [voting, setVoting] = useState(false);
-  const [voted, setVoted] = useState(false);
+  const [voted, setVoted] = useState(initialProposal?.user_vote != null);
 
   useEffect(() => {
-    if (!proposal && proposalId) {
+    if (proposalId) {
       propuestasService.getById(proposalId).then((data) => {
         setProposal({
           id: data.id,
@@ -36,8 +36,13 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
           votes_yes: data.votes_yes,
           votes_no: data.votes_no,
           total_members: data.total_members,
+          can_vote: data.can_vote,
+          user_vote: data.user_vote,
           status: data.status,
         });
+        if (data.user_vote != null) {
+          setVoted(true);
+        }
       }).catch(() => { });
     }
   }, [proposalId]);
@@ -112,16 +117,19 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
             const total = proposal.votes_yes + proposal.votes_no;
             const yesPercent = total > 0 ? (proposal.votes_yes / total) * 100 : 0;
             const noPercent = total > 0 ? (proposal.votes_no / total) * 100 : 0;
-            const canVote = !voting && !voted && proposal.status === 'PENDING';
+            const canVote = !voting && !voted && proposal.status === 'PENDING' && (proposal.can_vote ?? true);
+            const userVote = proposal.user_vote;
             return (
               <>
                 <button
-                  className={`proposal-vote-row${canVote ? '' : ' disabled'}`}
+                  className={`proposal-vote-row${canVote ? '' : ' disabled'}${userVote === 'YES' ? ' voted-yes' : ''}`}
                   onClick={() => handleVote('YES')}
                   disabled={!canVote}
                 >
                   <div className="proposal-vote-row-header">
-                    <span className="proposal-vote-label">Sí, estoy de acuerdo</span>
+                    <span className="proposal-vote-label">
+                      {userVote === 'YES' && '✓ '}Sí, estoy de acuerdo
+                    </span>
                     <span className="proposal-vote-count yes">{proposal.votes_yes}</span>
                   </div>
                   <div className="proposal-vote-bar-track">
@@ -129,12 +137,14 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
                   </div>
                 </button>
                 <button
-                  className={`proposal-vote-row${canVote ? '' : ' disabled'}`}
+                  className={`proposal-vote-row${canVote ? '' : ' disabled'}${userVote === 'NO' ? ' voted-no' : ''}`}
                   onClick={() => handleVote('NO')}
                   disabled={!canVote}
                 >
                   <div className="proposal-vote-row-header">
-                    <span className="proposal-vote-label">No, no estoy de acuerdo</span>
+                    <span className="proposal-vote-label">
+                      {userVote === 'NO' && '✓ '}No, no estoy de acuerdo
+                    </span>
                     <span className="proposal-vote-count no">{proposal.votes_no}</span>
                   </div>
                   <div className="proposal-vote-bar-track">

@@ -40,6 +40,10 @@ export default defineConfig({
       clientPort: 5173,
     },
     cors: true,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'unsafe-none',
+      'Cross-Origin-Embedder-Policy': 'unsafe-none',
+    },
   },
 });
 

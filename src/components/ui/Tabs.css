@@ -5,6 +5,7 @@
   background: #fff;
   margin-top: 0;
   margin-bottom: 0;
+  gap: 8px;
 }
 
 .tabs-container .tab-button {

@@ -6,6 +6,8 @@ import { InvestmentPosition } from '@/models/membership';
 import { PropuestaFormData } from '@/types/propuesta';
 import { MemberSearch } from '../components/propuestas/MemberSearch';
 import './CrearPropuestaPage.css';
+import { IonIcon } from '@ionic/react';
+import { arrowBackOutline } from 'ionicons/icons'; 
 
 const CrearPropuestaPage: React.FC = () => {
   const { id: projectId } = useParams<{ id: string }>();
@@ -90,9 +92,7 @@ const CrearPropuestaPage: React.FC = () => {
     <IonPage>
       <IonContent fullscreen className="crear-propuesta-page">
         <div className="crear-propuesta-header">
-          <button className="crear-propuesta-back" onClick={() => history.goBack()}>
-            ←
-          </button>
+         <button className="header-back-btn " onClick={() => history.goBack()}> <IonIcon icon={arrowBackOutline} /> </button>
           <h1 className="crear-propuesta-title">Propuesta</h1>
         </div>
 

@@ -20,6 +20,7 @@ export interface Propuesta {
   votes_yes: number;
   votes_no: number;
   total_members: number;
+  can_vote?: boolean;
   created_at: string;
   user_vote?: 'YES' | 'NO' | null;
 }
@@ -53,5 +54,7 @@ export interface PropuestaPreview {
   votes_yes: number;
   votes_no: number;
   total_members: number;
+  can_vote?: boolean;
+  user_vote?: 'YES' | 'NO' | null;
   status: PropuestaStatus;
 }

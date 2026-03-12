@@ -9,6 +9,7 @@ import {
   SettingsItem,
   SettingsToggle,
 } from '@/components/settings';
+import { PageTransition } from '@/components/ui';
 import './ConfiguracionPage.css';
 
 const ConfiguracionPage: React.FC = () => {
@@ -37,60 +38,58 @@ const ConfiguracionPage: React.FC = () => {
     setBiometricEnabled(enabled);
   };
 
-  const handleLogout = async () => {
-    try {
-      if (activeWallet) {
-        disconnect(activeWallet);
-      }
-      await logout();
-    } catch (error) {
-      console.error('Error logging out:', error);
+  const handleLogout = () => {
+    if (activeWallet) {
+      disconnect(activeWallet);
     }
+    logout();
   };
 
   return (
     <IonPage>
       <IonContent fullscreen className="configuracion-page-content">
-        <SettingsHeader
-          title="Configuración"
-          onBack={handleBack}
-          showQRButton
-          onQRClick={handleQRClick}
-        />
+        <PageTransition>
+          <SettingsHeader
+            title="Configuración"
+            onBack={handleBack}
+            showQRButton
+            onQRClick={handleQRClick}
+          />
 
-        <div className="configuracion-page-body">
-          <SettingsSection title="General">
-            <SettingsItem
-              label="Idioma"
-              value="English"
-            />
-            <SettingsItem label="Mi perfil" onClick={handleProfileClick} />
-            <SettingsItem label="Contactanos" />
-          </SettingsSection>
+          <div className="configuracion-page-body">
+            <SettingsSection title="General">
+              <SettingsItem
+                label="Idioma"
+                value="English"
+              />
+              <SettingsItem label="Mi perfil" onClick={handleProfileClick} />
+              <SettingsItem label="Contactanos" />
+            </SettingsSection>
 
-          <SettingsSection title="Seguridad">
-            <SettingsItem
-              label="Cambiar contraseña"
-            />
-            <SettingsItem
-              label="Políticas de privacidad"
-            />
-            <SettingsToggle
-              label="Datos biométricos"
-              description="Choose what data you share with us"
-              checked={biometricEnabled}
-              onChange={handleBiometricToggle}
-            />
-          </SettingsSection>
+            <SettingsSection title="Seguridad">
+              <SettingsItem
+                label="Cambiar contraseña"
+              />
+              <SettingsItem
+                label="Políticas de privacidad"
+              />
+              <SettingsToggle
+                label="Datos biométricos"
+                description="Choose what data you share with us"
+                checked={biometricEnabled}
+                onChange={handleBiometricToggle}
+              />
+            </SettingsSection>
 
-          <SettingsSection>
-            <SettingsItem
-              label="Cerrar sesión"
-              onClick={handleLogout}
-              showChevron={false}
-            />
-          </SettingsSection>
-        </div>
+            <SettingsSection>
+              <SettingsItem
+                label="Cerrar sesión"
+                onClick={handleLogout}
+                showChevron={false}
+              />
+            </SettingsSection>
+          </div>
+        </PageTransition>
       </IonContent>
     </IonPage>
   );

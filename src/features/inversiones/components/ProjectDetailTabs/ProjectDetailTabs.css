@@ -29,7 +29,7 @@
   display: none;
 }
 
-.tab-button {
+.project-detail-tabs .tab-button {
   flex-shrink: 0;
   background: transparent;
   border: none;
@@ -46,20 +46,21 @@
   line-height: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
-.tab-button.active {
+.project-detail-tabs .tab-button.active {
   background: #3b82f6;
   color: #ffffff !important;
   font-weight: 600;
 }
 
-.tab-button:hover:not(.active) {
+.project-detail-tabs .tab-button:hover:not(.active) {
   background: #f3f4f6;
   color: #374151;
 }
 
-.tab-button:active:not(.active) {
+.project-detail-tabs .tab-button:active:not(.active) {
   background: #e5e7eb;
 }
 
