@@ -29,6 +29,7 @@ class AuthService {
   private readonly refreshTokenKey = 'auth_refresh_token';
   private readonly userKey = 'auth_user';
   private listeners: Set<() => void> = new Set();
+  private refreshPromise: Promise<AuthResponse> | null = null;
 
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
@@ -155,27 +156,46 @@ class AuthService {
   }
 
   async refreshToken(): Promise<AuthResponse> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = this._doRefresh().finally(() => {
+      this.refreshPromise = null;
+    });
+
+    return this.refreshPromise;
+  }
+
+  private async _doRefresh(): Promise<AuthResponse> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-    const response = await apiService.post<AuthResponseDto>('/auth/refresh', {
-      refresh_token: refreshToken,
-    });
-    if (response.data) {
-      const user = UserMapper.fromAuthResponse(response.data);
-      this.setAuth(
-        response.data.access_token,
-        response.data.refresh_token,
-        user
-      );
-      return {
-        access_token: response.data.access_token,
-        refresh_token: response.data.refresh_token,
-        user,
-      };
+
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL || ''}/auth/refresh`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to refresh token');
     }
-    throw new Error('No data received from refresh');
+
+    const responseData = await response.json();
+    const dto: AuthResponseDto = responseData.data ?? responseData;
+    const user = UserMapper.fromAuthResponse(dto);
+    this.setAuth(dto.access_token, dto.refresh_token, user);
+
+    return {
+      access_token: dto.access_token,
+      refresh_token: dto.refresh_token,
+      user,
+    };
   }
 
   async logout(): Promise<void> {

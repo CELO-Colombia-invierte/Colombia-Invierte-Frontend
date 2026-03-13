@@ -30,6 +30,7 @@ const HomePage: React.FC = () => {
     return saved ? parseFloat(saved) : 0;
   });
 
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchPortfolio();
@@ -58,6 +59,7 @@ const HomePage: React.FC = () => {
     fetchUsdtBalance();
   }, [fetchUsdtBalance]);
 
+  // Refresca al volver al home — isFetchingRef evita duplicados con el useEffect de arriba
   useIonViewWillEnter(() => {
     if (authService.getToken()) {
       fetchPortfolio();
