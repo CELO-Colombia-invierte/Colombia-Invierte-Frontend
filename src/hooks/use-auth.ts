@@ -162,12 +162,8 @@ export const useAuth = () => {
   }, []);
 
   const logout = useCallback(() => {
-   
-    authService.clearAuth();
-    setAuthState({ user: null, token: null, refreshToken: null, isAuthenticated: false });
+    authService.logout().catch(() => {}); 
     history.replace('/auth');
-    
-    authService.logout().catch(() => {});
   }, [history]);
 
   const getMe = useCallback(async () => {

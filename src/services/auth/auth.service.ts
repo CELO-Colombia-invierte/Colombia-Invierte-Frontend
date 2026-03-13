@@ -179,13 +179,23 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
+    const token = this.getToken();
+    this.clearAuth(); // Limpia storage y notifica a todos los suscriptores
+
+    if (!token) return;
+
     apiService.setLoggingOut(true);
     try {
-      await apiService.post('/auth/logout');
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      this.clearAuth();
       apiService.setLoggingOut(false);
     }
   }

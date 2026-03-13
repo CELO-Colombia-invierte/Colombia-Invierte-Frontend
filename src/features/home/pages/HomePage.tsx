@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { IonContent, IonPage, useIonViewWillEnter } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { authService } from '@/services/auth';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { Balance, Investment } from '@/types';
 import {
@@ -58,7 +59,7 @@ const HomePage: React.FC = () => {
   }, [fetchUsdtBalance]);
 
   useIonViewWillEnter(() => {
-    if (isAuthenticated) {
+    if (authService.getToken()) {
       fetchPortfolio();
     }
     fetchUsdtBalance();

@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useRef } from 'react';
-import { ConnectEmbed } from 'thirdweb/react';
+import { ConnectEmbed, useDisconnect, useActiveWallet } from 'thirdweb/react';
 import { useActiveAccount } from 'thirdweb/react';
 import { inAppWallet, createWallet, getUserEmail } from 'thirdweb/wallets';
 import { defineChain } from 'thirdweb/chains';
@@ -29,6 +29,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   onClose,
 }) => {
   const account = useActiveAccount();
+  const activeWallet = useActiveWallet();
+  const { disconnect } = useDisconnect();
   const { verifyThirdweb, isLoading, isAuthenticated } = useAuth();
   const verifyingRef = useRef(false);
   const lastAddressRef = useRef<string | null>(null);
@@ -96,13 +98,16 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       } catch (error) {
         console.error('Error verifying account:', error);
         lastAddressRef.current = null;
+        if (activeWallet) {
+          disconnect(activeWallet);
+        }
       } finally {
         verifyingRef.current = false;
       }
     };
 
     handleVerify();
-  }, [account?.address, isAuthenticated]);
+  }, [account?.address, isAuthenticated, activeWallet, disconnect]);
 
   useEffect(() => {
     return () => {
