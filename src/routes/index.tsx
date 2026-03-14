@@ -47,6 +47,12 @@ const CuentaTransferPage = lazy(
 const WalletTransferPage = lazy(
   () => import('@/features/transferencia-wallet/pages/WalletTransferPage')
 );
+const RecibirAmigoPage = lazy(
+  () => import('@/features/recibir/pages/RecibirAmigoPage')
+);
+const RecibirWalletPage = lazy(
+  () => import('@/features/recibir/pages/RecibirWalletPage')
+);
 const CrearPropuestaPage = lazy(
   () => import('@/features/inversiones/pages/CrearPropuestaPage')
 );
@@ -176,6 +182,16 @@ export const routes: RouteConfig[] = [
   {
     path: '/transferir-wallet',
     component: WalletTransferPage,
+    exact: true,
+  },
+  {
+    path: '/recibir/amigo',
+    component: RecibirAmigoPage,
+    exact: true,
+  },
+  {
+    path: '/recibir/wallet',
+    component: RecibirWalletPage,
     exact: true,
   },
 ];

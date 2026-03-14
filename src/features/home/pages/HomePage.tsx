@@ -12,6 +12,7 @@ import {
   InvestmentList,
 } from '@/components/home';
 import { TransferModal } from '@/components/home/TransferModal';
+import { RecibirModal } from '@/components/home/RecibirModal';
 import { PageTransition } from '@/components/ui';
 import './HomePage.css';
 
@@ -24,6 +25,7 @@ const HomePage: React.FC = () => {
   const history = useHistory();
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isRecibirModalOpen, setIsRecibirModalOpen] = useState(false);
   const { account } = useBlockchain();
   const [usdtBalance, setUsdtBalance] = useState<number>(() => {
     const saved = localStorage.getItem('usdtBalance');
@@ -104,6 +106,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleReceive = () => {
+    setIsRecibirModalOpen(true);
   };
 
   const handleInvestmentClick = () => {
@@ -138,6 +141,10 @@ const HomePage: React.FC = () => {
       <TransferModal
         isOpen={isTransferModalOpen}
         onClose={() => setIsTransferModalOpen(false)}
+      />
+      <RecibirModal
+        isOpen={isRecibirModalOpen}
+        onClose={() => setIsRecibirModalOpen(false)}
       />
     </IonPage>
   );

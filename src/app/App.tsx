@@ -43,6 +43,8 @@ const MainContent: React.FC = () => {
     location.pathname === '/transferir-banco' ||
     location.pathname === '/transferir-cuenta' ||
     location.pathname === '/transferir-wallet' ||
+    location.pathname === '/recibir/amigo' ||
+    location.pathname === '/recibir/wallet' ||
     location.pathname === '/comprobante' ||
     location.pathname === '/notificaciones' ||
     location.pathname.startsWith('/crear-propuesta/') ||

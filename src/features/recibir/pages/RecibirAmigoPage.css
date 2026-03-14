@@ -1,0 +1,152 @@
+.ra-content {
+  --background: #ffffff;
+}
+
+/* ── Header ── */
+.ra-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.ra-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #1a1a1a;
+  font-size: 18px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ra-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  padding-right: 36px;
+}
+
+/* ── Body ── */
+.ra-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 24px 24px;
+  gap: 20px;
+}
+
+/* ── QR ── */
+.ra-qr-wrap {
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+}
+
+/* ── Scan label ── */
+.ra-scan-label {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+  text-align: center;
+}
+
+/* ── Divider ── */
+.ra-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px dashed #e0e0e0;
+}
+
+/* ── Info rows ── */
+.ra-info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ra-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ra-info-label {
+  font-size: 13.5px;
+  color: #888;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.ra-info-value {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1a1a1a;
+  word-break: break-all;
+}
+
+.ra-info-value--mono {
+  font-family: monospace;
+  font-size: 12.5px;
+}
+
+/* ── Footer ── */
+.ra-footer {
+  padding: 0 24px 40px;
+}
+
+/* ── Botón Compartir ── */
+.ra-share-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: #3B5BDB;
+  color: #ffffff;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s ease;
+}
+
+.ra-share-btn:active {
+  opacity: 0.85;
+}
+
+/* ── Toast ── */
+.ra-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 30, 30, 0.88);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 24px;
+  white-space: nowrap;
+  z-index: 9999;
+  animation: toastIn 0.2s ease;
+  pointer-events: none;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
