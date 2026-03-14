@@ -1,0 +1,289 @@
+.rw-content {
+  --background: #ffffff;
+}
+
+/* ── Header ── */
+.rw-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.rw-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #1a1a1a;
+  font-size: 18px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rw-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  padding-right: 36px;
+}
+
+/* ── Body ── */
+.rw-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px 24px;
+  gap: 20px;
+}
+
+/* ── QR ── */
+.rw-qr-wrap {
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+}
+
+/* ── Address + copy ── */
+.rw-address-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #3B5BDB;
+  -webkit-tap-highlight-color: transparent;
+  padding: 4px 0;
+}
+
+.rw-address-text {
+  font-size: 13.5px;
+  font-family: monospace;
+  color: #3B5BDB;
+  word-break: break-all;
+}
+
+.rw-copied {
+  font-size: 12px;
+  color: #2d8a4e;
+  font-weight: 500;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+/* ── Secciones (red + monedas) ── */
+.rw-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rw-label {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 8px 0;
+}
+
+/* ── Dropdown red ── */
+.rw-dropdown-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #1a1a1a;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rw-dropdown-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.rw-dropdown-list {
+  margin-top: 4px;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+}
+
+.rw-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rw-dropdown-item:last-child { border-bottom: none; }
+.rw-dropdown-item:not(.rw-dropdown-item--soon):active { background: #f5f5f5; }
+
+.rw-dropdown-item span:first-child { font-size: 14px; color: #1a1a1a; }
+.rw-dropdown-item--soon span:first-child { color: #bbb; }
+
+.rw-soon-inline {
+  font-size: 11px;
+  color: #999;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+/* ── Fila moneda colapsada ── */
+.rw-coin-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rw-coin-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rw-coin-initials {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.rw-coin-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.rw-coin-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.rw-coin-sub  { font-size: 12px; color: #999; }
+
+.rw-coin-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 6px;
+}
+
+.rw-coin-balance { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.rw-coin-usd     { font-size: 12px; color: #999; }
+
+/* ── Dropdown monedas ── */
+.rw-coin-dropdown {
+  margin-top: 4px;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+}
+
+.rw-coin-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rw-coin-option:last-child { border-bottom: none; }
+.rw-coin-option:not(.rw-coin-option--soon):active { background: #f5f5f5; }
+.rw-coin-option--soon { cursor: default; }
+
+.rw-coin-opt-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rw-coin-opt-info { display: flex; flex-direction: column; flex: 1; }
+.rw-coin-opt-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.rw-coin-opt-name--soon { color: #bbb; }
+.rw-coin-opt-sub  { font-size: 12px; color: #999; }
+.rw-coin-opt-values { display: flex; flex-direction: column; align-items: flex-end; }
+
+.rw-soon-badge {
+  font-size: 11px;
+  color: #999;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Footer ── */
+.rw-footer {
+  padding: 0 20px 40px;
+  width: 100%;
+}
+
+.rw-share-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: #3B5BDB;
+  color: #ffffff;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.65;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rw-soon-badge-btn {
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
