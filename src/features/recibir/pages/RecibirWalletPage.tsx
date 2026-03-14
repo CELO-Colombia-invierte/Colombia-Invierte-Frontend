@@ -142,7 +142,7 @@ const RecibirWalletPage: React.FC = () => {
               </div>
               <div className="rw-coin-values">
                 <span className="rw-coin-balance">{selectedCoin.balance}</span>
-                <span className="rw-coin-usd">${selectedCoin.usdValue.toFixed(2)}</span>
+                <span className="rw-coin-usd">${selectedCoin.usdValue?.toFixed(2) ?? '0.00'}</span>
               </div>
               <IconChevron open={coinOpen} />
             </button>
