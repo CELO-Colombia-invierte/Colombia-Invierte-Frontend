@@ -17,24 +17,17 @@ const NETWORKS = [
 ];
 
 const COINS = [
-  { id: 'celo', name: 'Celo', symbol: 'cCOP', balance: 2000, usdValue: 147.40, color: '#FCCC00', initials: 'C' },
-  { id: 'bitcoin',  name: 'Bitcoin',      symbol: 'BTC',  color: '#F7931A', initials: 'B', soon: true },
-  { id: 'eth',      name: 'Ethereum',     symbol: 'ETH',  color: '#627EEA', initials: 'E', soon: true },
-  { id: 'tether',   name: 'Tether',       symbol: 'USDT', color: '#26A17B', initials: 'T', soon: true },
-  { id: 'bnb',      name: 'Binance Coin', symbol: 'BNB',  color: '#F3BA2F', initials: 'B', soon: true },
-  { id: 'usdc',     name: 'USD Coin',     symbol: 'USDC', color: '#2775CA', initials: 'U', soon: true },
-  { id: 'busd',     name: 'Binance USD',  symbol: 'BUSD', color: '#F0B90B', initials: 'B', soon: true },
+  { id: 'celo',    name: 'Celo',         symbol: 'cCOP', balance: 2000, usdValue: 147.40, color: '#FCCC00', initials: 'C' },
+  { id: 'bitcoin', name: 'Bitcoin',      symbol: 'BTC',  color: '#F7931A', initials: 'B', soon: true },
+  { id: 'eth',     name: 'Ethereum',     symbol: 'ETH',  color: '#627EEA', initials: 'E', soon: true },
+  { id: 'tether',  name: 'Tether',       symbol: 'USDT', color: '#26A17B', initials: 'T', soon: true },
+  { id: 'bnb',     name: 'Binance Coin', symbol: 'BNB',  color: '#F3BA2F', initials: 'B', soon: true },
+  { id: 'usdc',    name: 'USD Coin',     symbol: 'USDC', color: '#2775CA', initials: 'U', soon: true },
+  { id: 'busd',    name: 'Binance USD',  symbol: 'BUSD', color: '#F0B90B', initials: 'B', soon: true },
 ];
 
 const truncateAddress = (addr: string): string =>
   addr.length > 20 ? `${addr.slice(0, 10)}...${addr.slice(-8)}` : addr;
-
-const IconCopy = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-  </svg>
-);
 
 const IconChevron: React.FC<{ open: boolean }> = ({ open }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -60,7 +53,7 @@ const RecibirWalletPage: React.FC = () => {
   const { account } = useBlockchain();
 
   const address = account?.address || MOCK_ADDRESS;
-  const [copied, setCopied] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [networkOpen, setNetworkOpen] = useState(false);
   const [coinOpen, setCoinOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(NETWORKS[0]);
@@ -72,11 +65,9 @@ const RecibirWalletPage: React.FC = () => {
     return () => { if (tabBar) tabBar.style.display = ''; };
   }, []);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(address).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+  const handleShare = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
   };
 
   const handleNetworkSelect = (net: typeof NETWORKS[0]) => {
@@ -103,12 +94,10 @@ const RecibirWalletPage: React.FC = () => {
             <QRCode value={address} size={180} bgColor="#ffffff" fgColor="#000000" level="M" />
           </div>
 
-          {/* Address + copiar */}
-          <button className="rw-address-row" onClick={handleCopy}>
-            <IconCopy />
+          {/* Address — solo display, sin copiar */}
+          <div className="rw-address-display">
             <span className="rw-address-text">{truncateAddress(address)}</span>
-            {copied && <span className="rw-copied">¡Copiado!</span>}
-          </button>
+          </div>
 
           {/* Red */}
           <div className="rw-section">
@@ -190,14 +179,16 @@ const RecibirWalletPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Botón Compartir */}
         <div className="rw-footer">
-          <button className="rw-share-btn" disabled>
+          <button className="rw-share-btn" onClick={handleShare}>
             <IconShare />
             <span>Compartir</span>
-            <span className="rw-soon-badge-btn">Próximamente</span>
           </button>
         </div>
+
+        {showToast && (
+          <div className="rw-toast">Próximamente disponible</div>
+        )}
 
       </IonContent>
     </IonPage>

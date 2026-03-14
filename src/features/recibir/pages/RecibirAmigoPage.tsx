@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
@@ -26,6 +26,7 @@ const RecibirAmigoPage: React.FC = () => {
   const history = useHistory();
   const { user } = useAuth();
   const { account } = useBlockchain();
+  const [showToast, setShowToast] = useState(false);
 
   const displayName = user?.getDisplayName() || 'Usuario';
   const alias = user?.username ? `@${user.username}` : '—';
@@ -37,10 +38,13 @@ const RecibirAmigoPage: React.FC = () => {
   useEffect(() => {
     const tabBar = document.querySelector('.bottom-navbar') as HTMLElement | null;
     if (tabBar) tabBar.style.display = 'none';
-    return () => {
-      if (tabBar) tabBar.style.display = '';
-    };
+    return () => { if (tabBar) tabBar.style.display = ''; };
   }, []);
+
+  const handleShare = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
+  };
 
   return (
     <IonPage>
@@ -53,22 +57,14 @@ const RecibirAmigoPage: React.FC = () => {
         </div>
 
         <div className="ra-body">
-          {/* QR */}
           <div className="ra-qr-wrap">
-            <QRCode
-              value={qrValue}
-              size={200}
-              bgColor="#ffffff"
-              fgColor="#000000"
-              level="M"
-            />
+            <QRCode value={qrValue} size={200} bgColor="#ffffff" fgColor="#000000" level="M" />
           </div>
 
           <p className="ra-scan-label">Escanea el código para pagar a:</p>
 
           <div className="ra-divider" />
 
-          {/* Info rows */}
           <div className="ra-info">
             <div className="ra-info-row">
               <span className="ra-info-label">Nombre:</span>
@@ -80,9 +76,7 @@ const RecibirAmigoPage: React.FC = () => {
             </div>
             <div className="ra-info-row">
               <span className="ra-info-label">Address:</span>
-              <span className="ra-info-value ra-info-value--mono">
-                {truncateAddress(address)}
-              </span>
+              <span className="ra-info-value ra-info-value--mono">{truncateAddress(address)}</span>
             </div>
             <div className="ra-info-row">
               <span className="ra-info-label">Red preferencial:</span>
@@ -91,14 +85,16 @@ const RecibirAmigoPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Botón Compartir — Próximamente */}
         <div className="ra-footer">
-          <button className="ra-share-btn" disabled>
+          <button className="ra-share-btn" onClick={handleShare}>
             <IconShare />
             <span>Compartir</span>
-            <span className="ra-soon-badge">Próximamente</span>
           </button>
         </div>
+
+        {showToast && (
+          <div className="ra-toast">Próximamente disponible</div>
+        )}
       </IonContent>
     </IonPage>
   );
