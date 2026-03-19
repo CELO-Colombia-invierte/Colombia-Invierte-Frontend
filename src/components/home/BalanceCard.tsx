@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { Balance } from '@/types';
+import { thirdwebClient } from '@/app/App';
+import { CHAIN, BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import './BalanceCard.css';
 
 interface BalanceCardProps {
@@ -10,6 +13,7 @@ type BalanceTab = 'total' | 'utilizable';
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
   const [activeTab, setActiveTab] = useState<BalanceTab>('total');
+  const activeAccount = useActiveAccount();
 
   const formatAmount = (amount: number) => {
     return amount.toLocaleString('es-CO', {
@@ -63,14 +67,25 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
           ) : (
             <span className="balance-card-info-icon">ⓘ</span>
           )}
-          {balance.address && (
-            <button className="balance-card-wallet-btn">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <rect x="2" y="5" width="20" height="14" rx="2" />
-                <path d="M16 12h2" strokeLinecap="round" />
-              </svg>
-              Mi wallet
-            </button>
+          {activeAccount && (
+            <ConnectButton
+              client={thirdwebClient}
+              chain={CHAIN}
+              detailsButton={{
+                render: () => (
+                  <button className="balance-card-wallet-btn">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <path d="M16 12h2" strokeLinecap="round" />
+                    </svg>
+                    Mi wallet
+                  </button>
+                ),
+                displayBalanceToken: {
+                  [BLOCKCHAIN_CONFIG.CHAIN_ID]: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+                },
+              }}
+            />
           )}
         </div>
 
