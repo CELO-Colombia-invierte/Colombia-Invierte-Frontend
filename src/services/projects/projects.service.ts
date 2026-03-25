@@ -31,7 +31,10 @@ class ProjectsService {
     return response.data;
   }
 
-  // ============= MÉTODOS PARA IMÁGENES =============
+  async delete(id: string): Promise<void> {
+    await apiService.delete(`/projects/${id}`);
+  }
+
 
   async uploadImage(
     projectId: string,
@@ -78,7 +81,6 @@ class ProjectsService {
     await apiService.delete(`/projects/${projectId}/images/${imageId}`);
   }
 
-  // ============= MÉTODOS PARA DOCUMENTOS =============
 
   async uploadDocument(
     projectId: string,

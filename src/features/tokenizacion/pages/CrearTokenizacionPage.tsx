@@ -156,12 +156,35 @@ const CrearTokenizacionPage: React.FC = () => {
   };
 
   const handleCreateTokenizacion = async () => {
+    let currentProjectId: string | null = null;
     try {
       const valorActivo = parseFloat(formData.valorActivo);
       const rendimiento = parseFloat(formData.rendimiento);
       const precioPorToken = parseFloat(formData.precioPorToken);
       const totalTokens = parseInt(formData.totalTokens);
 
+      await presentLoading({ message: 'Preparando billetera y verificando gas...' });
+      const MIN_GAS = BigInt('50000000000000000'); // 0.05 CELO
+      let celoBalance = await blockchainService.getNativeBalance(account!.address);
+      if (celoBalance < MIN_GAS) {
+        try {
+          await apiService.post('/blockchain/fund-gas', { address: account!.address });
+          celoBalance = await blockchainService.getNativeBalance(account!.address);
+        } catch {
+        }
+      }
+
+      if (celoBalance < MIN_GAS) {
+        await dismissLoading();
+        await present({
+          message: 'Sin CELO para gas. Obtén fondos en faucet.celo.org/alfajores',
+          duration: 6000,
+          color: 'danger',
+        });
+        return;
+      }
+
+      await dismissLoading();
       await presentLoading({ message: 'Creando tokenizacion...' });
 
       const ventaAnticipada = formData.ventaAnticipada === 'true';
@@ -229,6 +252,7 @@ const CrearTokenizacionPage: React.FC = () => {
       const project = await projectsService.create(tokenizacionData);
 
       const projectId = project.id;
+      currentProjectId = projectId;
 
       if (selectedImage) {
         await dismissLoading();
@@ -261,18 +285,6 @@ const CrearTokenizacionPage: React.FC = () => {
         }
       }
 
-      // Fondear gas si el usuario tiene menos de 0.05 CELO
-      const celoBalance = await blockchainService.getNativeBalance(account!.address);
-      const MIN_GAS = BigInt('50000000000000000'); // 0.05 CELO
-      if (celoBalance < MIN_GAS) {
-        await dismissLoading();
-        await presentLoading({ message: 'Preparando wallet para gas...' });
-        try {
-          await apiService.post('/blockchain/fund-gas', { address: account!.address });
-        } catch {
-          // no bloquear si falla el faucet, intentar el deploy de todas formas
-        }
-      }
 
       await dismissLoading();
       await presentLoading({ message: 'Desplegando contrato en blockchain...' });
@@ -288,7 +300,7 @@ const CrearTokenizacionPage: React.FC = () => {
         {
           settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
           fundingTarget: copToUsdc(valorActivo),
-          minimumCap: 0n,
+          minimumCap: copToUsdc(valorActivo),
           tokenPrice: copToUsdc(precioPorToken),
           saleDuration: BigInt(30 * 24 * 60 * 60),
           name: formData.nombreToken || formData.nombreProyecto,
@@ -312,6 +324,15 @@ const CrearTokenizacionPage: React.FC = () => {
       });
     } catch (error: any) {
       await dismissLoading();
+
+      if (currentProjectId) {
+        try {
+          await projectsService.delete(currentProjectId);
+        } catch (e) {
+          console.error("Error al hacer el rollback del proyecto fantasma", e);
+        }
+      }
+
       const msg: string = error?.message ?? '';
       const isGasError =
         msg.includes('insufficient funds') ||
@@ -365,7 +386,6 @@ const CrearTokenizacionPage: React.FC = () => {
     }
 
     try {
-      // Determinar si es email o username
       const isEmail = emailOrUsername.includes('@');
       const inviteData = isEmail
         ? { invitee_email: emailOrUsername }

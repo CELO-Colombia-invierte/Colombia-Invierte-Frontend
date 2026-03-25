@@ -47,11 +47,7 @@ interface FormData {
   invitarAmigos: string;
 }
 
-// Interface no usada, manejada en Step3Content
-// interface Document {
-//   id: string;
-//   motivo: string;
-// }
+
 
 const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
@@ -65,7 +61,6 @@ const CrearNatilleraPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Archivos seleccionados (en memoria, no subidos)
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<
     {
@@ -126,6 +121,7 @@ const CrearNatilleraPage: React.FC = () => {
   };
 
   const handleCreateNatillera = async () => {
+    let currentProjectId: string | null = null;
     try {
       const documentsWithFiles = selectedDocuments.filter((d) => d.file);
 
@@ -160,6 +156,28 @@ const CrearNatilleraPage: React.FC = () => {
         return;
       }
 
+      await presentLoading({ message: 'Preparando billetera y verificando gas...' });
+      const MIN_GAS = BigInt('50000000000000000');
+      let celoBalance = await blockchainService.getNativeBalance(account!.address);
+      if (celoBalance < MIN_GAS) {
+        try {
+          await apiService.post('/blockchain/fund-gas', { address: account!.address });
+          celoBalance = await blockchainService.getNativeBalance(account!.address);
+        } catch {
+        }
+      }
+
+      if (celoBalance < MIN_GAS) {
+        await dismissLoading();
+        await present({
+          message: 'Sin CELO para gas. Obtén fondos en faucet.celo.org/alfajores',
+          duration: 6000,
+          color: 'danger',
+        });
+        return;
+      }
+
+      await dismissLoading();
       await presentLoading({ message: 'Creando natillera...' });
 
       const paymentDate = new Date(formData.fechaPago);
@@ -188,6 +206,7 @@ const CrearNatilleraPage: React.FC = () => {
 
       const project = await projectsService.create(natilleraData);
       const projectId = project.id;
+      currentProjectId = projectId;
 
       if (selectedImage) {
         await dismissLoading();
@@ -218,18 +237,7 @@ const CrearNatilleraPage: React.FC = () => {
         }
       }
 
-      // Fondear gas si el usuario tiene menos de 0.05 CELO
-      const celoBalance = await blockchainService.getNativeBalance(account!.address);
-      const MIN_GAS = BigInt('50000000000000000'); // 0.05 CELO
-      if (celoBalance < MIN_GAS) {
-        await dismissLoading();
-        await presentLoading({ message: 'Preparando wallet para gas...' });
-        try {
-          await apiService.post('/blockchain/fund-gas', { address: account!.address });
-        } catch {
-          // no bloquear si falla el faucet, intentar el deploy de todas formas
-        }
-      }
+      // Fondear gas si el usuario tiene menos de 0.05 CELO - movido arriba!
 
       await dismissLoading();
       await presentLoading({ message: 'Desplegando contrato en blockchain...' });
@@ -266,6 +274,15 @@ const CrearNatilleraPage: React.FC = () => {
       });
     } catch (error: any) {
       await dismissLoading();
+
+      if (currentProjectId) {
+        try {
+          await projectsService.delete(currentProjectId);
+        } catch (e) {
+          console.error("Error al hacer el rollback del proyecto fantasma", e);
+        }
+      }
+
       const msg: string = error?.message ?? '';
       const isGasError =
         msg.includes('insufficient funds') ||
@@ -284,18 +301,6 @@ const CrearNatilleraPage: React.FC = () => {
   const handleFieldChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
-
-  // Funciones manejadas en Step3Content
-  // const handleAddDocument = () => {
-  //   const newDoc = { id: Date.now().toString(), motivo: '' };
-  //   setDocuments([...documents, newDoc]);
-  // };
-
-  // const handleUpdateDocument = (id: string, motivo: string) => {
-  //   setDocuments(
-  //     documents.map((doc) => (doc.id === id ? { ...doc, motivo } : doc))
-  //   );
-  // };
 
   const handleCopyLink = () => {
     if (createdNatillera?.share_slug) {
@@ -317,7 +322,6 @@ const CrearNatilleraPage: React.FC = () => {
     }
 
     try {
-      // Determinar si es email o username
       const isEmail = emailOrUsername.includes('@');
       const inviteData = isEmail
         ? { invitee_email: emailOrUsername }
