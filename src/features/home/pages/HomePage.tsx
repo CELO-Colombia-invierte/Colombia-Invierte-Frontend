@@ -90,6 +90,7 @@ const HomePage: React.FC = () => {
         changePercentage: 0,
         color: colors[index % colors.length],
         icon: icons[index % icons.length],
+        imageUrl: pos.projectCoverUrl,
       };
     }) || [];
 

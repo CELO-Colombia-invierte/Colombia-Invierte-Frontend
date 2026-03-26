@@ -81,6 +81,7 @@ export interface Investment {
   changePercentage: number;
   icon?: string;
   color?: string;
+  imageUrl?: string | null;
 }
 
 export interface Balance {
