@@ -1,5 +1,6 @@
 import React from 'react';
 import { Investment } from '@/types';
+import { ProjectAvatar } from '../ui/ProjectAvatar';
 import './InvestmentCard.css';
 
 interface InvestmentCardProps {
@@ -22,12 +23,7 @@ export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onCl
   return (
     <div className="investment-card" onClick={onClick}>
       <div className="investment-card-left">
-        <div
-          className="investment-card-icon"
-          style={{ backgroundColor: investment.color || '#3b82f6' }}
-        >
-          {investment.icon && <span>{investment.icon}</span>}
-        </div>
+        <ProjectAvatar id={investment.id} name={investment.name} size={52} />
         <div className="investment-card-info">
           <h3 className="investment-card-name">{investment.name}</h3>
           <p className="investment-card-currency">{safeAmount.toFixed(4)} {investment.currency}</p>
