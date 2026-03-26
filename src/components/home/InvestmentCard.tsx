@@ -23,7 +23,7 @@ export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onCl
   return (
     <div className="investment-card" onClick={onClick}>
       <div className="investment-card-left">
-        <ProjectAvatar id={investment.id} name={investment.name} size={52} />
+        <ProjectAvatar id={investment.id} name={investment.name} size={52} imageUrl={investment.imageUrl} />
         <div className="investment-card-info">
           <h3 className="investment-card-name">{investment.name}</h3>
           <p className="investment-card-currency">{safeAmount.toFixed(4)} {investment.currency}</p>

@@ -5,6 +5,7 @@ interface ProjectAvatarProps {
   id: string;
   name: string;
   size?: number;
+  imageUrl?: string | null;
 }
 
 const GRADIENTS = [
@@ -51,7 +52,18 @@ const getColorIndex = (id: string): number => {
   return hash % GRADIENTS.length;
 };
 
-export const ProjectAvatar: React.FC<ProjectAvatarProps> = ({ id, name, size = 48 }) => {
+export const ProjectAvatar: React.FC<ProjectAvatarProps> = ({ id, name, size = 48, imageUrl }) => {
+  if (imageUrl) {
+    return (
+      <div
+        className="project-avatar project-avatar--image"
+        style={{ width: size, height: size }}
+      >
+        <img src={imageUrl} alt={name} className="project-avatar-img" />
+      </div>
+    );
+  }
+
   const gradient = GRADIENTS[getColorIndex(id)];
 
   return (
