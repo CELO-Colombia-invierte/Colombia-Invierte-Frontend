@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { IonIcon } from '@ionic/react';
-import {
-  informationCircleOutline,
-  calendarOutline,
-  timeOutline,
-} from 'ionicons/icons';
+import { calendarOutline, timeOutline } from 'ionicons/icons';
+import InfoTooltip from '../../../components/ui/InfoTooltip';
 import './StepStyles.css';
 
 interface Step2FinancialInfoProps {
@@ -52,7 +49,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Valor de activo
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Valor total del activo real que se está tokenizando (en COP o USD). Es el precio de mercado del activo completo." />
         </label>
         <div className="currency-input-group">
           <div className="currency-toggle">
@@ -90,7 +87,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Rendimiento anual esperado
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Porcentaje de rentabilidad anual proyectada. Se recomienda un valor realista entre el 5% y el 25% anual, acorde al tipo de activo." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">%</span>
@@ -107,7 +104,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Precio por token
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Costo unitario de cada token. Usualmente resulta de dividir el valor total del activo entre el total de tokens disponibles." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">$</span>
@@ -124,7 +121,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Total de tokens disponibles
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Cantidad total de tokens en que se divide el activo. Determina la fracción de propiedad que representa cada token." />
         </label>
         <div className="input-with-prefix input-with-tokens">
           <span className="input-prefix">Tokens</span>
@@ -141,7 +138,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Símbolo del token
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Identificador corto y único del token (2 a 5 caracteres). Ejemplo: CSK para CasaToken, FIK para FincaToken." />
         </label>
         <input
           type="text"
@@ -155,7 +152,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Nombre del token
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Nombre completo y descriptivo del token. Aparecerá en la blockchain y en todos los registros de la plataforma." />
         </label>
         <input
           type="text"
@@ -167,12 +164,12 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       </div>
 
       <div className="form-group">
-        <label
+        <div
           className="form-label"
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           Venta anticipada
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Período exclusivo previo a la venta pública donde inversores seleccionados pueden adquirir tokens a precio especial." />
           <label className="toggle-switch" style={{ marginLeft: 'auto' }}>
             <input
               type="checkbox"
@@ -181,7 +178,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             />
             <span className="toggle-slider-round"></span>
           </label>
-        </label>
+        </div>
         <div className="input-with-icon">
           <IonIcon icon={calendarOutline} className="input-icon" />
           <input
@@ -207,7 +204,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Venta pública
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Fecha y hora de inicio de la venta abierta al público general. Desde este momento cualquier usuario puede comprar tokens." />
         </label>
         <div className="input-with-icon">
           <IonIcon icon={calendarOutline} className="input-icon" />
