@@ -1,6 +1,7 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
-import { informationCircleOutline, happyOutline } from 'ionicons/icons';
+import { happyOutline } from 'ionicons/icons';
+import InfoTooltip from '../../../components/ui/InfoTooltip';
 import './StepStyles.css';
 
 interface Step1BasicInfoProps {
@@ -23,7 +24,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Tipo de proyecto
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Define si este proyecto es una Natillera (ahorro colaborativo por cuotas) o una Tokenización (inversión en activos tokenizados en blockchain)." />
         </label>
         <div className="select-wrapper">
           <select
@@ -40,7 +41,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Privacidad del proyecto
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Elige si el proyecto es Privado (solo acceden personas invitadas) o Público (cualquier usuario puede verlo y unirse)." />
         </label>
         <div className="select-wrapper">
           <select
@@ -57,7 +58,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Nombre de proyecto
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="El nombre público que identificará tu proyecto. Elige uno descriptivo y fácil de recordar para los participantes." />
         </label>
         <div className="input-with-emoji">
           <button className="emoji-button" type="button">
@@ -76,7 +77,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Descripción de proyecto
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Explica en detalle el propósito del proyecto, cómo funciona y qué beneficios ofrece a los participantes." />
         </label>
         <div className="rich-text-editor">
           <div className="editor-toolbar">
@@ -114,7 +115,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Aspectos destacados
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
+          <InfoTooltip text="Enumera las características más atractivas o ventajas clave del proyecto para motivar la participación." />
         </label>
         <div className="rich-text-editor">
           <div className="editor-toolbar">
