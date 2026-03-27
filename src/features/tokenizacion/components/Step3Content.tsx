@@ -108,10 +108,10 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
             backgroundColor: selectedImage ? '#10b981' : undefined,
           }}
         >
-          <IonIcon
-            icon={selectedImage ? checkmarkCircle : cloudUploadOutline}
-            className="upload-icon"
-          />
+          {selectedImage
+            ? <IonIcon key="img-check" icon={checkmarkCircle} className="upload-icon" />
+            : <IonIcon key="img-upload" icon={cloudUploadOutline} className="upload-icon" />
+          }
           {selectedImage ? 'Imagen seleccionada' : 'Subir archivo'}
         </button>
 
@@ -211,10 +211,10 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
                 backgroundColor: doc.file ? '#10b981' : undefined,
               }}
             >
-              <IonIcon
-                icon={doc.file ? checkmarkCircle : cloudUploadOutline}
-                className="upload-icon"
-              />
+              {doc.file
+                ? <IonIcon key="doc-check" icon={checkmarkCircle} className="upload-icon" />
+                : <IonIcon key="doc-upload" icon={cloudUploadOutline} className="upload-icon" />
+              }
               {doc.file ? 'Documento seleccionado' : 'Subir archivo'}
             </button>
 
