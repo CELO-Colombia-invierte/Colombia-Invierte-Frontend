@@ -157,25 +157,22 @@ const CrearNatilleraPage: React.FC = () => {
       }
 
       await presentLoading({ message: 'Preparando billetera y verificando gas...' });
-      const MIN_GAS = BigInt('50000000000000000');
-      let celoBalance = await blockchainService.getNativeBalance(account!.address);
-      if (celoBalance < MIN_GAS) {
-        try {
-          await apiService.post('/blockchain/fund-gas', { address: account!.address });
-          celoBalance = await blockchainService.getNativeBalance(account!.address);
-        } catch (fundErr) {
-          console.error('[CrearNatillera] fund-gas falló:', fundErr);
+      try {
+        await apiService.post('/blockchain/fund-gas', { address: account!.address });
+      } catch (fundErr) {
+        console.error('[CrearNatillera] fund-gas falló:', fundErr);
+        // Si falla el fondeo, verificamos si ya tiene gas suficiente de antes
+        const MIN_GAS = BigInt('50000000000000000');
+        const celoBalance = await blockchainService.getNativeBalance(account!.address);
+        if (celoBalance < MIN_GAS) {
+          await dismissLoading();
+          await present({
+            message: 'Sin saldo para gas. Contacta al soporte.',
+            duration: 6000,
+            color: 'danger',
+          });
+          return;
         }
-      }
-
-      if (celoBalance < MIN_GAS) {
-        await dismissLoading();
-        await present({
-          message: 'Sin saldo para gas. Contacta al soporte.',
-          duration: 6000,
-          color: 'danger',
-        });
-        return;
       }
 
       await dismissLoading();
@@ -291,7 +288,7 @@ const CrearNatilleraPage: React.FC = () => {
         msg.includes('gas');
       await present({
         message: isGasError
-          ? 'Sin CELO para gas. Obtén fondos en faucet.celo.org/alfajores'
+          ? 'Sin saldo para gas. Contacta al soporte.'
           : msg || 'Error al crear la natillera',
         duration: 6000,
         color: 'danger',
