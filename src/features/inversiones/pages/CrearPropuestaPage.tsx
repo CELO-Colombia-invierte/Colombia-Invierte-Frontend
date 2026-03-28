@@ -43,9 +43,15 @@ const CrearPropuestaPage: React.FC = () => {
     setResponsibleUsername(member.user?.username || '');  
   };
 
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      present({ message: 'Formato no soportado. Usa JPG, PNG, WebP o GIF.', duration: 3000, color: 'warning' });
+      return;
+    }
     setImageFile(file);
     const reader = new FileReader();
     reader.onload = (ev) => setImagePreview(ev.target?.result as string);
@@ -167,7 +173,7 @@ const CrearPropuestaPage: React.FC = () => {
               )}
               <label className="form-image-btn">
                 Seleccionar
-                <input type="file" accept="image/*" hidden onChange={handleImageChange} />
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleImageChange} />
               </label>
             </div>
           </div>
