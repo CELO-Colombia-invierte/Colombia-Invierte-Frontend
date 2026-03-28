@@ -161,7 +161,6 @@ const CrearNatilleraPage: React.FC = () => {
         await apiService.post('/blockchain/fund-gas', { address: account!.address });
       } catch (fundErr) {
         console.error('[CrearNatillera] fund-gas falló:', fundErr);
-        // Si falla el fondeo, verificamos si ya tiene gas suficiente de antes
         const MIN_GAS = BigInt('50000000000000000');
         const celoBalance = await blockchainService.getNativeBalance(account!.address);
         if (celoBalance < MIN_GAS) {
