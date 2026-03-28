@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useActiveWallet, useDisconnect } from 'thirdweb/react';
@@ -7,7 +7,6 @@ import {
   SettingsHeader,
   SettingsSection,
   SettingsItem,
-  SettingsToggle,
 } from '@/components/settings';
 import { PageTransition } from '@/components/ui';
 import './ConfiguracionPage.css';
@@ -17,7 +16,6 @@ const ConfiguracionPage: React.FC = () => {
   const { logout, user } = useAuth();
   const activeWallet = useActiveWallet();
   const { disconnect } = useDisconnect();
-  const [biometricEnabled, setBiometricEnabled] = useState(true);
 
   const handleBack = () => {
     history.goBack();
@@ -32,10 +30,6 @@ const ConfiguracionPage: React.FC = () => {
     } else {
       history.push('/perfil');
     }
-  };
-
-  const handleBiometricToggle = (enabled: boolean) => {
-    setBiometricEnabled(enabled);
   };
 
   const handleLogout = () => {
@@ -68,16 +62,7 @@ const ConfiguracionPage: React.FC = () => {
 
             <SettingsSection title="Seguridad">
               <SettingsItem
-                label="Cambiar contraseña"
-              />
-              <SettingsItem
                 label="Políticas de privacidad"
-              />
-              <SettingsToggle
-                label="Datos biométricos"
-                description="Choose what data you share with us"
-                checked={biometricEnabled}
-                onChange={handleBiometricToggle}
               />
             </SettingsSection>
 

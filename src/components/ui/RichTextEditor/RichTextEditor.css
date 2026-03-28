@@ -1,0 +1,27 @@
+.rich-text-editor .editor-content .tiptap {
+  padding: 12px;
+  outline: none;
+  font-size: 14px;
+  color: #1a202c;
+  line-height: 1.6;
+}
+
+.rich-text-editor .editor-content .tiptap p {
+  margin: 0 0 0.5em 0;
+}
+
+.rich-text-editor .editor-content .tiptap ul,
+.rich-text-editor .editor-content .tiptap ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.rich-text-editor .editor-content .tiptap a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.rich-text-editor .toolbar-btn.active {
+  background: #e2e8f0;
+  color: #3b82f6;
+}

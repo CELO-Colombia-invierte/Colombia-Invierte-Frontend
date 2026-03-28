@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { Redirect, Route, useHistory, useLocation } from 'react-router-dom';
 import {
   IonApp,
@@ -7,8 +7,9 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ThirdwebProvider } from 'thirdweb/react';
+import { ThirdwebProvider, AutoConnect } from 'thirdweb/react';
 import { createThirdwebClient } from 'thirdweb';
+import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { walletOutline, businessOutline } from 'ionicons/icons';
 import { routes } from '@/routes';
 import { pageTransitionAnimation } from '@/utils/page-transition';
@@ -20,6 +21,9 @@ import { BottomSlideModal } from '@/components/ui/BottomSlideModal';
 import { useSplash } from '@/hooks/use-splash';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { useCleanupThirdweb } from '@/hooks/use-cleanup-thirdweb';
+import { useIdleTimeout } from '@/hooks/use-idle-timeout';
+import { useActiveWallet } from 'thirdweb/react';
+import { useAuth } from '@/hooks/use-auth';
 
 setupIonicReact();
 
@@ -29,6 +33,20 @@ export const thirdwebClient = createThirdwebClient({
 
 const MainContent: React.FC = () => {
   useCleanupThirdweb();
+  useIdleTimeout();
+  const activeWallet = useActiveWallet();
+  const { logout: authLogout, isAuthenticated } = useAuth();
+  const walletWasConnected = useRef(false);
+
+  useEffect(() => {
+    if (activeWallet) {
+      walletWasConnected.current = true;
+    } else if (walletWasConnected.current && isAuthenticated) {
+      walletWasConnected.current = false;
+      authLogout();
+    }
+  }, [activeWallet, isAuthenticated, authLogout]);
+
   const location = useLocation();
   const history = useHistory();
   const hideNavBar =
@@ -182,6 +200,17 @@ const AppContent: React.FC = () => {
   if (isReady) {
     return (
       <ThirdwebProvider>
+        <AutoConnect
+          client={thirdwebClient}
+          wallets={[
+            inAppWallet({
+              auth: {
+                options: ['email', 'phone', 'google', 'apple', 'facebook', 'passkey'],
+              },
+            }),
+            createWallet('io.metamask'),
+          ]}
+        />
         <IonApp>
           <IonReactRouter>
             <OnboardingWrapper />
