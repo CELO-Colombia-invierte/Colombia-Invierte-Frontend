@@ -163,14 +163,15 @@ const CrearNatilleraPage: React.FC = () => {
         try {
           await apiService.post('/blockchain/fund-gas', { address: account!.address });
           celoBalance = await blockchainService.getNativeBalance(account!.address);
-        } catch {
+        } catch (fundErr) {
+          console.error('[CrearNatillera] fund-gas falló:', fundErr);
         }
       }
 
       if (celoBalance < MIN_GAS) {
         await dismissLoading();
         await present({
-          message: 'Sin CELO para gas. Obtén fondos en faucet.celo.org/alfajores',
+          message: 'Sin saldo para gas. Contacta al soporte.',
           duration: 6000,
           color: 'danger',
         });
