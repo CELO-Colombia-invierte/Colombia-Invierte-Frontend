@@ -99,18 +99,24 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                   <h4 className="preview-section-title">
                     Descripción de proyecto
                   </h4>
-                  <p className="preview-section-text">
-                    {description ||
-                      'Esta es una breve descripción que describe este producto con detalle y es atractivo.'}
-                  </p>
+                  <div
+                    className="preview-section-text"
+                    dangerouslySetInnerHTML={{
+                      __html: description ||
+                        'Esta es una breve descripción que describe este producto con detalle y es atractivo.',
+                    }}
+                  />
                 </div>
 
                 <div className="preview-section">
                   <h4 className="preview-section-title">Aspectos destacados</h4>
-                  <p className="preview-section-text">
-                    {aspectosDestacados ||
-                      'Esta es una breve descripción que describe este producto con detalle y es atractivo.'}
-                  </p>
+                  <div
+                    className="preview-section-text"
+                    dangerouslySetInnerHTML={{
+                      __html: aspectosDestacados ||
+                        'Esta es una breve descripción que describe este producto con detalle y es atractivo.',
+                    }}
+                  />
                 </div>
               </motion.div>
             )}
