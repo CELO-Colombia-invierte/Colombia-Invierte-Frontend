@@ -87,7 +87,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Tipo de proyecto
-          <InfoTooltip text="Define si este proyecto es una Natillera (ahorro colaborativo) o una Tokenización (activo real representado como tokens en blockchain)." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <div className="select-wrapper">
           <select
@@ -104,7 +104,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Privacidad del proyecto
-          <InfoTooltip text="Elige si el proyecto es Privado (solo acceden personas invitadas con enlace) o Público (visible para todos los usuarios)." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <div className="select-wrapper">
           <select
@@ -121,7 +121,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Nombre de proyecto
-          <InfoTooltip text="El nombre público del proyecto de tokenización. Debe identificar claramente el activo o inversión que representa." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <div className="input-with-emoji">
           <button className="emoji-button" type="button">
@@ -140,7 +140,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Descripción de proyecto
-          <InfoTooltip text="Describe el activo o proyecto real que se tokeniza, su modelo de negocio y cómo genera valor para los inversores." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <RichTextEditor
           value={formData.descripcion}
@@ -152,7 +152,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Aspectos destacados
-          <InfoTooltip text="Los puntos clave que hacen atractivo este proyecto: ventajas competitivas, garantías, equipo o proyecciones." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <RichTextEditor
           value={formData.aspectosDestacados}
@@ -164,7 +164,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Derechos del token
-          <InfoTooltip text="Lista los derechos que otorga cada token: dividendos, acceso a servicios, participación en ganancias, derechos de voto, etc." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         {tokenRights.map((right) => (
           <div key={right.id} style={{ marginBottom: '12px' }}>
@@ -207,7 +207,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Preguntas frecuentes
-          <InfoTooltip text="Agrega preguntas y respuestas que anticipen las dudas de los potenciales inversores sobre el proyecto o los tokens." />
+          <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         {tokenFaqs.map((faq) => (
           <div key={faq.id} style={{ marginBottom: '16px' }}>
