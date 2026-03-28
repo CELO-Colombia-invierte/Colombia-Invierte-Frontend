@@ -159,14 +159,30 @@ const CrearNatilleraPage: React.FC = () => {
       await presentLoading({ message: 'Preparando billetera y verificando gas...' });
       try {
         await apiService.post('/blockchain/fund-gas', { address: account!.address });
+        
+        // Esperemos hasta 15 segundos chequeando si el fondo llegó
+        let retries = 5;
+        const MIN_GAS = BigInt('50000000000000000');
+        let newBalance = await blockchainService.getNativeBalance(account!.address);
+        
+        while (newBalance < MIN_GAS && retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          newBalance = await blockchainService.getNativeBalance(account!.address);
+          retries--;
+        }
+
+        if (newBalance < MIN_GAS) {
+          throw new Error('El backend envió gas pero no impactó en la blockchain a tiempo.');
+        }
+
       } catch (fundErr) {
-        console.error('[CrearNatillera] fund-gas falló:', fundErr);
+        console.error('[CrearNatillera] fund-gas falló o tomó mucho:', fundErr);
         const MIN_GAS = BigInt('50000000000000000');
         const celoBalance = await blockchainService.getNativeBalance(account!.address);
         if (celoBalance < MIN_GAS) {
           await dismissLoading();
           await present({
-            message: 'Sin saldo para gas. Contacta al soporte.',
+            message: 'Sin saldo para gas. Reinicia la app o contacta al soporte.',
             duration: 6000,
             color: 'danger',
           });
@@ -271,6 +287,7 @@ const CrearNatilleraPage: React.FC = () => {
     } catch (error: any) {
       await dismissLoading();
 
+      console.log(error)
       if (currentProjectId) {
         try {
           await projectsService.delete(currentProjectId);
