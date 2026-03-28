@@ -3,10 +3,14 @@ import { IonIcon } from '@ionic/react';
 import { useLocation, useHistory } from 'react-router-dom';
 import {
   homeOutline,
+  home,
   folderOutline,
-  addCircle,
+  folder,
+  addOutline,
   chatbubbleOutline,
+  chatbubble,
   settingsOutline,
+  settings,
 } from 'ionicons/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import './BottomNavBar.css';
@@ -14,6 +18,7 @@ import './BottomNavBar.css';
 export interface NavTab {
   path: string;
   icon: string;
+  activeIcon: string;
   label: string;
 }
 
@@ -23,10 +28,10 @@ export interface BottomNavBarProps {
 }
 
 const defaultTabs: NavTab[] = [
-  { path: '/home', icon: homeOutline, label: 'Inicio' },
-  { path: '/portafolio', icon: folderOutline, label: 'Portafolio' },
-  { path: '/mensajes', icon: chatbubbleOutline, label: 'Mensajes' },
-  { path: '/configuracion', icon: settingsOutline, label: 'Config.' },
+  { path: '/home', icon: homeOutline, activeIcon: home, label: 'Inicio' },
+  { path: '/portafolio', icon: folderOutline, activeIcon: folder, label: 'Portafolio' },
+  { path: '/mensajes', icon: chatbubbleOutline, activeIcon: chatbubble, label: 'Mensajes' },
+  { path: '/configuracion', icon: settingsOutline, activeIcon: settings, label: 'Config.' },
 ];
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({
@@ -48,126 +53,65 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
     }
   };
 
-  // Funciones para calcular posición de la curvatura - Temporalmente comentadas
-  // const getActiveTabIndex = () => {
-  //   const index = tabs.findIndex((tab) => tab.path === location.pathname);
-  //   return index !== -1 ? index : 0;
-  // };
-
-  // const activeIndex = getActiveTabIndex();
-  // const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 430;
-
-  // const calculateTabPosition = () => {
-  //   const tabWidth = screenWidth / 5;
-
-  //   const positions = [
-  //     tabWidth * 0.5,
-  //     tabWidth * 1.5,
-  //     tabWidth * 3.5,
-  //     tabWidth * 4.5,
-  //   ];
-
-  //   const position = positions[activeIndex] || positions[0];
-  //   const calculatedPosition = Math.min(
-  //     Math.max(position, 50),
-  //     screenWidth - 50
-  //   );
-  //   return isNaN(calculatedPosition) ? tabWidth * 0.5 : calculatedPosition;
-  // };
-
-  // const activePosition = calculateTabPosition();
   const firstHalf = tabs.slice(0, 2);
   const secondHalf = tabs.slice(2);
 
+  const renderTab = (tab: NavTab) => (
+    <button
+      key={tab.path}
+      className={`nav-tab ${isActive(tab.path) ? 'active' : ''}`}
+      onClick={() => handleTabClick(tab.path)}
+    >
+      <div className="tab-content">
+        <AnimatePresence mode="wait">
+          {isActive(tab.path) ? (
+            <motion.div
+              key="active"
+              className="active-tab-indicator"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              <div className="active-circle">
+                <IonIcon icon={tab.activeIcon} className="tab-icon active" />
+                <span className="tab-active-label">{tab.label}</span>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="inactive"
+              className="inactive-tab-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <IonIcon icon={tab.icon} className="tab-icon" />
+              <span className="tab-label">{tab.label}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </button>
+  );
+
   return (
     <nav className="bottom-navbar">
-      {/* SVG con animación de curvatura - Temporalmente comentado */}
-      {/* <svg
-        className="navbar-svg-background"
-        viewBox={`0 0 ${screenWidth} 80`}
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <filter id="navbar-shadow">
-            <feDropShadow
-              dx="0"
-              dy="-4"
-              stdDeviation="10"
-              floodOpacity="0.15"
-            />
-          </filter>
-        </defs>
-        <motion.path
-          d={`M 0,0 L 0,80 L ${screenWidth},80 L ${screenWidth},0
-              L ${activePosition + 60},0
-              C ${activePosition + 50},0 ${activePosition + 45},8 ${activePosition + 38},18
-              C ${activePosition + 31},28 ${activePosition + 20},42 ${activePosition},50
-              C ${activePosition - 20},42 ${activePosition - 31},28 ${activePosition - 38},18
-              C ${activePosition - 45},8 ${activePosition - 50},0 ${activePosition - 60},0
-              L 0,0 Z`}
-          fill="#4A5568"
-          filter="url(#navbar-shadow)"
-          animate={{
-            d: `M 0,0 L 0,80 L ${screenWidth},80 L ${screenWidth},0
-                L ${activePosition + 50},0
-                C ${activePosition + 30},0 ${activePosition + 30},30 ${activePosition + 30},15
-                C ${activePosition + 30},20 ${activePosition + 30},42 ${activePosition},60
-                C ${activePosition - 30},60 ${activePosition - 30},30 ${activePosition - 30},15
-                C ${activePosition - 30},8 ${activePosition - 30},0 ${activePosition - 50},0
-                L 0,0 Z`,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 180,
-            damping: 20,
-          }}
-        />
-      </svg> */}
-
+      <div className="navbar-background">
+        <svg
+          viewBox="0 0 400 72"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0,16 Q0,0 16,0 L155,0 C165,0 170,0 175,5 Q185,18 200,18 Q215,18 225,5 C230,0 235,0 245,0 L384,0 Q400,0 400,16 L400,72 L0,72 Z"
+            fill="#1e293b"
+          />
+        </svg>
+      </div>
       <div className="navbar-content">
-        {firstHalf.map((tab) => (
-          <button
-            key={tab.path}
-            className={`nav-tab ${isActive(tab.path) ? 'active' : ''}`}
-            onClick={() => handleTabClick(tab.path)}
-          >
-            <div className="tab-content">
-              <AnimatePresence mode="wait">
-                {isActive(tab.path) ? (
-                  <motion.div
-                    key="active"
-                    className="active-tab-indicator"
-                    initial={{ scale: 0, y: 20 }}
-                    animate={{ scale: 1, y: 0 }}
-                    exit={{ scale: 0, y: 20 }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 260,
-                      damping: 20,
-                    }}
-                  >
-                    <div className="active-circle">
-                      <IonIcon icon={tab.icon} className="tab-icon active" />
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="inactive"
-                    className="inactive-tab-content"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <IonIcon icon={tab.icon} className="tab-icon" />
-                    <span className="tab-label">{tab.label}</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </button>
-        ))}
+        {firstHalf.map(renderTab)}
         <div className="central-tab-button">
           <motion.button
             className="central-button"
@@ -176,51 +120,10 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           >
-            <IonIcon icon={addCircle} className="central-icon" />
+            <IonIcon icon={addOutline} className="central-icon" />
           </motion.button>
         </div>
-        {secondHalf.map((tab) => (
-          <button
-            key={tab.path}
-            className={`nav-tab ${isActive(tab.path) ? 'active' : ''}`}
-            onClick={() => handleTabClick(tab.path)}
-          >
-            <div className="tab-content">
-              <AnimatePresence mode="wait">
-                {isActive(tab.path) ? (
-                  <motion.div
-                    key="active"
-                    className="active-tab-indicator"
-                    initial={{ scale: 0, y: 20 }}
-                    animate={{ scale: 1, y: 0 }}
-                    exit={{ scale: 0, y: 20 }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 260,
-                      damping: 20,
-                    }}
-                  >
-                    <div className="active-circle">
-                      <IonIcon icon={tab.icon} className="tab-icon active" />
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="inactive"
-                    className="inactive-tab-content"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <IonIcon icon={tab.icon} className="tab-icon" />
-                    <span className="tab-label">{tab.label}</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </button>
-        ))}
+        {secondHalf.map(renderTab)}
       </div>
     </nav>
   );
