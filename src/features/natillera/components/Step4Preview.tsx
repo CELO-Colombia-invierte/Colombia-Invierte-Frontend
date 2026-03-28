@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CoinIcon, GrowthIcon, DurationIcon, CalendarIcon } from '@/components/icons/FinanceIcons';
 import './StepStyles.css';
 
 interface FormData {
@@ -127,7 +128,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </h3>
 
                 <div className="finance-item">
-                  <div className="finance-icon">💰</div>
+                  <div className="finance-icon"><CoinIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formData.valorCuota
@@ -141,7 +142,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </div>
 
                 <div className="finance-item">
-                  <div className="finance-icon">🌱</div>
+                  <div className="finance-icon"><GrowthIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formData.rendimiento
@@ -155,7 +156,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </div>
 
                 <div className="finance-item">
-                  <div className="finance-icon">🔥</div>
+                  <div className="finance-icon"><DurationIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formData.cantidadMeses
@@ -167,7 +168,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </div>
 
                 <div className="finance-item">
-                  <div className="finance-icon">📅</div>
+                  <div className="finance-icon"><CalendarIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formData.fechaPago && formData.horaPago

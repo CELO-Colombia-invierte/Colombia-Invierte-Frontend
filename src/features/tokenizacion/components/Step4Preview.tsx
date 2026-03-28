@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IonIcon } from '@ionic/react';
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { CoinIcon, GrowthIcon, TokenIcon, ChartIcon } from '@/components/icons/FinanceIcons';
 import './StepStyles.css';
 
 interface TokenRightDto {
@@ -234,7 +235,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </h3>
 
                 <div className="finance-item">
-                  <div className="finance-icon">💰</div>
+                  <div className="finance-icon"><CoinIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formatCurrency(valorActivo, moneda)}
@@ -244,7 +245,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </div>
 
                 <div className="finance-item">
-                  <div className="finance-icon">🌱</div>
+                  <div className="finance-icon"><GrowthIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {rendimiento ? `${rendimiento}%` : 'N/A'}
@@ -256,7 +257,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </div>
 
                 <div className="finance-item">
-                  <div className="finance-icon">🪙</div>
+                  <div className="finance-icon"><TokenIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formatCurrency(precioPorToken, monedaToken)}
@@ -266,7 +267,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                 </div>
 
                 <div className="finance-item">
-                  <div className="finance-icon">📊</div>
+                  <div className="finance-icon"><ChartIcon /></div>
                   <div className="finance-details">
                     <div className="finance-value">
                       {formatNumber(totalTokens)}{' '}

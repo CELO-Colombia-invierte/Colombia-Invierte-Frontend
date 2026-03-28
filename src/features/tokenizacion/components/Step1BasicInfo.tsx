@@ -1,7 +1,11 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
-import { happyOutline, closeCircle } from 'ionicons/icons';
-import InfoTooltip from '../../../components/ui/InfoTooltip';
+import {
+  informationCircleOutline,
+  happyOutline,
+  closeCircle,
+} from 'ionicons/icons';
+import { RichTextEditor } from '@/components/ui/RichTextEditor/RichTextEditor';
 import './StepStyles.css';
 
 interface TokenRightDto {
@@ -138,37 +142,11 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           Descripción de proyecto
           <InfoTooltip text="Describe el activo o proyecto real que se tokeniza, su modelo de negocio y cómo genera valor para los inversores." />
         </label>
-        <div className="rich-text-editor">
-          <div className="editor-toolbar">
-            <button type="button" className="toolbar-btn">
-              <strong>B</strong>
-            </button>
-            <button type="button" className="toolbar-btn">
-              <em>I</em>
-            </button>
-            <button type="button" className="toolbar-btn">
-              <u>U</u>
-            </button>
-            <button type="button" className="toolbar-btn">
-              <IonIcon icon={happyOutline} />
-            </button>
-            <button type="button" className="toolbar-btn">
-              🔗
-            </button>
-            <button type="button" className="toolbar-btn">
-              ≡
-            </button>
-            <button type="button" className="toolbar-btn">
-              ☰
-            </button>
-          </div>
-          <textarea
-            className="form-textarea"
-            rows={4}
-            value={formData.descripcion}
-            onChange={(e) => onChange('descripcion', e.target.value)}
-          ></textarea>
-        </div>
+        <RichTextEditor
+          value={formData.descripcion}
+          onChange={(html) => onChange('descripcion', html)}
+          rows={4}
+        />
       </div>
 
       <div className="form-group">
@@ -176,37 +154,11 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           Aspectos destacados
           <InfoTooltip text="Los puntos clave que hacen atractivo este proyecto: ventajas competitivas, garantías, equipo o proyecciones." />
         </label>
-        <div className="rich-text-editor">
-          <div className="editor-toolbar">
-            <button type="button" className="toolbar-btn">
-              <strong>B</strong>
-            </button>
-            <button type="button" className="toolbar-btn">
-              <em>I</em>
-            </button>
-            <button type="button" className="toolbar-btn">
-              <u>U</u>
-            </button>
-            <button type="button" className="toolbar-btn">
-              <IonIcon icon={happyOutline} />
-            </button>
-            <button type="button" className="toolbar-btn">
-              🔗
-            </button>
-            <button type="button" className="toolbar-btn">
-              ≡
-            </button>
-            <button type="button" className="toolbar-btn">
-              ☰
-            </button>
-          </div>
-          <textarea
-            className="form-textarea"
-            rows={4}
-            value={formData.aspectosDestacados}
-            onChange={(e) => onChange('aspectosDestacados', e.target.value)}
-          ></textarea>
-        </div>
+        <RichTextEditor
+          value={formData.aspectosDestacados}
+          onChange={(html) => onChange('aspectosDestacados', html)}
+          rows={4}
+        />
       </div>
 
       <div className="form-group">
