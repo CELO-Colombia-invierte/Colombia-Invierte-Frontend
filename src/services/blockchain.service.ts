@@ -88,31 +88,19 @@ export interface V2ContractAddresses {
 class BlockchainService {
 
   private async sendWithFeeCurrency(account: Account, contractAddress: string, calldata: `0x${string}`, value?: bigint): Promise<string> {
-    let txHash: string;
-    try {
-      const result = await account.sendTransaction({
-        to: contractAddress as `0x${string}`,
-        data: calldata,
-        chainId: BLOCKCHAIN_CONFIG.CHAIN_ID,
-        feeCurrency: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS as `0x${string}`,
-        ...(value !== undefined ? { value } : {}),
-      } as Parameters<Account['sendTransaction']>[0]);
-      txHash = result.transactionHash;
-    } catch (feeErr: unknown) {
-      const msg = (feeErr as { message?: string })?.message ?? '';
-      const userRejected = msg.toLowerCase().includes('user rejected')
-        || msg.includes('ACTION_REJECTED')
-        || msg.includes('4001');
-      if (userRejected) throw feeErr;
-      const tx = prepareTransaction({ client: thirdwebClient, chain: CHAIN, to: contractAddress, data: calldata, ...(value !== undefined ? { value } : {}) });
-      const result = await sendTransaction({ account, transaction: tx });
-      txHash = result.transactionHash;
-    }
+    const tx = prepareTransaction({
+      client: thirdwebClient,
+      chain: CHAIN,
+      to: contractAddress,
+      data: calldata,
+      ...(value !== undefined ? { value } : {}),
+    });
+    const result = await sendTransaction({ account, transaction: tx });
+    const txHash = result.transactionHash;
     await waitForReceipt({ client: thirdwebClient, chain: CHAIN, transactionHash: txHash as `0x${string}` });
     return txHash;
   }
 
-  // ── ESCRITURA: Deploy V2 ──────────────────────
 
   async deployNatilleraV2(
     account: Account,

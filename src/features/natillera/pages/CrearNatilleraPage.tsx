@@ -234,7 +234,6 @@ const CrearNatilleraPage: React.FC = () => {
         }
       }
 
-      // Fondear gas si el usuario tiene menos de 0.05 CELO - movido arriba!
 
       await dismissLoading();
       await presentLoading({ message: 'Desplegando contrato en blockchain...' });
