@@ -197,16 +197,17 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                           if (attachment.isVideo()) {
                             return (
                               <div key={attachment.id} className="group-message-attachment-wrapper">
-                                <div className="group-message-video-placeholder">
-                                  <IonIcon icon={documentOutline} />
-                                  <span>{attachment.fileName}</span>
-                                </div>
-                                {isUploading && (
-                                  <div className="group-message-upload-overlay">
-                                    <IonSpinner name="crescent" className="group-message-upload-spinner" />
-                                  </div>
-                                )}
-                                {!isUploading && (
+                                {isUploading ? (
+                                  <>
+                                    <div className="group-message-video-placeholder">
+                                      <IonIcon icon={documentOutline} />
+                                      <span>{attachment.fileName}</span>
+                                    </div>
+                                    <div className="group-message-upload-overlay">
+                                      <IonSpinner name="crescent" className="group-message-upload-spinner" />
+                                    </div>
+                                  </>
+                                ) : (
                                   <video
                                     src={attachment.url}
                                     controls
