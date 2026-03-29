@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
 import { documentOutline, downloadOutline } from 'ionicons/icons';
-import { Message, MessageAttachment } from '@/models/Message.model';
+import { Message } from '@/models/Message.model';
 import { Conversation } from '@/models/Conversation.model';
 import { ProposalMessageCard } from './ProposalMessageCard';
 import './GroupMessageList.css';

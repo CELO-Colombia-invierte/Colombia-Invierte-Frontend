@@ -116,7 +116,6 @@ const ChatConversationPage: React.FC = () => {
 
   const {
     connected,
-    sendMessage: sendWsMessage,
     typing: wsTyping,
     stopTyping: wsStopTyping,
     joinConversation,
