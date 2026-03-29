@@ -59,12 +59,17 @@ class ChatApiService {
     return response.data;
   }
 
-  async uploadFile(uploadUrl: string, file: File): Promise<void> {
+  async uploadFile(uploadUrl: string, file: File, assetId: string): Promise<void> {
+    const token = (await import('../auth')).authService.getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('assetId', assetId);
+
     const response = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: file,
+      method: 'POST',
+      body: formData,
       headers: {
-        'Content-Type': file.type,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 
@@ -96,7 +101,11 @@ class ChatApiService {
       file_size: file.size,
     });
 
-    await this.uploadFile(presignResponse.upload_url, file);
+    await this.uploadFile(
+      presignResponse.upload_url,
+      file,
+      presignResponse.asset_id,
+    );
 
     return this.addAttachment(conversationId, messageId, {
       asset_id: presignResponse.asset_id,

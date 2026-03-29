@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Message } from '@/models/Message.model';
+import { IonIcon, IonSpinner } from '@ionic/react';
+import { documentOutline, downloadOutline } from 'ionicons/icons';
+import { Message, MessageAttachment } from '@/models/Message.model';
 import { Conversation } from '@/models/Conversation.model';
 import { ProposalMessageCard } from './ProposalMessageCard';
 import './GroupMessageList.css';
@@ -160,17 +162,90 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                     key={message.id}
                     className={`group-message-bubble ${isMine ? 'mine' : 'theirs'}`}
                   >
-                  
-                    {message.getImages().length > 0 && (
-                      <div className="group-message-images">
-                        {message.getImages().map((attachment) => (
-                          <img
-                            key={attachment.id}
-                            src={attachment.url}
-                            alt={attachment.fileName}
-                            className="group-message-image"
-                          />
-                        ))}
+
+                    {message.hasAttachments() && (
+                      <div className="group-message-attachments">
+                        {message.attachments.map((attachment) => {
+                          const isUploading = message.isSending;
+
+                          if (attachment.isImage()) {
+                            return (
+                              <div key={attachment.id} className="group-message-attachment-wrapper">
+                                {isUploading ? (
+                                  <img
+                                    src={attachment.url}
+                                    alt={attachment.fileName}
+                                    className="group-message-image"
+                                  />
+                                ) : (
+                                  <a href={attachment.url} target="_blank" rel="noopener noreferrer">
+                                    <img
+                                      src={attachment.url}
+                                      alt={attachment.fileName}
+                                      className="group-message-image"
+                                    />
+                                  </a>
+                                )}
+                                {isUploading && (
+                                  <div className="group-message-upload-overlay">
+                                    <IonSpinner name="crescent" className="group-message-upload-spinner" />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+                          if (attachment.isVideo()) {
+                            return (
+                              <div key={attachment.id} className="group-message-attachment-wrapper">
+                                <div className="group-message-video-placeholder">
+                                  <IonIcon icon={documentOutline} />
+                                  <span>{attachment.fileName}</span>
+                                </div>
+                                {isUploading && (
+                                  <div className="group-message-upload-overlay">
+                                    <IonSpinner name="crescent" className="group-message-upload-spinner" />
+                                  </div>
+                                )}
+                                {!isUploading && (
+                                  <video
+                                    src={attachment.url}
+                                    controls
+                                    preload="metadata"
+                                    className="group-message-video"
+                                  />
+                                )}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={attachment.id} className="group-message-attachment-wrapper">
+                              {isUploading ? (
+                                <div className="group-message-document uploading">
+                                  <IonIcon icon={documentOutline} className="group-message-document-icon" />
+                                  <div className="group-message-document-info">
+                                    <span className="group-message-document-name">{attachment.fileName}</span>
+                                    <span className="group-message-document-size">{attachment.getFormattedSize()}</span>
+                                  </div>
+                                  <IonSpinner name="crescent" className="group-message-upload-spinner-small" />
+                                </div>
+                              ) : (
+                                <a
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group-message-document"
+                                >
+                                  <IonIcon icon={documentOutline} className="group-message-document-icon" />
+                                  <div className="group-message-document-info">
+                                    <span className="group-message-document-name">{attachment.fileName}</span>
+                                    <span className="group-message-document-size">{attachment.getFormattedSize()}</span>
+                                  </div>
+                                  <IonIcon icon={downloadOutline} className="group-message-document-download" />
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
 
@@ -179,9 +254,17 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                       <p className="group-message-text">{message.text}</p>
                     )}
 
-                    <span className="group-message-time">
-                      {message.getFormattedTime()}
-                    </span>
+                    <div className="group-message-footer">
+                      {message.isSending && (
+                        <span className="group-message-status sending">Enviando...</span>
+                      )}
+                      {message.hasError() && (
+                        <span className="group-message-status error">{message.sendError}</span>
+                      )}
+                      <span className="group-message-time">
+                        {message.getFormattedTime()}
+                      </span>
+                    </div>
                   </div>
                 );
               })}

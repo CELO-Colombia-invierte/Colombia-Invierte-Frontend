@@ -120,23 +120,100 @@
   white-space: pre-wrap;
 }
 
+.group-message-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+
 .group-message-time {
   font-size: 10px;
   opacity: 0.7;
-  margin-top: 4px;
-  display: block;
-  text-align: right;
 }
 
 .group-message-bubble.theirs .group-message-time {
   color: #9ca3af;
 }
 
-.group-message-images {
+.group-message-status.sending {
+  font-size: 10px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.group-message-status.error {
+  font-size: 10px;
+  color: #ef4444;
+}
+
+.group-message-images,
+.group-message-attachments {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-bottom: 4px;
+}
+
+.group-message-attachment-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.group-message-upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.group-message-upload-spinner {
+  --color: #fff;
+  width: 32px;
+  height: 32px;
+}
+
+.group-message-upload-spinner-small {
+  --color: #3b82f6;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.group-message-video-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 200px;
+  height: 120px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.group-message-video-placeholder ion-icon {
+  font-size: 32px;
+}
+
+.group-message-video-placeholder span {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-message-document.uploading {
+  opacity: 0.7;
 }
 
 .group-message-image {
@@ -144,6 +221,94 @@
   max-height: 300px;
   border-radius: 8px;
   object-fit: cover;
+  cursor: pointer;
+  display: block;
+}
+
+.group-message-video {
+  max-width: 100%;
+  max-height: 280px;
+  border-radius: 8px;
+  display: block;
+}
+
+.group-message-document {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  min-width: 180px;
+}
+
+.message-group.mine .group-message-document {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.message-group.theirs .group-message-document {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.group-message-document-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.message-group.mine .group-message-document-icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-group.theirs .group-message-document-icon {
+  color: #6b7280;
+}
+
+.group-message-document-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.group-message-document-name {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-group.mine .group-message-document-name {
+  color: #fff;
+}
+
+.message-group.theirs .group-message-document-name {
+  color: #1f2937;
+}
+
+.group-message-document-size {
+  font-size: 11px;
+}
+
+.message-group.mine .group-message-document-size {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.message-group.theirs .group-message-document-size {
+  color: #9ca3af;
+}
+
+.group-message-document-download {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.message-group.mine .group-message-document-download {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message-group.theirs .group-message-document-download {
+  color: #6b7280;
 }
 
 /* Estilos para mensajes consecutivos */

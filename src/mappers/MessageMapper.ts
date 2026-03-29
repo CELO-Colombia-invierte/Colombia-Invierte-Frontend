@@ -11,13 +11,14 @@ import type { PropuestaPreview } from '@/types/propuesta';
 
 export class MessageMapper {
   static attachmentFromDto(dto: MessageAttachmentDto): MessageAttachment {
+    const asset = (dto as any).asset;
     return new MessageAttachment({
       id: dto.id,
       assetId: dto.asset_id,
-      url: dto.url,
-      mimeType: dto.mime_type,
-      fileName: dto.file_name,
-      fileSize: dto.file_size,
+      url: dto.url || asset?.url || '',
+      mimeType: dto.mime_type || asset?.mime_type || '',
+      fileName: dto.file_name || asset?.original_name || '',
+      fileSize: dto.file_size || asset?.size_bytes || 0,
     });
   }
 

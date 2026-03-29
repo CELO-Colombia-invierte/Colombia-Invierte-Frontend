@@ -3,7 +3,7 @@ import { IonContent, IonPage, IonSpinner } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { chatApiService } from '@/services/chat';
 import { Conversation } from '@/models/Conversation.model';
-import { Message } from '@/models/Message.model';
+import { Message, MessageAttachment } from '@/models/Message.model';
 import {
   GroupChatHeader,
   GroupMessageList,
@@ -200,29 +200,69 @@ const ChatConversationPage: React.FC = () => {
     setShowInfoModal(true);
   };
 
-  const handleSendMessage = async (text: string) => {
-    if (!user || !text.trim() || sending) return;
+  const handleSendMessage = async (text: string, files?: File[]) => {
+    if (!user || (!text.trim() && (!files || files.length === 0)) || sending) return;
+
+    const hasFiles = files && files.length > 0;
+    const messageText = text.trim() || (hasFiles ? 'Archivo adjunto' : '');
+
+    const optimisticAttachments: MessageAttachment[] = hasFiles
+      ? files!.map((file, i) => new MessageAttachment({
+          id: `temp-att-${Date.now()}-${i}`,
+          assetId: '',
+          url: file.type.startsWith('image/') ? URL.createObjectURL(file) : '',
+          mimeType: file.type,
+          fileName: file.name,
+          fileSize: file.size,
+        }))
+      : [];
+
+    const optimisticMessage = MessageMapper.createOptimistic(
+      messageText,
+      conversationId,
+      user as any,
+    );
+    optimisticMessage.attachments = optimisticAttachments;
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setTimeout(() => scrollToBottom(), 50);
 
     try {
       setSending(true);
+      const newMessage = await chatApiService.sendMessage(conversationId, messageText);
 
-      if (connected) {
-        sendWsMessage(conversationId, text);
-      } else {
-        const newMessage = await chatApiService.sendMessage(
-          conversationId,
-          text
+      if (hasFiles) {
+        newMessage.attachments = optimisticAttachments;
+        newMessage.isSending = true;
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMessage.id ? newMessage : m))
         );
-        setMessages((prev) => [...prev, newMessage]);
+
+        for (const file of files!) {
+          await chatApiService.uploadMessageAttachment(
+            conversationId,
+            newMessage.id,
+            file,
+          );
+        }
+        const updatedMessages = await chatApiService.getMessages(conversationId);
+        setMessages(updatedMessages);
+      } else {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMessage.id ? newMessage : m))
+        );
       }
 
       wsStopTyping(conversationId);
-
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
+      setTimeout(() => scrollToBottom(), 100);
     } catch (error) {
       console.error('Error sending message:', error);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === optimisticMessage.id
+            ? MessageMapper.markOptimisticAsFailed(m, 'Error al enviar')
+            : m
+        )
+      );
     } finally {
       setSending(false);
     }
@@ -271,7 +311,6 @@ const ChatConversationPage: React.FC = () => {
       .join(', ')
     : undefined;
 
-  // Verificar si el usuario es admin del grupo
   const isAdmin =
     conversation?.members.find((m) => m.userId === user?.id)?.role === 'admin';
 
