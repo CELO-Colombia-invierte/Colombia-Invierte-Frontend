@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import {
   close,
   peopleOutline,
   documentOutline,
   imagesOutline,
+  downloadOutline,
 } from 'ionicons/icons';
 import { Conversation } from '@/models/Conversation.model';
+import { Message } from '@/models/Message.model';
 import './ChatInfoModal.css';
 
 interface ChatInfoModalProps {
@@ -14,6 +16,7 @@ interface ChatInfoModalProps {
   onClose: () => void;
   conversation: Conversation | null;
   currentUserId: string;
+  messages?: Message[];
 }
 
 type TabType = 'participants' | 'documents' | 'images';
@@ -23,8 +26,19 @@ export const ChatInfoModal: React.FC<ChatInfoModalProps> = ({
   onClose,
   conversation,
   currentUserId,
+  messages = [],
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('participants');
+
+  const imageAttachments = useMemo(() =>
+    messages.flatMap(m => m.attachments.filter(a => a.isImage())),
+    [messages]
+  );
+
+  const documentAttachments = useMemo(() =>
+    messages.flatMap(m => m.attachments.filter(a => a.isDocument() || a.isVideo())),
+    [messages]
+  );
 
   if (!isOpen || !conversation) return null;
 
@@ -121,23 +135,60 @@ export const ChatInfoModal: React.FC<ChatInfoModalProps> = ({
 
           {activeTab === 'documents' && (
             <div className="documents-tab">
-              <div className="empty-state">
-                <IonIcon icon={documentOutline} />
-                <p>No hay documentos compartidos</p>
-                <span>
-                  Los archivos compartidos en este chat aparecerán aquí
-                </span>
-              </div>
+              {documentAttachments.length === 0 ? (
+                <div className="empty-state">
+                  <IonIcon icon={documentOutline} />
+                  <p>No hay documentos compartidos</p>
+                  <span>
+                    Los archivos compartidos en este chat aparecerán aquí
+                  </span>
+                </div>
+              ) : (
+                <div className="documents-list">
+                  {documentAttachments.map((att) => (
+                    <a
+                      key={att.id}
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="document-item"
+                    >
+                      <IonIcon icon={documentOutline} className="document-icon" />
+                      <div className="document-info">
+                        <span className="document-name">{att.fileName}</span>
+                        <span className="document-size">{att.getFormattedSize()}</span>
+                      </div>
+                      <IonIcon icon={downloadOutline} className="document-download" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'images' && (
             <div className="images-tab">
-              <div className="empty-state">
-                <IonIcon icon={imagesOutline} />
-                <p>No hay imágenes compartidas</p>
-                <span>Las fotos compartidas en este chat aparecerán aquí</span>
-              </div>
+              {imageAttachments.length === 0 ? (
+                <div className="empty-state">
+                  <IonIcon icon={imagesOutline} />
+                  <p>No hay imágenes compartidas</p>
+                  <span>Las fotos compartidas en este chat aparecerán aquí</span>
+                </div>
+              ) : (
+                <div className="images-grid">
+                  {imageAttachments.map((att) => (
+                    <a
+                      key={att.id}
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="image-grid-item"
+                    >
+                      <img src={att.url} alt={att.fileName} />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

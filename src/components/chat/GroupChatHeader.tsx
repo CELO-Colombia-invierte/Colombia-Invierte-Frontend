@@ -2,7 +2,6 @@ import React from 'react';
 import { IonIcon } from '@ionic/react';
 import {
   arrowBackOutline,
-  ellipsisVertical,
   peopleCircle,
 } from 'ionicons/icons';
 import './GroupChatHeader.css';
@@ -15,7 +14,6 @@ interface GroupChatHeaderProps {
   initials: string;
   membersCount?: number;
   onBack?: () => void;
-  onMenuClick?: () => void;
   onHeaderClick?: () => void;
 }
 
@@ -27,7 +25,6 @@ export const GroupChatHeader: React.FC<GroupChatHeaderProps> = ({
   initials,
   membersCount,
   onBack,
-  onMenuClick,
   onHeaderClick,
 }) => {
   return (
@@ -71,13 +68,6 @@ export const GroupChatHeader: React.FC<GroupChatHeaderProps> = ({
         </div>
       </div>
 
-      <button
-        className="group-chat-header-menu"
-        onClick={onMenuClick}
-        aria-label="Menú"
-      >
-        <IonIcon icon={ellipsisVertical} />
-      </button>
     </div>
   );
 };

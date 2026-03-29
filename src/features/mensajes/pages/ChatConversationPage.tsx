@@ -191,10 +191,6 @@ const ChatConversationPage: React.FC = () => {
     history.goBack();
   };
 
-  const handleMenuClick = () => {
-    setShowOptionsModal(true);
-  };
-
   const handleHeaderClick = () => {
     setShowInfoModal(true);
   };
@@ -329,7 +325,6 @@ const ChatConversationPage: React.FC = () => {
             initials={conversation?.getAvatarInitials(user?.id || '') || 'GR'}
             membersCount={conversation?.members.length}
             onBack={handleBack}
-            onMenuClick={handleMenuClick}
             onHeaderClick={handleHeaderClick}
           />
           <GroupMessageList
@@ -361,6 +356,7 @@ const ChatConversationPage: React.FC = () => {
           onClose={() => setShowInfoModal(false)}
           conversation={conversation}
           currentUserId={user?.id || ''}
+          messages={messages}
         />
       </IonContent>
     </IonPage>
