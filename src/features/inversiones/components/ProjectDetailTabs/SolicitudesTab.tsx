@@ -30,6 +30,7 @@ export const SolicitudesTab: React.FC<SolicitudesTabProps> = ({ project }) => {
       setLoading(true);
       const requests = await projectMembershipService.getPendingRequests(project.id);
       setPendingRequests(requests);
+      console.log(requests)
     } catch (error) {
       console.error('Error fetching pending requests:', error);
     } finally {
@@ -113,11 +114,19 @@ export const SolicitudesTab: React.FC<SolicitudesTabProps> = ({ project }) => {
             <div key={request.id} className="solicitud-card">
               <div className="solicitud-header">
                 <div className="solicitud-avatar">
-                  <IonIcon icon={personOutline} />
+                  {request.user?.avatar_asset_id ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL || ''}/assets/${request.user.avatar_asset_id}`}
+                      alt={request.user.display_name || request.user.username || 'Usuario'}
+                      className="solicitud-avatar-img"
+                    />
+                  ) : (
+                    <IonIcon icon={personOutline} />
+                  )}
                 </div>
                 <div className="solicitud-info">
                   <h3 className="solicitud-name">
-                    {request.user?.displayName || request.user?.username || 'Usuario'}
+                    {request.user?.display_name || request.user?.username || 'Usuario'}
                   </h3>
                   <p className="solicitud-username">
                     @{request.user?.username || 'usuario'}
@@ -129,12 +138,6 @@ export const SolicitudesTab: React.FC<SolicitudesTabProps> = ({ project }) => {
               </div>
 
               <div className="solicitud-details">
-                <div className="solicitud-detail-item">
-                  <span className="detail-label">Monto solicitado:</span>
-                  <span className="detail-value">
-                    {request.base_amount?.toLocaleString('es-CO')} {request.base_currency || 'COP'}
-                  </span>
-                </div>
                 <div className="solicitud-detail-item">
                   <span className="detail-label">Fecha de solicitud:</span>
                   <span className="detail-value">

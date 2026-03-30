@@ -1,10 +1,22 @@
 import { Currency } from '../projects/project.model';
-import { User } from '../User.model';
 
 export enum MembershipStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
+}
+
+export interface InvestmentPositionUser {
+  id: string;
+  display_name: string;
+  username: string;
+  email: string;
+  avatar_asset_id: string | null;
+  phone: string | null;
+  phone_country_code: string | null;
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface InvestmentPosition {
@@ -16,7 +28,7 @@ export interface InvestmentPosition {
   status: MembershipStatus;
   created_at: string;
   updated_at: string;
-  user?: User;
+  user?: InvestmentPositionUser;
 }
 
 export interface JoinProjectResponse {

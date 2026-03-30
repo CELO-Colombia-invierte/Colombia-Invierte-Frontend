@@ -18,7 +18,6 @@ class ChatApiService {
       await apiService.get<ConversationResponseDto[]>('/conversations');
     return ConversationMapper.fromDtoArray(response.data);
   }
-
   async createConversation(
     type: 'DIRECT' | 'GROUP',
     memberIds: string[],
@@ -31,14 +30,12 @@ class ChatApiService {
     );
     return ConversationMapper.fromDto(response.data);
   }
-
   async getMessages(conversationId: string): Promise<Message[]> {
     const response = await apiService.get<MessageResponseDto[]>(
       `/conversations/${conversationId}/messages`
     );
     return MessageMapper.fromDtoArray(response.data);
   }
-
   async sendMessage(conversationId: string, text: string): Promise<Message> {
     const requestData = MessageMapper.toSendRequest(text);
     const response = await apiService.post<MessageResponseDto>(
@@ -47,7 +44,6 @@ class ChatApiService {
     );
     return MessageMapper.fromDto(response.data);
   }
-
   async presignAttachment(
     conversationId: string,
     data: PresignMessageAttachmentRequestDto
@@ -58,7 +54,6 @@ class ChatApiService {
     );
     return response.data;
   }
-
   async uploadFile(uploadUrl: string, file: File, assetId: string): Promise<void> {
     const token = (await import('../auth')).authService.getToken();
     const formData = new FormData();
@@ -77,7 +72,6 @@ class ChatApiService {
       throw new Error('Failed to upload file');
     }
   }
-
   async addAttachment(
     conversationId: string,
     messageId: string,
@@ -89,7 +83,6 @@ class ChatApiService {
     );
     return MessageMapper.attachmentFromDto(response.data);
   }
-
   async uploadMessageAttachment(
     conversationId: string,
     messageId: string,
@@ -111,7 +104,6 @@ class ChatApiService {
       asset_id: presignResponse.asset_id,
     });
   }
-
   async updateConversationName(
     conversationId: string,
     newName: string
@@ -122,11 +114,9 @@ class ChatApiService {
     );
     return ConversationMapper.fromDto(response.data);
   }
-
   async leaveConversation(conversationId: string): Promise<void> {
     await apiService.delete(`/conversations/${conversationId}/leave`);
   }
-
   async deleteConversation(conversationId: string): Promise<void> {
     await apiService.delete(`/conversations/${conversationId}`);
   }

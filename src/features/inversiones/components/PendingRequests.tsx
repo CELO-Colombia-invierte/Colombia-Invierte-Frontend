@@ -107,13 +107,6 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
     });
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    const formatted = Number(amount).toLocaleString('es-CO', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-    return `$${formatted} ${currency}`;
-  };
 
   if (loading) {
     return (
@@ -137,7 +130,9 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
 
       <div className={`pending-requests-list ${isCompact ? 'compact' : ''}`}>
         {requests.map((request) => {
-          const avatarUrl = request.user?.getAvatarUrl?.() || request.user?.avatar;
+          const avatarUrl = request.user?.avatar_asset_id
+            ? `${import.meta.env.VITE_API_URL || ''}/assets/${request.user.avatar_asset_id}`
+            : null;
           return (
             <div key={request.id} className="pending-request-card">
               <div className="pending-request-user">
@@ -151,17 +146,14 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
 
                 <div className="pending-request-info">
                   <span className="pending-request-name">
-                    {request.user?.displayName || request.user?.username || 'Usuario'}
+                    {request.user?.display_name || request.user?.username || 'Usuario'}
                   </span>
                   <span className="pending-request-username">
                     @{request.user?.username || 'desconocido'}
                   </span>
                   <div className="pending-request-meta">
-                    <span className="pending-request-amount">
-                      {formatCurrency(request.base_amount, request.base_currency)}
-                    </span>
                     <span className="pending-request-date">
-                      - {formatDate(request.created_at)}
+                      {formatDate(request.created_at)}
                     </span>
                   </div>
                 </div>
