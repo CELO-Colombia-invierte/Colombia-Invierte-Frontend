@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { PropuestaPreview } from '@/types/propuesta';
 import { propuestasService } from '@/services/propuestas/propuestas.service';
+import { useProposalVotes } from '@/hooks/use-proposal-votes';
 import './ProposalMessageCard.css';
 
 interface ProposalMessageCardProps {
@@ -47,8 +48,24 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
     }
   }, [proposalId]);
 
+  // Real-time vote updates
+  const handleVoteUpdate = useCallback((event: { proposalId: string; votes_yes: number; votes_no: number; total_members: number; status: string }) => {
+    if (proposal && event.proposalId === proposal.id) {
+      setProposal((prev) => prev ? {
+        ...prev,
+        votes_yes: event.votes_yes,
+        votes_no: event.votes_no,
+        total_members: event.total_members,
+        status: event.status,
+      } : prev);
+    }
+  }, [proposal?.id]);
+
+  useProposalVotes(handleVoteUpdate);
+
   const handleVote = async (answer: 'YES' | 'NO') => {
-    if (!proposal || voting || voted || proposal.status !== 'PENDING') return;
+    if (!proposal || voting || proposal.status !== 'PENDING') return;
+    if (proposal.user_vote === answer) return; // same vote, no-op
     setVoting(true);
     try {
       const updated = await propuestasService.vote(proposal.id, answer);
@@ -56,11 +73,12 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
         ...prev,
         votes_yes: updated.votes_yes,
         votes_no: updated.votes_no,
+        user_vote: answer,
         status: updated.status,
       } : prev);
       setVoted(true);
     } catch {
-      setVoted(true);
+      // ignore
     } finally {
       setVoting(false);
     }
@@ -68,8 +86,8 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
 
   if (!proposal) return null;
 
-  const formatMonto = (amount: number) =>
-    amount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  const formatMonto = (amount: number | null | undefined) =>
+    (amount ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
   const handleVerPropuesta = () => {
     history.push(`/ver-propuesta/${proposal.id}`);
@@ -115,38 +133,41 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
             const total = proposal.votes_yes + proposal.votes_no;
             const yesPercent = total > 0 ? (proposal.votes_yes / total) * 100 : 0;
             const noPercent = total > 0 ? (proposal.votes_no / total) * 100 : 0;
-            const canVote = !voting && !voted && proposal.status === 'PENDING' && (proposal.can_vote ?? true);
+            const isPending = proposal.status === 'PENDING';
+            const canInteract = !voting && isPending && (proposal.can_vote ?? true);
             const userVote = proposal.user_vote;
             return (
               <>
                 <button
-                  className={`proposal-vote-row${canVote ? '' : ' disabled'}${userVote === 'YES' ? ' voted-yes' : ''}`}
+                  className={`proposal-vote-row${!canInteract ? ' disabled' : ''}${userVote === 'YES' ? ' selected' : ''}`}
                   onClick={() => handleVote('YES')}
-                  disabled={!canVote}
+                  disabled={!canInteract}
                 >
-                  <div className="proposal-vote-row-header">
-                    <span className="proposal-vote-label">
-                      {userVote === 'YES' && '✓ '}Sí, estoy de acuerdo
-                    </span>
-                    <span className="proposal-vote-count yes">{proposal.votes_yes}</span>
-                  </div>
-                  <div className="proposal-vote-bar-track">
-                    <div className="proposal-vote-bar-fill yes" style={{ width: `${yesPercent}%` }} />
+                  <span className={`proposal-vote-radio ${userVote === 'YES' ? 'proposal-vote-radio--selected' : ''}`} />
+                  <div className="proposal-vote-row-content">
+                    <div className="proposal-vote-row-header">
+                      <span className="proposal-vote-label">Sí, estoy de acuerdo</span>
+                      <span className="proposal-vote-count yes">{proposal.votes_yes}</span>
+                    </div>
+                    <div className="proposal-vote-bar-track">
+                      <div className="proposal-vote-bar-fill yes" style={{ width: `${yesPercent}%` }} />
+                    </div>
                   </div>
                 </button>
                 <button
-                  className={`proposal-vote-row${canVote ? '' : ' disabled'}${userVote === 'NO' ? ' voted-no' : ''}`}
+                  className={`proposal-vote-row${!canInteract ? ' disabled' : ''}${userVote === 'NO' ? ' selected' : ''}`}
                   onClick={() => handleVote('NO')}
-                  disabled={!canVote}
+                  disabled={!canInteract}
                 >
-                  <div className="proposal-vote-row-header">
-                    <span className="proposal-vote-label">
-                      {userVote === 'NO' && '✓ '}No, no estoy de acuerdo
-                    </span>
-                    <span className="proposal-vote-count no">{proposal.votes_no}</span>
-                  </div>
-                  <div className="proposal-vote-bar-track">
-                    <div className="proposal-vote-bar-fill no" style={{ width: `${noPercent}%` }} />
+                  <span className={`proposal-vote-radio ${userVote === 'NO' ? 'proposal-vote-radio--selected' : ''}`} />
+                  <div className="proposal-vote-row-content">
+                    <div className="proposal-vote-row-header">
+                      <span className="proposal-vote-label">No, no estoy de acuerdo</span>
+                      <span className="proposal-vote-count no">{proposal.votes_no}</span>
+                    </div>
+                    <div className="proposal-vote-bar-track">
+                      <div className="proposal-vote-bar-fill no" style={{ width: `${noPercent}%` }} />
+                    </div>
                   </div>
                 </button>
                 <span className="proposal-card-time">{formattedTime} &middot; Votaron: {total}/{proposal.total_members}</span>

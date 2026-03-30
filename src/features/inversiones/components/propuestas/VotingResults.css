@@ -13,8 +13,64 @@
 
 .voting-option {
   display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.voting-option:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.voting-option--disabled {
+  cursor: default;
+}
+
+.voting-option--selected {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Radio circle */
+.voting-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.voting-radio--selected {
+  border-color: #3b82f6;
+  background: #3b82f6;
+}
+
+.voting-radio--selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+.voting-option-body {
+  flex: 1;
+  display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .voting-option-header {

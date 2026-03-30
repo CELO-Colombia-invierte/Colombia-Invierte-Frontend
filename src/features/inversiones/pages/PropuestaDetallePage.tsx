@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { IonPage, IonContent, IonSpinner, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { Propuesta } from '@/types/propuesta';
 import { propuestasService } from '@/services/propuestas/propuestas.service';
+import { useProposalVotes } from '@/hooks/use-proposal-votes';
 import { VotingResults } from '../components/propuestas/VotingResults';
 import { WithdrawBlockedModal } from '../components/propuestas/WithdrawBlockedModal';
 import './PropuestaDetallePage.css';
@@ -38,6 +39,21 @@ const PropuestaDetallePage: React.FC = () => {
     };
     load();
   }, [propuestaId]);
+
+  // Real-time vote updates
+  const handleVoteUpdate = useCallback((event: { proposalId: string; votes_yes: number; votes_no: number; total_members: number; status: string }) => {
+    if (propuesta && event.proposalId === propuesta.id) {
+      setPropuesta((prev) => prev ? {
+        ...prev,
+        votes_yes: event.votes_yes,
+        votes_no: event.votes_no,
+        total_members: event.total_members,
+        status: event.status,
+      } : prev);
+    }
+  }, [propuesta?.id]);
+
+  useProposalVotes(handleVoteUpdate);
 
   const handleVote = async (answer: 'YES' | 'NO') => {
     if (!propuesta) return;
@@ -83,8 +99,8 @@ const PropuestaDetallePage: React.FC = () => {
 
   if (!propuesta) return null;
 
-  const formatMonto = (amount: number) =>
-    amount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  const formatMonto = (amount: number | null | undefined) =>
+    (amount ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
   const isEncargado = user?.id === propuesta.responsible_user.id;
   const isPending = propuesta.status === 'PENDING';
@@ -170,7 +186,7 @@ const PropuestaDetallePage: React.FC = () => {
               <span className="propuesta-data-label">Monto a retirar:</span>
               <span className="propuesta-data-value">{formatMonto(propuesta.withdrawal_amount)}</span>
             </div>
-            {propuesta.estimated_profit !== undefined && (
+            {propuesta.estimated_profit != null && (
               <div className="propuesta-data-item">
                 <span className="propuesta-data-label">Ganancia de dinero estimado:</span>
                 <span className="propuesta-data-value">{formatMonto(propuesta.estimated_profit)}</span>
@@ -178,7 +194,7 @@ const PropuestaDetallePage: React.FC = () => {
             )}
           </div>
 
-          <VotingResults propuesta={propuesta} />
+          <VotingResults propuesta={propuesta} onVote={handleVote} voting={voting} />
 
           {getStatusIndicator()}
 

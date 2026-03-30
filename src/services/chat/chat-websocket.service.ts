@@ -18,6 +18,14 @@ import {
 type EventCallback<T> = (data: T) => void;
 type GenericEventCallback = (...args: any[]) => void;
 
+export interface ProposalVoteUpdateEvent {
+  proposalId: string;
+  votes_yes: number;
+  votes_no: number;
+  total_members: number;
+  status: string;
+}
+
 class ChatWebSocketService {
   private socket: Socket | null = null;
   private baseUrl: string;
@@ -88,6 +96,10 @@ class ChatWebSocketService {
 
   onError(callback: EventCallback<SocketErrorEvent>): void {
     this.socket?.on('error', callback);
+  }
+
+  onProposalVoteUpdate(callback: EventCallback<ProposalVoteUpdateEvent>): void {
+    this.socket?.on('proposalVoteUpdate', callback);
   }
 
   offEvent(eventName: string, callback?: GenericEventCallback): void {
