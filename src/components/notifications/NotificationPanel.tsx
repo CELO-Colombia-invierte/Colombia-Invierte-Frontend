@@ -31,7 +31,8 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
   };
 
   return (
-    <div className="notification-panel-backdrop" onClick={handleBackdropClick}>
+    <>
+      <div className="notification-panel-backdrop" onClick={onClose} />
       <div className="notification-panel">
         <div className="notification-panel__header">
           <h3 className="notification-panel__title">Notificaciones</h3>
@@ -68,10 +69,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
         </div>
 
         <button className="notification-panel__see-all" onClick={onSeeAll}>
-          Ver todas las notificaciones
+          Ver todas
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

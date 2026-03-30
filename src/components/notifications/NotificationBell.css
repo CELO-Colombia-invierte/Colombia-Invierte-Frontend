@@ -1,3 +1,7 @@
+.notification-bell-wrapper {
+  position: relative;
+}
+
 .notification-bell {
   position: relative;
   background: transparent;

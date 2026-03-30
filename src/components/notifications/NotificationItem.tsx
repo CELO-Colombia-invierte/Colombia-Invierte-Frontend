@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
+import { IonIcon } from '@ionic/react';
 import { useIonToast } from '@ionic/react';
+import {
+  chatbubbleEllipses,
+  mailOpen,
+  checkmarkCircle,
+  closeCircle,
+  alarm,
+  cash,
+  warning,
+  megaphone,
+  documentText,
+  star,
+  heart,
+  cart,
+  notifications as notifIcon,
+} from 'ionicons/icons';
 import { Notification, NotificationType } from '@/types';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
 import './NotificationItem.css';
@@ -10,28 +26,28 @@ interface NotificationItemProps {
   onInvitationResponse?: (notificationId: string, accepted: boolean) => void;
 }
 
-const getNotificationIcon = (type: NotificationType): string => {
+const getNotificationIconData = (type: NotificationType): { icon: string; color: string } => {
   switch (type) {
     case NotificationType.NEW_MESSAGE:
-      return '💬';
+      return { icon: chatbubbleEllipses, color: '#22c55e' };
     case NotificationType.PROJECT_INVITATION:
-      return '📨';
+      return { icon: mailOpen, color: '#f59e0b' };
     case NotificationType.PROJECT_INVITATION_ACCEPTED:
-      return '✅';
+      return { icon: checkmarkCircle, color: '#22c55e' };
     case NotificationType.PROJECT_INVITATION_DECLINED:
-      return '❌';
+      return { icon: closeCircle, color: '#ef4444' };
     case NotificationType.PAYMENT_REMINDER:
-      return '⏰';
+      return { icon: alarm, color: '#f59e0b' };
     case NotificationType.PAYMENT_RECEIVED:
-      return '💰';
+      return { icon: cash, color: '#22c55e' };
     case NotificationType.PAYMENT_LATE:
-      return '⚠️';
+      return { icon: warning, color: '#ef4444' };
     case NotificationType.SYSTEM_ANNOUNCEMENT:
-      return '📢';
+      return { icon: megaphone, color: '#3b82f6' };
     case NotificationType.NEW_PROPOSAL:
-      return '📋';
+      return { icon: documentText, color: '#8b5cf6' };
     default:
-      return '🔔';
+      return { icon: notifIcon, color: '#3b82f6' };
   }
 };
 
@@ -182,8 +198,11 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
             {notification.actor?.display_name?.charAt(0).toUpperCase() || '?'}
           </div>
         )}
-        <span className="notification-item__icon">
-          {getNotificationIcon(notification.type)}
+        <span
+          className="notification-item__icon"
+          style={{ backgroundColor: getNotificationIconData(notification.type).color }}
+        >
+          <IonIcon icon={getNotificationIconData(notification.type).icon} />
         </span>
       </div>
 

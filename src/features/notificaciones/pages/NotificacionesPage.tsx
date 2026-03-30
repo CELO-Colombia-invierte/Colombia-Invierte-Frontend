@@ -2,14 +2,10 @@ import React from 'react';
 import {
   IonContent,
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButton,
   IonIcon,
   IonSpinner,
 } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons';
+import { arrowBack, ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useNotifications } from '@/hooks/use-notifications';
 import { NotificationItem } from '@/components/notifications/NotificationItem';
@@ -28,12 +24,9 @@ const NotificacionesPage: React.FC = () => {
   } = useNotifications();
 
   const handleNotificationClick = async (notification: Notification) => {
-    // Marcar como leído si no lo está
     if (!notification.is_read) {
       await markAsRead(notification.id);
     }
-
-    // Navegar si tiene action_url
     if (notification.action_url) {
       history.push(notification.action_url);
     }
@@ -54,32 +47,19 @@ const NotificacionesPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader className="notificaciones-header">
-        <IonToolbar>
-          <IonButton
-            slot="start"
-            fill="clear"
-            onClick={handleBack}
-            className="notificaciones-back-btn"
-          >
-            <IonIcon icon={arrowBack} />
-          </IonButton>
-          <IonTitle>Notificaciones</IonTitle>
-          {unreadCount > 0 && (
-            <IonButton
-              slot="end"
-              fill="clear"
-              size="small"
-              onClick={handleMarkAllAsRead}
-              className="notificaciones-mark-all-btn"
-            >
-              Marcar todo
-            </IonButton>
-          )}
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent fullscreen className="notificaciones-page-content">
+        <div className="notificaciones-page__header">
+          <button className="notificaciones-page__back-btn" onClick={handleBack}>
+            <IonIcon icon={arrowBack} />
+          </button>
+          <h1 className="notificaciones-page__title">Notificaciones</h1>
+          {unreadCount > 0 && (
+            <button className="notificaciones-page__menu-btn" onClick={handleMarkAllAsRead}>
+              <IonIcon icon={ellipsisHorizontal} />
+            </button>
+          )}
+        </div>
+
         {loading && (
           <div className="notificaciones-page__loading">
             <IonSpinner name="crescent" />
