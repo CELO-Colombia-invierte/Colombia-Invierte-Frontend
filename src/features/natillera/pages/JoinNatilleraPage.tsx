@@ -7,7 +7,7 @@ import {
   useIonToast,
 } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
-import { checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
+import { checkmarkCircleOutline, alertCircleOutline, personOutline, timeOutline, notificationsOutline } from 'ionicons/icons';
 import { projectsService, projectMembershipService } from '@/services/projects';
 import { Project } from '@/models/projects';
 import { useBlockchain } from '@/hooks/use-blockchain';
@@ -22,6 +22,7 @@ import {
   DocumentosTab,
 } from '@/features/inversiones/components/ProjectDetailTabs';
 import '@/features/inversiones/pages/ProjectDetailPage.css';
+import './JoinNatilleraPage.css';
 
 const JoinNatilleraPage: React.FC = () => {
   const history = useHistory();
@@ -36,6 +37,11 @@ const JoinNatilleraPage: React.FC = () => {
   );
   const [activeTab, setActiveTab] = useState<TabId>('resumen');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.add('join-page-active');
+    return () => document.body.classList.remove('join-page-active');
+  }, []);
 
   useEffect(() => {
     loadProject();
@@ -157,58 +163,54 @@ const JoinNatilleraPage: React.FC = () => {
 
     return (
       <IonPage>
-        <IonContent className="ion-padding ion-text-center">
-          <div style={{ marginTop: '30%', padding: '0 20px' }}>
-            <IonIcon
-              icon={isPending ? alertCircleOutline : checkmarkCircleOutline}
-              style={{
-                fontSize: '80px',
-                color: isPending ? '#ffc409' : '#2dd36f',
-              }}
-            />
-            <h2 style={{ marginTop: '20px', fontSize: '24px' }}>
+        <IonContent className="join-success-page">
+          <div className="join-success-container">
+
+            <div className={`join-success-icon-wrapper ${isPending ? 'pending' : 'approved'}`}>
+              <IonIcon
+                icon={isPending ? alertCircleOutline : checkmarkCircleOutline}
+                className="join-success-icon"
+              />
+            </div>
+
+            <h2 className="join-success-title">
               {isPending ? 'Solicitud Enviada' : '¡Te uniste exitosamente!'}
             </h2>
-            <p style={{ fontSize: '16px', margin: '16px 0', color: '#666' }}>
+            <p className="join-success-subtitle">
               {isPending
-                ? 'Tu solicitud está pendiente de aprobación por el anfitrión:'
-                : `Ahora eres parte de ${project.type === 'NATILLERA' ? 'la natillera' : 'la tokenización'}:`}
+                ? 'Tu solicitud está pendiente de aprobación por el anfitrión'
+                : `Ahora eres parte de ${project.type === 'NATILLERA' ? 'la natillera' : 'la tokenización'}`}
             </p>
-            <h3
-              style={{ color: '#3880ff', fontSize: '20px', margin: '12px 0' }}
-            >
-              "{project.name}"
-            </h3>
-            <p style={{ color: '#666', margin: '16px 0' }}>
-              Creada por: {project.owner_user?.username || 'Usuario'}
-            </p>
+
+            <div className="join-project-card">
+              <p className="join-project-name">"{project.name}"</p>
+              <p className="join-project-creator">
+                <IonIcon icon={personOutline} />
+                Creada por: {project.owner_user?.username || 'Usuario'}
+              </p>
+            </div>
+
             {isPending && (
-              <p
-                style={{
-                  color: '#ffc409',
-                  fontSize: '14px',
-                  marginTop: '20px',
-                }}
-              >
+              <p className="join-notify-text">
+                <IonIcon icon={notificationsOutline} className="join-notify-icon" />
                 Te notificaremos cuando el anfitrión apruebe tu solicitud
               </p>
             )}
+
+            {isPending && (
+              <span className="join-status-badge">
+                <IonIcon icon={timeOutline} />
+                Pendiente de aprobación
+              </span>
+            )}
+
             <button
+              className="join-cta-button"
               onClick={() => history.push('/portafolio')}
-              style={{
-                padding: '14px 32px',
-                background: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                fontSize: '15px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                marginTop: '32px',
-              }}
             >
               Ir a mi Portafolio
             </button>
+
           </div>
         </IonContent>
       </IonPage>
@@ -239,7 +241,7 @@ const JoinNatilleraPage: React.FC = () => {
 
         <ProjectDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="project-detail-content">
+        <div className="project-detail-content" style={{ paddingBottom: '150px' }}>
           {activeTab === 'resumen' && (
             <ResumenTab
               project={project}
