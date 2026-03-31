@@ -291,7 +291,10 @@ const PaymentPage: React.FC = () => {
             <div className="payment-detail-row">
               <span className="payment-detail-label">Cuota mensual</span>
               <span className="payment-detail-value">
-                {project.natillera_details?.monthly_fee_amount?.toLocaleString('es-CO')} {currency}
+                {Number(project.natillera_details?.monthly_fee_amount || 0).toLocaleString('es-CO', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })} {currency}
               </span>
             </div>
             {monthlyContribution > BigInt(0) && (

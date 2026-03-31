@@ -79,6 +79,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
               placeholder="0"
               value={formData.valorActivo}
               onChange={(e) => onChange('valorActivo', e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         </div>
@@ -97,6 +98,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             placeholder="0"
             value={formData.rendimiento}
             onChange={(e) => onChange('rendimiento', e.target.value)}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
       </div>
@@ -114,6 +116,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             placeholder="0"
             value={formData.precioPorToken}
             onChange={(e) => onChange('precioPorToken', e.target.value)}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
       </div>
@@ -131,6 +134,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             placeholder="0"
             value={formData.totalTokens}
             onChange={(e) => onChange('totalTokens', e.target.value)}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
       </div>
