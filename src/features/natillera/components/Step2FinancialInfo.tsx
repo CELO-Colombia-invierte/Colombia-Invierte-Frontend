@@ -38,6 +38,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
               min="1000"
               value={formData.valorCuota}
               onChange={(e) => onChange('valorCuota', e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         </div>
@@ -60,6 +61,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             step="0.01"
             value={formData.rendimiento}
             onChange={(e) => onChange('rendimiento', e.target.value)}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
         <span className="form-hint">Rango: 0% - 100%</span>
@@ -78,6 +80,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           max="120"
           value={formData.cantidadMeses}
           onChange={(e) => onChange('cantidadMeses', e.target.value)}
+          onWheel={(e) => e.currentTarget.blur()}
         />
         <span className="form-hint">Rango: 1 - 120 meses</span>
       </div>
@@ -95,6 +98,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           max="100"
           value={formData.maxParticipantes}
           onChange={(e) => onChange('maxParticipantes', e.target.value)}
+          onWheel={(e) => e.currentTarget.blur()}
         />
         <span className="form-hint">Rango: 2 - 100 participantes</span>
       </div>

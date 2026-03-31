@@ -235,6 +235,11 @@ const JoinNatilleraPage: React.FC = () => {
         <InvestmentHeader
           projectName={project.name}
           projectType={projectType}
+          coverImage={
+            project.cover_asset_id
+              ? `${import.meta.env.VITE_API_URL || ''}/assets/${project.cover_asset_id}`
+              : undefined
+          }
           gradient={gradients[projectType]}
           onBack={handleBack}
         />
