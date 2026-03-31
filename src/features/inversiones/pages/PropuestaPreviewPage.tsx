@@ -24,8 +24,8 @@ const PropuestaPreviewPage: React.FC = () => {
     return null;
   }
 
-  const formatMonto = (amount: number) =>
-    amount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  const formatMonto = (amount: number | null | undefined) =>
+    (amount ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
   const handleEditar = () => {
     history.goBack();
