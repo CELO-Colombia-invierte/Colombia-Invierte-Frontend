@@ -572,6 +572,7 @@ const CrearTokenizacionPage: React.FC = () => {
                 <ConnectButton
                   client={thirdwebClient}
                   chain={CHAIN}
+                  locale="es_ES"
                   wallets={wallets}
                   connectButton={{ style: { width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' } }}
                 />

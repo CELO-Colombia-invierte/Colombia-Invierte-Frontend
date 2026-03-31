@@ -71,6 +71,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
             <ConnectButton
               client={thirdwebClient}
               chain={CHAIN}
+              locale="es_ES"
               detailsButton={{
                 render: () => (
                   <button className="balance-card-wallet-btn">

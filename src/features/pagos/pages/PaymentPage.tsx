@@ -331,6 +331,7 @@ const PaymentPage: React.FC = () => {
               <ConnectButton
                 client={thirdwebClient}
                 chain={CHAIN}
+                locale="es_ES"
                 wallets={wallets}
               />
             </div>
@@ -344,6 +345,7 @@ const PaymentPage: React.FC = () => {
               <ConnectButton
                 client={thirdwebClient}
                 chain={CHAIN}
+                locale="es_ES"
                 wallets={wallets}
               />
               <button

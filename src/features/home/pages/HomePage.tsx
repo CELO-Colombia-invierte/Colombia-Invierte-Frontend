@@ -11,21 +11,20 @@ import {
   ActionButtons,
   InvestmentList,
 } from '@/components/home';
-import { TransferModal } from '@/components/home/TransferModal';
-import { RecibirModal } from '@/components/home/RecibirModal';
 import { PageTransition } from '@/components/ui';
 import './HomePage.css';
 
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
-import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { BLOCKCHAIN_CONFIG, CHAIN } from '@/contracts/config';
+import { useWalletDetailsModal } from 'thirdweb/react';
+import { thirdwebClient } from '@/app/App';
 
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const history = useHistory();
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-  const [isRecibirModalOpen, setIsRecibirModalOpen] = useState(false);
+  const detailsModal = useWalletDetailsModal();
   const { account } = useBlockchain();
   const [usdtBalance, setUsdtBalance] = useState<number>(() => {
     const saved = localStorage.getItem('usdtBalance');
@@ -102,13 +101,30 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleSend = () => {
-    setIsTransferModalOpen(true);
-  };
+  const openWalletModal = useCallback((mode: 'send' | 'receive') => {
+    if (!account) return;
+    try {
+      detailsModal.open({
+        client: thirdwebClient,
+        chains: [CHAIN],
+        theme: "dark",
+        locale: "es_ES",
+        hideSendFunds: mode === 'receive',
+        hideReceiveFunds: mode === 'send',
+        hideBuyFunds: true,
+        assetTabs: [],
+        hideDisconnect: true,
+        displayBalanceToken: {
+          [BLOCKCHAIN_CONFIG.CHAIN_ID]: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+        },
+      });
+    } catch (error) {
+      console.error(`Error opening ${mode} modal:`, error);
+    }
+  }, [account, detailsModal]);
 
-  const handleReceive = () => {
-    setIsRecibirModalOpen(true);
-  };
+  const handleSend = () => openWalletModal('send');
+  const handleReceive = () => openWalletModal('receive');
 
   const handleInvestmentClick = () => {
   };
@@ -139,14 +155,6 @@ const HomePage: React.FC = () => {
           />
         </PageTransition>
       </IonContent>
-      <TransferModal
-        isOpen={isTransferModalOpen}
-        onClose={() => setIsTransferModalOpen(false)}
-      />
-      <RecibirModal
-        isOpen={isRecibirModalOpen}
-        onClose={() => setIsRecibirModalOpen(false)}
-      />
     </IonPage>
   );
 };

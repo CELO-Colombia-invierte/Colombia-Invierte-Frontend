@@ -154,6 +154,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     onConnect: handleConnect,
     showThirdwebBranding: false,
     modalSize: 'wide' as const,
+    locale: 'es_ES',
     header: {
       title: 'COLOMBIA INVIERTE',
       titleIcon: getLogoPath(),

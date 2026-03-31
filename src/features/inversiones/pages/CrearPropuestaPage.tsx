@@ -9,6 +9,7 @@ import './CrearPropuestaPage.css';
 import { IonIcon } from '@ionic/react';
 import { arrowBackOutline } from 'ionicons/icons'; 
 
+
 const CrearPropuestaPage: React.FC = () => {
   const { id: projectId } = useParams<{ id: string }>();
   const history = useHistory();
@@ -31,7 +32,7 @@ const CrearPropuestaPage: React.FC = () => {
         const data = await projectMembershipService.getMembers(projectId);
         setMembers(data);
       } catch {
-
+        console.error("error loading member")
       }
     };
     loadMembers();

@@ -423,6 +423,7 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
                         <ConnectButton
                           client={thirdwebClient}
                           chain={CHAIN}
+                          locale="es_ES"
                           wallets={[inAppWallet({ auth: { options: ['email', 'google', 'apple'] } }), createWallet('io.metamask')]}
                           connectButton={{ style: { width: '100%', borderRadius: '12px', height: '48px', fontSize: '15px', fontWeight: '600' } }}
                         />
