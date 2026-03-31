@@ -345,10 +345,6 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
                   <span className="chain-stat-value">{formatUsdc(s.quota)} USDC</span>
                 </div>
                 <div className="chain-stat-card">
-                  <span className="chain-stat-label">Miembros</span>
-                  <span className="chain-stat-value">{Number(s.memberCount)}</span>
-                </div>
-                <div className="chain-stat-card">
                   <span className="chain-stat-label">Estado</span>
                   <span className={`chain-stat-badge ${s.isMatured ? 'badge-done' : 'badge-active'}`}>
                     {s.isMatured ? 'Madurada' : 'Activa'}
@@ -372,12 +368,6 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
                   <span className="chain-stat-label">Ciclo actual</span>
                   <span className="chain-stat-value">
                     {Number(s.currentCycle) + 1}{totalMonths ? ` / ${totalMonths}` : ''}
-                  </span>
-                </div>
-                <div className="chain-stat-card">
-                  <span className="chain-stat-label">Miembros</span>
-                  <span className="chain-stat-value">
-                    {s.memberCount}{maxMembers ? ` / ${maxMembers}` : ''}
                   </span>
                 </div>
                 <div className="chain-stat-card">
