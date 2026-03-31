@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usersService } from '@/services/users/users.service';
 import { User } from '@/models/User.model';
 import { ContactData } from '../pages/CuentaTransferPage';
@@ -32,45 +32,57 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
   const [activeTab, setActiveTab] = useState<SearchTab>('todo');
   const [isFocused, setIsFocused] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [result, setResult] = useState<ContactData | null>(null);
+  const [results, setResults] = useState<ContactData[]>([]);
   const [notFound, setNotFound] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const canSearch = query.trim().length >= 3 && !isSearching;
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
-  const handleSearch = async () => {
-    if (!canSearch) return;
-    setResult(null);
-    setNotFound(false);
-    setIsSearching(true);
-    try {
-      const user = await usersService.getUserByUsername(query.trim());
-      setResult(mapUserToContact(user));
-    } catch {
-      setNotFound(true);
-    } finally {
-      setIsSearching(false);
+    const trimmed = query.trim();
+    if (trimmed.length < 2) {
+      setResults([]);
+      setNotFound(false);
+      return;
     }
-  };
+
+    setIsSearching(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const users = await usersService.searchUsers(trimmed);
+        if (users.length > 0) {
+          setResults(users.map(mapUserToContact));
+          setNotFound(false);
+        } else {
+          setResults([]);
+          setNotFound(true);
+        }
+      } catch {
+        setResults([]);
+        setNotFound(true);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
-    setResult(null);
-    setNotFound(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearch();
   };
 
   const handleClear = () => {
     setQuery('');
-    setResult(null);
+    setResults([]);
     setNotFound(false);
   };
 
   const handleTabChange = (tab: SearchTab) => {
     setActiveTab(tab);
-    setResult(null);
+    setResults([]);
     setNotFound(false);
   };
 
@@ -78,16 +90,10 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
     <div className="cs-container">
       <div className="cs-content">
 
-        {/* Subtítulo */}
         <p className="cs-heading">Encuentra tus contactos</p>
 
-        {/* Input de búsqueda */}
         <div className="cs-search-row">
-          <button
-            className="cs-search-icon-left"
-            onClick={handleSearch}
-            disabled={!canSearch}
-          >
+          <button className="cs-search-icon-left" disabled>
             <SearchIcon />
           </button>
           <input
@@ -96,10 +102,8 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
             placeholder="Usuario, correo o ID"
             value={query}
             onChange={handleQueryChange}
-            onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            disabled={isSearching}
           />
           {query.length > 0 && (
             <button
@@ -113,7 +117,6 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
           )}
         </div>
 
-        {/* Tabs — solo visibles cuando el input está enfocado */}
         {isFocused && (
           <div className="cs-tabs">
             {TABS.map(tab => (
@@ -129,22 +132,25 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
           </div>
         )}
 
-        {/* Sección Resultados — visible cuando hay query activo */}
         {query.trim().length > 0 && (
           <div className="cs-section">
             <p className="cs-section-title">Resultados</p>
-            {result && (
+            {isSearching && results.length === 0 && (
+              <p className="cs-searching">Buscando...</p>
+            )}
+            {results.length > 0 && (
               <div className="cs-list">
-                <ContactItem contact={result} onSelect={onSelect} />
+                {results.map(contact => (
+                  <ContactItem key={contact.id} contact={contact} onSelect={onSelect} />
+                ))}
               </div>
             )}
-            {notFound && (
+            {notFound && !isSearching && (
               <p className="cs-not-found">Usuario no encontrado</p>
             )}
           </div>
         )}
 
-        {/* Contactos recientes — solo cuando no hay query activo */}
         {!query && (
           <div className="cs-section">
             <p className="cs-section-title">Recientes</p>
@@ -166,16 +172,6 @@ const ContactSearchStep: React.FC<Props> = ({ recentContacts = [], onSelect }) =
           </div>
         )}
       </div>
-
-      {/* Overlay de carga */}
-      {isSearching && (
-        <div className="cs-overlay">
-          <div className="cs-loading-card">
-            <div className="cs-spinner" />
-            <span className="cs-loading-text">Buscando contacto...</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

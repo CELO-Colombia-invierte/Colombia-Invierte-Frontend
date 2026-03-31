@@ -30,6 +30,11 @@ class UsersService {
     });
   }
 
+  async searchUsers(query: string, limit = 10): Promise<User[]> {
+    const response = await apiService.get<UserDto[]>(`/users/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+    return response.data.map((dto) => this.mapUserDtoToUser(dto));
+  }
+
   async getUserByUsername(username: string): Promise<User> {
     const response = await apiService.get<UserDto>(`/users/username/${username}`);
     return this.mapUserDtoToUser(response.data);
