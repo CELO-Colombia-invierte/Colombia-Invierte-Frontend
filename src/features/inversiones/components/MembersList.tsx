@@ -137,13 +137,7 @@ export const MembersList: React.FC<MembersListProps> = ({
     });
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    const formatted = Number(amount).toLocaleString('es-CO', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-    return `$${formatted} ${currency}`;
-  };
+
 
   if (loading) {
     return (
@@ -199,7 +193,9 @@ export const MembersList: React.FC<MembersListProps> = ({
 
       <div className="members-list">
         {members.map((member) => {
-          const avatarUrl = member.user?.getAvatarUrl?.() || member.user?.avatar;
+          const avatarUrl = member.user?.avatar_asset_id
+            ? `${import.meta.env.VITE_API_URL || ''}/assets/${member.user.avatar_asset_id}`
+            : null;
           return (
             <div key={member.id} className="member-card">
               <div className="member-user">
@@ -213,17 +209,14 @@ export const MembersList: React.FC<MembersListProps> = ({
 
                 <div className="member-info">
                   <span className="member-name">
-                    {member.user?.displayName || member.user?.username || 'Usuario'}
+                    {member.user?.display_name || member.user?.username || 'Usuario'}
                   </span>
                   <span className="member-username">
                     @{member.user?.username || 'desconocido'}
                   </span>
                   <div className="member-meta">
-                    <span className="member-amount">
-                      {formatCurrency(member.base_amount, member.base_currency)}
-                    </span>
                     <span className="member-date">
-                      - Desde {formatDate(member.created_at)}
+                      Desde {formatDate(member.created_at)}
                     </span>
                   </div>
                 </div>

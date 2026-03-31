@@ -9,11 +9,14 @@ interface InvestmentCardProps {
 }
 
 export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onClick }) => {
+  const isFiat = investment.currency === 'COP';
+  const decimals = isFiat ? 0 : 2;
+
   const formatAmount = (amount: number) => {
     const numAmount = Number(amount) || 0;
     return `$${numAmount.toLocaleString('es-CO', {
-      minimumFractionDigits: 3,
-      maximumFractionDigits: 3,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
     })}`;
   };
 
@@ -26,7 +29,9 @@ export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onCl
         <ProjectAvatar id={investment.id} name={investment.name} size={52} imageUrl={investment.imageUrl} />
         <div className="investment-card-info">
           <h3 className="investment-card-name">{investment.name}</h3>
-          <p className="investment-card-currency">{safeAmount.toFixed(4)} {investment.currency}</p>
+          <p className="investment-card-currency">
+            {safeAmount.toLocaleString('es-CO', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })} {investment.currency}
+          </p>
         </div>
       </div>
       <div className="investment-card-right">

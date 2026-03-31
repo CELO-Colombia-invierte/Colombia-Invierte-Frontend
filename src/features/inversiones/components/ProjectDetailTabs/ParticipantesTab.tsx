@@ -188,15 +188,12 @@ export const ParticipantesTab: React.FC<ParticipantesTabProps> = ({
         <div className="participants-list-items">
           {members.map((member) => {
             const userName =
-              (member.user as any)?.display_name ||
-              member.user?.displayName ||
+              member.user?.display_name ||
+              member.user?.username ||
               'Usuario';
-            const userAny = member.user as any;
-            const avatarUrl =
-              userAny?.avatar ||
-              (userAny?.avatar_asset_id
-                ? `${import.meta.env.VITE_ASSETS_URL || import.meta.env.VITE_API_URL}/assets/${userAny.avatar_asset_id}`
-                : undefined);
+            const avatarUrl = member.user?.avatar_asset_id
+              ? `${import.meta.env.VITE_API_URL || ''}/assets/${member.user.avatar_asset_id}`
+              : undefined;
             return (
               <div key={member.id} className="participant-list-item">
                 <div className="participant-avatar">

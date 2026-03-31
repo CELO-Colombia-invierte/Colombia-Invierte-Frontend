@@ -13,9 +13,11 @@ export const PortfolioCard: React.FC<PortfolioCardProps> = ({
 }) => {
   const formatAmount = (amount?: number) => {
     if (!amount) return '';
+    const isFiat = project.currency === 'COP';
+    const decimals = isFiat ? 0 : 2;
     return `$${amount.toLocaleString('es-CO', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
     })}`;
   };
 
