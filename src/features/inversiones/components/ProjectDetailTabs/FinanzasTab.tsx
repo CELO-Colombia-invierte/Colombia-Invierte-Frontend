@@ -357,7 +357,6 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
           {chainState && project.type === 'NATILLERA' && !isV2 && (() => {
             const s = chainState as NatilleraState;
             const totalMonths = project.natillera_details?.duration_months ?? 0;
-            const maxMembers = project.natillera_details?.max_participants ?? 0;
             return (
               <div className="chain-state-grid">
                 <div className="chain-stat-card">

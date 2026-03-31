@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { PropuestaPreview } from '@/types/propuesta';
+import { PropuestaPreview, PropuestaStatus } from '@/types/propuesta';
 import { propuestasService } from '@/services/propuestas/propuestas.service';
 import { useProposalVotes } from '@/hooks/use-proposal-votes';
 import './ProposalMessageCard.css';
@@ -21,7 +21,6 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
   const history = useHistory();
   const [proposal, setProposal] = useState<PropuestaPreview | undefined>(initialProposal);
   const [voting, setVoting] = useState(false);
-  const [voted, setVoted] = useState(initialProposal?.user_vote != null);
 
   useEffect(() => {
     if (proposalId) {
@@ -42,8 +41,7 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
           status: data.status,
         });
         if (data.user_vote != null) {
-          setVoted(true);
-        }
+            }
       }).catch(() => { });
     }
   }, [proposalId]);
@@ -56,7 +54,7 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
         votes_yes: event.votes_yes,
         votes_no: event.votes_no,
         total_members: event.total_members,
-        status: event.status,
+        status: event.status as PropuestaStatus,
       } : prev);
     }
   }, [proposal?.id]);
@@ -76,7 +74,6 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
         user_vote: answer,
         status: updated.status,
       } : prev);
-      setVoted(true);
     } catch {
       // ignore
     } finally {

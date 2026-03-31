@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { IonPage, IonContent, IonSpinner, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { Propuesta } from '@/types/propuesta';
+import { Propuesta, PropuestaStatus } from '@/types/propuesta';
 import { propuestasService } from '@/services/propuestas/propuestas.service';
 import { useProposalVotes } from '@/hooks/use-proposal-votes';
 import { VotingResults } from '../components/propuestas/VotingResults';
@@ -48,7 +48,7 @@ const PropuestaDetallePage: React.FC = () => {
         votes_yes: event.votes_yes,
         votes_no: event.votes_no,
         total_members: event.total_members,
-        status: event.status,
+        status: event.status as PropuestaStatus,
       } : prev);
     }
   }, [propuesta?.id]);

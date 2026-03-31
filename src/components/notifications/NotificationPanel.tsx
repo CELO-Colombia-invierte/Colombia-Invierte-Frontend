@@ -24,12 +24,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
   onClose,
   onInvitationResponse,
 }) => {
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
     <>
       <div className="notification-panel-backdrop" onClick={onClose} />

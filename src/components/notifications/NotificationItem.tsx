@@ -11,9 +11,6 @@ import {
   warning,
   megaphone,
   documentText,
-  star,
-  heart,
-  cart,
   notifications as notifIcon,
 } from 'ionicons/icons';
 import { Notification, NotificationType } from '@/types';
