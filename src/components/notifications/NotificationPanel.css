@@ -84,7 +84,6 @@
 }
 
 .notification-panel__list > :not(:last-child) {
-  border-bottom: none;
   position: relative;
 }
 
@@ -92,10 +91,10 @@
   content: '';
   position: absolute;
   bottom: 0;
-  left: 20px;
+  left: 76px;
   right: 20px;
   height: 1px;
-  background-color: #1a1a1a;
+  background-color: #f0f0f0;
 }
 
 .notification-panel__loading,

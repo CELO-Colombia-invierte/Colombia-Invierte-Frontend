@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { io, Socket } from 'socket.io-client';
 import { notificationsApiService } from '@/services/notifications';
+import { authService } from '@/services/auth';
 import { Notification } from '@/types';
 
 interface UseNotificationsReturn {
@@ -100,14 +102,50 @@ export const useNotifications = (): UseNotificationsReturn => {
     [notifications]
   );
 
+  const socketRef = useRef<Socket | null>(null);
+
   useEffect(() => {
     fetchNotifications();
 
-    // Polling: refrescar notificaciones cada 30 segundos
-    const interval = setInterval(fetchNotifications, 30000);
 
-    return () => clearInterval(interval);
-  }, [fetchNotifications]);
+    const token = authService.getToken();
+    if (token) {
+      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const socket = io(`${baseUrl}/notifications`, {
+        auth: { token },
+        transports: ['websocket'],
+      });
+
+      socket.on('notification:new', (notification: Notification) => {
+        setNotifications((prev) => {
+          const idx = prev.findIndex((n) => n.id === notification.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = notification;
+            return updated.sort((a, b) =>
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+          }
+          return [notification, ...prev];
+        });
+        fetchUnreadCount();
+      });
+
+      socket.on('notification:count', (data: { unread_count: number }) => {
+        setUnreadCount(data.unread_count);
+      });
+
+      socketRef.current = socket;
+    }
+
+    const interval = setInterval(fetchNotifications, 60000);
+
+    return () => {
+      clearInterval(interval);
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+    };
+  }, [fetchNotifications, fetchUnreadCount]);
 
   return {
     notifications,

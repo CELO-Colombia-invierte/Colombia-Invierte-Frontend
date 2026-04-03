@@ -96,19 +96,22 @@ export class Conversation {
     return otherMember?.user?.getInitials() || 'U';
   }
 
-  getLastMessagePreview(): string {
+  private getMessagePreviewText(maxLen: number): string {
     if (!this.lastMessage) return 'Sin mensajes';
+    if (this.lastMessage.type === 'PROPOSAL') return 'Nueva propuesta';
+    const text = (this.lastMessage.text || '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim();
+    return text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+  }
 
-    const text = this.lastMessage.text || '';
-    return text.length > 50 ? text.substring(0, 50) + '...' : text;
+  getLastMessagePreview(): string {
+    return this.getMessagePreviewText(50);
   }
 
   getLastMessagePreviewWithSender(currentUserId: string): string {
     if (!this.lastMessage) return 'Sin mensajes';
 
     const senderId = this.lastMessage.senderId;
-    const text = this.lastMessage.text || '';
-    const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
+    const preview = this.getMessagePreviewText(30);
 
     if (this.isGroup()) {
       const sender = this.members.find((m) => m.userId === senderId);

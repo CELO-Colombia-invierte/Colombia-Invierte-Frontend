@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
-import { documentOutline, downloadOutline } from 'ionicons/icons';
+import { documentOutline, downloadOutline, closeOutline } from 'ionicons/icons';
 import { Message } from '@/models/Message.model';
 import { Conversation } from '@/models/Conversation.model';
 import { ProposalMessageCard } from './ProposalMessageCard';
@@ -26,6 +26,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
   conversation,
   typingUsers = [],
 }) => {
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
 
@@ -108,6 +109,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
   const typingUsersInfo = getTypingUsersInfo();
 
   return (
+    <>
     <div className="group-message-list">
       {groupedMessages.map((group, groupIndex) => {
         const isMine = group.senderId === currentUserId;
@@ -157,10 +159,13 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                   );
                 }
 
+                const allImages = message.hasAttachments() && message.attachments.every((a) => a.isImage());
+                const isImageOnly = allImages && (!message.text || message.text === 'Archivo adjunto');
+
                 return (
                   <div
                     key={message.id}
-                    className={`group-message-bubble ${isMine ? 'mine' : 'theirs'}`}
+                    className={`group-message-bubble ${isMine ? 'mine' : 'theirs'} ${isImageOnly ? 'image-only' : ''}`}
                   >
 
                     {message.hasAttachments() && (
@@ -171,21 +176,13 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                           if (attachment.isImage()) {
                             return (
                               <div key={attachment.id} className="group-message-attachment-wrapper">
-                                {isUploading ? (
-                                  <img
-                                    src={attachment.url}
-                                    alt={attachment.fileName}
-                                    className="group-message-image"
-                                  />
-                                ) : (
-                                  <a href={attachment.url} target="_blank" rel="noopener noreferrer">
-                                    <img
-                                      src={attachment.url}
-                                      alt={attachment.fileName}
-                                      className="group-message-image"
-                                    />
-                                  </a>
-                                )}
+                                <img
+                                  src={attachment.url}
+                                  alt={attachment.fileName}
+                                  className="group-message-image"
+                                  onClick={!isUploading ? () => setViewerImage(attachment.url) : undefined}
+                                  style={!isUploading ? { cursor: 'pointer' } : undefined}
+                                />
                                 {isUploading && (
                                   <div className="group-message-upload-overlay">
                                     <IonSpinner name="crescent" className="group-message-upload-spinner" />
@@ -251,7 +248,7 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
                     )}
 
                   
-                    {message.text && (
+                    {message.text && !isImageOnly && (
                       <p className="group-message-text">{message.text}</p>
                     )}
 
@@ -311,6 +308,15 @@ export const GroupMessageList: React.FC<GroupMessageListProps> = ({
         </div>
       )}
     </div>
+    {viewerImage && (
+      <div className="image-viewer-overlay" onClick={() => setViewerImage(null)}>
+        <button className="image-viewer-close" onClick={() => setViewerImage(null)}>
+          <IonIcon icon={closeOutline} />
+        </button>
+        <img src={viewerImage} alt="" className="image-viewer-img" onClick={(e) => e.stopPropagation()} />
+      </div>
+    )}
+    </>
   );
 };
 

@@ -439,40 +439,6 @@
   background: #f3f4f6;
 }
 
-/* Desktop Responsive */
-@media (min-width: 768px) {
-  .payment-content {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .payment-header {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .payment-image-container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .payment-actions {
-    max-width: 900px;
-    left: 50%;
-    transform: translateX(-50%);
-    flex-direction: row;
-    padding: 20px 32px;
-  }
-
-  .payment-button.secondary {
-    flex: 0 0 auto;
-    min-width: 200px;
-  }
-
-  .payment-button.primary {
-    flex: 1;
-  }
-}
 
 .loading-container {
   display: flex;

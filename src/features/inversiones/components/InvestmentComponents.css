@@ -1,4 +1,3 @@
-/* Investment Header */
 .investment-header {
   width: 100%;
   background: white;
@@ -228,21 +227,6 @@
   }
 }
 
-@media (min-width: 768px) {
-  .investment-header-top {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .investment-header-image {
-    max-width: 868px;
-    margin: 0 auto 20px auto;
-  }
-
-  .investment-header-title {
-    font-size: 20px;
-  }
-}
 
 @media (max-width: 375px) {
   .investment-header-image {

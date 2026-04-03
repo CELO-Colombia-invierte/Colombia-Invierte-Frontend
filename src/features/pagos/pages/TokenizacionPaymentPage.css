@@ -67,7 +67,8 @@
   padding-bottom: 200px;
 }
 
-/* Quantity Section */
+
+
 .tkn-quantity-section {
   margin-bottom: 24px;
 }
@@ -165,7 +166,7 @@
   color: #6b7280;
 }
 
-/* Section Title */
+
 .tkn-section-title {
   font-size: 18px;
   font-weight: 700;
@@ -173,7 +174,7 @@
   margin: 0 0 12px 0;
 }
 
-/* Details Box */
+
 .tkn-details-box {
   background: white;
   border-radius: 12px;
@@ -203,7 +204,7 @@
   color: #111827;
 }
 
-/* Method Section */
+
 .tkn-method-section {
   background: white;
   border-radius: 12px;
@@ -302,7 +303,7 @@
   font-weight: 500;
 }
 
-/* Card Form */
+
 .tkn-card-form {
   margin-top: 16px;
   padding-top: 16px;
@@ -386,7 +387,7 @@
   border-color: #3b82f6;
 }
 
-/* Crypto Form */
+
 .tkn-crypto-form {
   margin-top: 16px;
   padding-top: 16px;
@@ -449,7 +450,7 @@
   color: #6b7280;
 }
 
-/* Crypto Summary */
+
 .tkn-crypto-summary {
   margin-top: 16px;
   padding: 16px;
@@ -489,7 +490,7 @@
   border-top: 1px solid #e5e7eb;
 }
 
-/* Actions */
+
 .tkn-actions {
   position: fixed;
   bottom: 80px;
@@ -544,7 +545,6 @@
   background: #f9fafb;
 }
 
-/* Loading */
 .loading-container {
   display: flex;
   align-items: center;
@@ -554,31 +554,8 @@
   color: #6b7280;
 }
 
-/* Desktop */
-@media (min-width: 768px) {
-  .tkn-payment-content {
-    max-width: 600px;
-    margin: 0 auto;
-  }
 
-  .tkn-payment-header {
-    max-width: 600px;
-    margin: 0 auto;
-  }
 
-  .tkn-image-container {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .tkn-actions {
-    max-width: 600px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
-
-/* Safe area */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .tkn-actions {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));

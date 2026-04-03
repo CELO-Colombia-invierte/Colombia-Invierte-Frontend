@@ -131,18 +131,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   };
 
   const getIconSize = () => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth <= 768) {
-        return 48;
-      }
-      if (window.innerWidth >= 1440) {
-        return 90;
-      }
-      if (window.innerWidth >= 1025) {
-        return 82;
-      }
-      return 66;
-    }
     return 48;
   };
 
@@ -153,7 +141,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     theme: 'dark' as const,
     onConnect: handleConnect,
     showThirdwebBranding: false,
-    modalSize: 'wide' as const,
+    modalSize: 'compact' as const,
     locale: 'es_ES',
     header: {
       title: 'COLOMBIA INVIERTE',

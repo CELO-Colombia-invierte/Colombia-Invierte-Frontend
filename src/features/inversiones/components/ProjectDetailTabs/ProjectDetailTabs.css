@@ -325,9 +325,6 @@
   z-index: 9;
 }
 
-/* =========================
-   BLOCKCHAIN STATE SECTION
-   ========================= */
 
 .chain-state-section {
   margin-top: 28px;
@@ -516,9 +513,6 @@
   cursor: not-allowed;
 }
 
-/* =========================
-   INVEST SECTION (Tokenización V2)
-   ========================= */
 
 .invest-section {
   margin-top: 20px;
@@ -628,9 +622,6 @@
   text-decoration: underline;
 }
 
-/* =========================
-   DOCUMENTOS TAB
-   ========================= */
 
 .documentos-tab {
   padding: 24px 20px;
@@ -773,9 +764,6 @@
   z-index: 9;
 }
 
-/* =========================
-   ACTION BUTTONS
-   ========================= */
 
 .action-button {
   width: 100%;
@@ -849,9 +837,6 @@
   font-size: 20px;
 }
 
-/* =========================
-   SOLICITUDES TAB
-   ========================= */
 
 .solicitudes-tab {
   padding: 24px 20px;
@@ -1059,111 +1044,6 @@
   transform: none;
 }
 
-/* =========================
-   RESPONSIVE - DESKTOP
-   ========================= */
-
-@media (min-width: 768px) {
-  .project-detail-content {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .resumen-tab,
-  .finanzas-tab,
-  .documentos-tab {
-    padding: 40px 32px;
-  }
-
-  .resumen-title {
-    font-size: 32px;
-  }
-
-  .content-block-title {
-    font-size: 18px;
-  }
-
-  .content-block-text {
-    font-size: 15px;
-  }
-
-  .finanzas-title,
-  .documentos-title {
-    font-size: 24px;
-    margin-bottom: 28px;
-  }
-
-  .finanzas-items {
-    gap: 20px;
-  }
-
-  .finanzas-item {
-    padding: 20px;
-  }
-
-  .finanzas-icon {
-    width: 52px;
-    height: 52px;
-    font-size: 28px;
-  }
-
-  .finanzas-label {
-    font-size: 14px;
-  }
-
-  .finanzas-value {
-    font-size: 18px;
-  }
-
-  .documento-item {
-    padding: 20px;
-  }
-
-  .documento-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 26px;
-  }
-
-  .documento-name {
-    font-size: 15px;
-  }
-
-  .documento-meta {
-    font-size: 13px;
-  }
-
-  .resumen-actions,
-  .finanzas-actions,
-  .documentos-actions {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 900px;
-    width: 100%;
-    flex-direction: row;
-    padding: 20px 32px;
-  }
-
-  .action-button {
-    padding: 18px 32px;
-    font-size: 16px;
-  }
-
-  .action-button.secondary {
-    flex: 0 0 auto;
-    min-width: 240px;
-  }
-
-  .action-button.primary {
-    flex: 1;
-  }
-
-  .download-text {
-    display: inline;
-  }
-}
 
 @media (max-width: 767px) {
   .download-text {
@@ -1171,9 +1051,6 @@
   }
 }
 
-/* =========================
-   PAGE STYLES
-   ========================= */
 
 .project-detail-page {
   --background: #f9fafb;
@@ -1188,9 +1065,6 @@
   color: #6b7280;
 }
 
-/* =========================
-   HISTORIAL TAB
-   ========================= */
 
 .historial-tab {
   padding: 24px 20px;
@@ -1354,9 +1228,7 @@
   cursor: not-allowed;
 }
 
-/* =========================
-   MILESTONES TAB
-   ========================= */
+
 
 .milestones-tab {
   padding: 24px 20px;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
 import { useLocation, useHistory } from 'react-router-dom';
+import { useUnreadMessages } from '@/hooks/use-unread-messages';
 import {
   homeOutline,
   home,
@@ -40,6 +41,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
 }) => {
   const location = useLocation();
   const history = useHistory();
+  const { totalUnread } = useUnreadMessages();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -56,45 +58,56 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   const firstHalf = tabs.slice(0, 2);
   const secondHalf = tabs.slice(2);
 
-  const renderTab = (tab: NavTab) => (
-    <button
-      key={tab.path}
-      className={`nav-tab ${isActive(tab.path) ? 'active' : ''}`}
-      onClick={() => handleTabClick(tab.path)}
-    >
-      <div className="tab-content">
-        <AnimatePresence mode="wait">
-          {isActive(tab.path) ? (
-            <motion.div
-              key="active"
-              className="active-tab-indicator"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-            >
-              <div className="active-circle">
-                <IonIcon icon={tab.activeIcon} className="tab-icon active" />
-                <span className="tab-active-label">{tab.label}</span>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="inactive"
-              className="inactive-tab-content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <IonIcon icon={tab.icon} className="tab-icon" />
-              <span className="tab-label">{tab.label}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </button>
-  );
+  const renderTab = (tab: NavTab) => {
+    const showBadge = tab.path === '/mensajes' && totalUnread > 0;
+
+    return (
+      <button
+        key={tab.path}
+        className={`nav-tab ${isActive(tab.path) ? 'active' : ''}`}
+        onClick={() => handleTabClick(tab.path)}
+      >
+        <div className="tab-content">
+          <AnimatePresence mode="wait">
+            {isActive(tab.path) ? (
+              <motion.div
+                key="active"
+                className="active-tab-indicator"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                <div className="active-circle">
+                  <IonIcon icon={tab.activeIcon} className="tab-icon active" />
+                  <span className="tab-active-label">{tab.label}</span>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="inactive"
+                className="inactive-tab-content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <div className="tab-icon-wrapper">
+                  <IonIcon icon={tab.icon} className="tab-icon" />
+                  {showBadge && (
+                    <span className="tab-badge">
+                      {totalUnread > 99 ? '99+' : totalUnread}
+                    </span>
+                  )}
+                </div>
+                <span className="tab-label">{tab.label}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <nav className="bottom-navbar">

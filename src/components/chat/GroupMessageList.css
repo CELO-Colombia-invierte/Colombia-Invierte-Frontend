@@ -101,7 +101,7 @@
 }
 
 .group-message-bubble.mine {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #3b82f6;
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -111,6 +111,21 @@
   color: #1a1a1a;
   border-bottom-left-radius: 4px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.group-message-bubble.image-only {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.group-message-bubble.image-only .group-message-image {
+  border-radius: 16px;
+  max-width: 240px;
+}
+
+.group-message-bubble.image-only .group-message-time {
+  color: #999;
 }
 
 .group-message-text {

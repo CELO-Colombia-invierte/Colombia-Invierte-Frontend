@@ -176,3 +176,66 @@
   color: #ef4444;
   align-self: flex-end;
 }
+
+
+.message-bubble.image-only .message-bubble-content {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.message-bubble.image-only .message-bubble-image {
+  border-radius: 16px;
+  max-width: 240px;
+}
+
+.message-bubble.image-only .message-bubble-time {
+  color: #999;
+  margin-top: 4px;
+}
+
+.message-bubble.image-only .message-bubble-attachments {
+  margin-bottom: 0;
+}
+
+
+.image-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-viewer-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.image-viewer-close ion-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.image-viewer-img {
+  max-width: 90%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+}

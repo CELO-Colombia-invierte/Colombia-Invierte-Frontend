@@ -5,7 +5,7 @@ import {
   IonIcon,
   IonSpinner,
 } from '@ionic/react';
-import { arrowBack, ellipsisHorizontal } from 'ionicons/icons';
+import { arrowBack, ellipsisHorizontal, notificationsOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useNotifications } from '@/hooks/use-notifications';
 import { NotificationItem } from '@/components/notifications/NotificationItem';
@@ -69,7 +69,9 @@ const NotificacionesPage: React.FC = () => {
 
         {!loading && notifications.length === 0 && (
           <div className="notificaciones-page__empty">
-            <span className="notificaciones-page__empty-icon">🔔</span>
+            <span className="notificaciones-page__empty-icon">
+              <IonIcon icon={notificationsOutline} />
+            </span>
             <p>No tienes notificaciones</p>
           </div>
         )}

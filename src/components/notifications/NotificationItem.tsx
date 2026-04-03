@@ -48,6 +48,9 @@ const getNotificationIconData = (type: NotificationType): { icon: string; color:
   }
 };
 
+const stripEmojis = (text: string): string =>
+  text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim();
+
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
@@ -117,7 +120,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       onInvitationResponse?.(notification.id, true);
 
       await present({
-        message: '✅ Ya eres parte de este proyecto',
+        message: 'Ya eres parte de este proyecto',
         duration: 3000,
         position: 'bottom',
         color: 'success',
@@ -131,7 +134,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       setError(errorMessage);
 
       await present({
-        message: `❌ ${errorMessage}`,
+        message: errorMessage,
         duration: 3000,
         position: 'bottom',
         color: 'danger',
@@ -154,7 +157,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       onInvitationResponse?.(notification.id, false);
 
       await present({
-        message: '✓ Invitación rechazada',
+        message: 'Invitación rechazada',
         duration: 3000,
         position: 'bottom',
         color: 'warning',
@@ -168,7 +171,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       setError(errorMessage);
 
       await present({
-        message: `❌ ${errorMessage}`,
+        message: errorMessage,
         duration: 3000,
         position: 'bottom',
         color: 'danger',
@@ -205,9 +208,21 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
       <div className="notification-item__content">
         <p className="notification-item__title">
-          {notification.actor?.display_name || 'Sistema'}
+          {notification.metadata?.conversation_name
+            ? String(notification.metadata.conversation_name)
+            : notification.actor?.display_name || 'Sistema'}
         </p>
-        <p className="notification-item__body">{notification.body}</p>
+        <p className="notification-item__body">
+          {notification.metadata?.conversation_name && notification.actor?.display_name
+            ? `${notification.actor.display_name}: `
+            : ''}
+          {stripEmojis(notification.body)}
+          {Number(notification.metadata?.message_count || 0) > 1 && (
+            <span className="notification-item__count">
+              {' '}({String(notification.metadata?.message_count)} mensajes)
+            </span>
+          )}
+        </p>
 
       
         {isInvitation && invitationId && !hasResponded && (

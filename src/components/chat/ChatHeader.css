@@ -51,7 +51,7 @@
 }
 
 .chat-header-avatar-placeholder {
-  background: linear-gradient(135deg, #FCD116 0%, #003893 100%);
+  background: #1e293b;
   display: flex;
   align-items: center;
   justify-content: center;

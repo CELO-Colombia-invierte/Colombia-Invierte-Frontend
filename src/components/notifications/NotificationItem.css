@@ -29,7 +29,7 @@
 }
 
 .notification-item__avatar-placeholder {
-  background: linear-gradient(135deg, #fcd116 0%, #003893 100%);
+  background: #1e293b;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,6 +80,12 @@
   white-space: normal;
 }
 
+.notification-item__count {
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 12px;
+}
+
 .notification-item__meta {
   display: flex;
   flex-direction: column;
@@ -110,12 +116,12 @@
   background-color: transparent;
 }
 
-/* Invitations - no click */
+
 .notification-item--no-click {
   cursor: default;
 }
 
-/* Action buttons for invitations */
+
 .notification-item__actions {
   display: flex;
   gap: 8px;

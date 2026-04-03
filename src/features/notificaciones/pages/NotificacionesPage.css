@@ -2,7 +2,7 @@
   --background: #f8f9fa;
 }
 
-/* Custom header */
+
 .notificaciones-page__header {
   display: flex;
   align-items: center;
@@ -88,9 +88,13 @@
 }
 
 .notificaciones-page__empty-icon {
-  font-size: 48px;
   margin-bottom: 12px;
-  opacity: 0.5;
+  opacity: 0.4;
+}
+
+.notificaciones-page__empty-icon ion-icon {
+  font-size: 48px;
+  color: #6b7280;
 }
 
 .notificaciones-page__empty p {
@@ -98,19 +102,14 @@
   font-size: 16px;
 }
 
-/* List card */
+/* List */
 .notificaciones-page__list {
   display: flex;
   flex-direction: column;
-  margin: 12px 16px;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
 }
 
 .notificaciones-page__list > :not(:last-child) {
-  border-bottom: none;
   position: relative;
 }
 
@@ -118,8 +117,8 @@
   content: '';
   position: absolute;
   bottom: 0;
-  left: 20px;
+  left: 76px;
   right: 20px;
   height: 1px;
-  background-color: #1a1a1a;
+  background-color: #f0f0f0;
 }
