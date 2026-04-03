@@ -232,13 +232,10 @@
 .finanzas-icon {
   width: 44px;
   height: 44px;
-  border-radius: 10px;
-  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 24px;
 }
 
 .finanzas-content {

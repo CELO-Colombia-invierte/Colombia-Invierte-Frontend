@@ -5,15 +5,12 @@ import { thirdwebClient } from '@/app/App';
 import { CHAIN } from '@/contracts/config';
 import { IonIcon } from '@ionic/react';
 import {
-  cashOutline,
-  trendingUpOutline,
-  flameOutline,
-  calendarOutline,
   informationCircleOutline,
   linkOutline,
   reloadOutline,
   giftOutline,
 } from 'ionicons/icons';
+import { CoinIcon, GrowthIcon, DurationIcon, CalendarIcon, TokenIcon, ChartIcon } from '@/components/icons/FinanceIcons';
 import { Project } from '@/models/projects';
 import { blockchainService, NatilleraState, NatilleraV2State, TokenizacionState, RevenueModuleState } from '@/services/blockchain.service';
 import { BLOCKCHAIN_CONFIG, getBlockExplorerAddressUrl, getBlockExplorerTxUrl } from '@/contracts/config';
@@ -167,94 +164,84 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
   };
 
   const isNatillera = project.type === 'NATILLERA';
-  const financialItems = [];
+  const financialItems: { iconComponent: React.ReactNode; label: string; value: string; tooltip: string }[] = [];
 
   if (isNatillera && project.natillera_details) {
     const details = project.natillera_details;
 
     financialItems.push({
-      icon: cashOutline,
+      iconComponent: <CoinIcon />,
       label: 'Valor de la cuota mensual',
       value: `${formatCurrency(details.monthly_fee_amount)} ${details.monthly_fee_currency}`,
       tooltip: 'Cantidad que debes aportar cada mes',
-      iconColor: '#10B981',
     });
 
     financialItems.push({
-      icon: trendingUpOutline,
+      iconComponent: <GrowthIcon />,
       label: 'Rendimiento anual esperado',
       value: `${details.expected_annual_return_pct}%`,
       tooltip: 'Porcentaje de retorno estimado al año',
-      iconColor: '#667eea',
     });
 
     financialItems.push({
-      icon: flameOutline,
+      iconComponent: <DurationIcon />,
       label: 'Cantidad de meses',
       value: `${details.duration_months} Meses`,
       tooltip: 'Duración total del proyecto de ahorro',
-      iconColor: '#F59E0B',
     });
 
     financialItems.push({
-      icon: calendarOutline,
+      iconComponent: <CalendarIcon />,
       label: 'Fecha máxima de pago mensual',
       value: formatDate(details.payment_deadline_at),
       tooltip: 'Fecha límite para realizar el pago mensual',
-      iconColor: '#8B5CF6',
     });
   } else if (project.tokenization_details) {
     const details = project.tokenization_details;
 
     financialItems.push({
-      icon: cashOutline,
+      iconComponent: <CoinIcon />,
       label: 'Valor del Activo',
       value: `${formatCurrency(details.asset_value_amount)} ${details.asset_value_currency}`,
       tooltip: 'Valor total del activo tokenizado',
-      iconColor: '#10B981',
     });
 
     financialItems.push({
-      icon: trendingUpOutline,
+      iconComponent: <GrowthIcon />,
       label: 'Rendimiento Esperado',
       value: `${details.expected_annual_return_pct}%`,
       tooltip: 'Porcentaje de retorno estimado',
-      iconColor: '#667eea',
     });
 
     financialItems.push({
-      icon: cashOutline,
+      iconComponent: <TokenIcon />,
       label: 'Precio por Token',
       value: `${formatCurrency(details.price_per_token_amount)} ${details.price_per_token_currency}`,
       tooltip: 'Costo de cada token individual',
-      iconColor: '#8B5CF6',
     });
 
     financialItems.push({
-      icon: flameOutline,
+      iconComponent: <ChartIcon />,
       label: 'Total de Tokens',
       value: formatCurrency(details.total_tokens),
       tooltip: 'Cantidad total de tokens disponibles',
-      iconColor: '#F59E0B',
     });
 
     if (details.presale_enabled && details.presale_starts_at) {
       financialItems.push({
-        icon: calendarOutline,
+        iconComponent: <CalendarIcon />,
         label: 'Inicio de Preventa',
         value: formatDate(details.presale_starts_at),
         tooltip: 'Fecha de inicio de la preventa',
-        iconColor: '#06B6D4',
       });
     }
 
     if (details.public_sale_starts_at) {
       financialItems.push({
-        icon: calendarOutline,
+        iconComponent: <CalendarIcon />,
         label: 'Venta Pública',
         value: formatDate(details.public_sale_starts_at),
         tooltip: 'Fecha de inicio de la venta pública',
-        iconColor: '#8B5CF6',
       });
     }
   }
@@ -266,8 +253,8 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
       <div className="finanzas-items">
         {financialItems.map((item, index) => (
           <div key={index} className="finanzas-item">
-            <div className="finanzas-icon" style={{ color: item.iconColor }}>
-              <IonIcon icon={item.icon} />
+            <div className="finanzas-icon">
+              {item.iconComponent}
             </div>
             <div className="finanzas-content">
               <div className="finanzas-label-wrapper">

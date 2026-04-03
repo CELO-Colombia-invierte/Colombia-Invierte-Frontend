@@ -7,6 +7,7 @@ import {
   closeCircle,
   checkmarkCircle,
   closeOutline,
+  documentTextOutline,
 } from 'ionicons/icons';
 import { useIonToast } from '@ionic/react';
 import './StepStyles.css';
@@ -242,7 +243,7 @@ export const Step3Content: React.FC<Step3ContentProps> = ({
                     flex: 1,
                   }}
                 >
-                  <span>📄</span>
+                  <IonIcon icon={documentTextOutline} style={{ fontSize: '18px', flexShrink: 0 }} />
                   <span>{doc.file.name}</span>
                   <span>({(doc.file.size / 1024).toFixed(1)} KB)</span>
                 </div>

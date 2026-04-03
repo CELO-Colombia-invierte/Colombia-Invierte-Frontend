@@ -81,11 +81,13 @@ const HomePage: React.FC = () => {
     portfolio?.positions.map((pos, index) => {
       const colors = ['#4169e1', '#ffa500', '#ff6b6b', '#4ecdc4', '#2d6a4f'];
       const icons = ['🔵', '🟠', '🔴', '🔵', '🟢'];
+      const showFee = pos.projectType === 'NATILLERA' && pos.monthlyFeeAmount != null;
       return {
         id: pos.id,
+        projectId: pos.projectId,
         name: pos.projectName,
-        amount: pos.baseAmount,
-        currency: pos.baseCurrency,
+        amount: showFee ? pos.monthlyFeeAmount! : pos.baseAmount,
+        currency: showFee ? (pos.monthlyFeeCurrency || pos.baseCurrency) : pos.baseCurrency,
         changePercentage: 0,
         color: colors[index % colors.length],
         icon: icons[index % icons.length],
@@ -126,7 +128,8 @@ const HomePage: React.FC = () => {
   const handleSend = () => openWalletModal('send');
   const handleReceive = () => openWalletModal('receive');
 
-  const handleInvestmentClick = () => {
+  const handleInvestmentClick = (investment: Investment) => {
+    history.push(`/inversiones/${investment.projectId}`);
   };
 
   if (isLoading || !user) {

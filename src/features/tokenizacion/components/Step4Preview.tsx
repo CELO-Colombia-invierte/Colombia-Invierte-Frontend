@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IonIcon } from '@ionic/react';
-import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { chevronDownOutline, chevronUpOutline, documentTextOutline, imageOutline, statsChartOutline, attachOutline } from 'ionicons/icons';
 import { CoinIcon, GrowthIcon, TokenIcon, ChartIcon } from '@/components/icons/FinanceIcons';
 import './StepStyles.css';
 
@@ -308,10 +308,12 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                           ?.toLowerCase();
                         const fileIcon =
                           fileExtension === 'pdf'
-                            ? '📄'
+                            ? documentTextOutline
                             : fileExtension === 'csv'
-                              ? '📊'
-                              : '🖼️';
+                              ? statsChartOutline
+                              : ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension || '')
+                                ? imageOutline
+                                : attachOutline;
                         const fileSizeMB = (
                           doc.file!.size /
                           (1024 * 1024)
@@ -319,7 +321,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
 
                         return (
                           <div key={doc.id} className="document-list-item">
-                            <div className="document-icon">{fileIcon}</div>
+                            <div className="document-icon"><IonIcon icon={fileIcon} /></div>
                             <div className="document-info">
                               <div className="document-name">
                                 {doc.file!.name}

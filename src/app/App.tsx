@@ -68,7 +68,8 @@ const MainContent: React.FC = () => {
     location.pathname.startsWith('/crear-propuesta/') ||
     location.pathname.startsWith('/preview-propuesta/') ||
     location.pathname.startsWith('/ver-propuesta/') ||
-    location.pathname.startsWith('/natillera/');
+    location.pathname.startsWith('/natillera/') ||
+    location.pathname.startsWith('/pago/');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const modalOptions = [
