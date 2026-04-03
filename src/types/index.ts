@@ -75,6 +75,7 @@ export interface UpdateWalletRequest {
 
 export interface Investment {
   id: string;
+  projectId: string;
   name: string;
   amount: number;
   currency: string;

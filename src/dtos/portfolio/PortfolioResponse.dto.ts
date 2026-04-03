@@ -22,6 +22,8 @@ export interface PositionDto {
   project: PositionProjectDto;
   base_amount: number;
   base_currency: string;
+  natillera_monthly_fee_amount: number | null;
+  natillera_monthly_fee_currency: string | null;
   created_at: string;
 }
 
