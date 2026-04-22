@@ -1,0 +1,19 @@
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 16px;
+}
+
+.transaction-list .transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-list-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}

@@ -160,6 +160,13 @@ class ProjectsService {
     chainId?: number;
     deployTxHash?: string;
     onChainData?: unknown;
+    vaultAddress?: string;
+    tokenAddress?: string;
+    revenueAddress?: string;
+    natilleraAddress?: string;
+    governanceAddress?: string;
+    disputesAddress?: string;
+    milestonesAddress?: string;
   }> {
     const response = await apiService.get<{
       isDeployed: boolean;
@@ -167,6 +174,13 @@ class ProjectsService {
       chainId?: number;
       deployTxHash?: string;
       onChainData?: unknown;
+      vaultAddress?: string;
+      tokenAddress?: string;
+      revenueAddress?: string;
+      natilleraAddress?: string;
+      governanceAddress?: string;
+      disputesAddress?: string;
+      milestonesAddress?: string;
     }>(`/projects/${id}/blockchain`);
     return response.data;
   }

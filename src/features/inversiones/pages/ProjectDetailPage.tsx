@@ -3,8 +3,10 @@ import { IonPage, IonContent, IonButton, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
 import { projectMembershipService } from '@/services/projects/membership.service';
+import { propuestasService } from '@/services/propuestas/propuestas.service';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { MembershipStatus } from '@/models/membership/membership.model';
+import { Propuesta } from '@/types/propuesta';
 import { useAuth } from '@/hooks/use-auth';
 import { InvestmentHeader } from '../components';
 import {
@@ -46,6 +48,8 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('resumen');
+  const [hasActivePropuesta, setHasActivePropuesta] = useState(false);
+  const [pendingReturnPropuesta, setPendingReturnPropuesta] = useState<Propuesta | null>(null);
 
   useEffect(() => {
     fetchProjectDetails();
@@ -61,7 +65,23 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       const data = await projectsService.findOne(identifier);
       setProject(data);
 
-   
+      propuestasService.getByProject(data.id, 1, 50).then((result) => {
+        const items = result.items ?? [];
+        const active = items.some((p) => p.status === 'PENDING');
+        setHasActivePropuesta(active);
+        if (user?.id) {
+          const pending = items.find(
+            (p) =>
+              p.status === 'COMPLETED' &&
+              !p.return_yield_tx_hash &&
+              p.responsible_user?.id === user.id &&
+              p.natillera_address &&
+              p.vault_address,
+          ) ?? null;
+          setPendingReturnPropuesta(pending);
+        }
+      }).catch(() => {});
+
       if (user?.id) {
         try {
           const membership = await projectMembershipService.checkMembership(
@@ -197,20 +217,20 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           isOwner={isOwner}
           isMember={isMember}
           hasV2={hasV2}
+          hasActivePropuesta={hasActivePropuesta}
         />
 
         <div className="project-detail-content">
           {activeTab === 'resumen' && (
-            <>
-              <ResumenTab
-                project={project}
-                isOwner={isOwner}
-                showJoinButton={showJoinButton}
-                onJoinAction={onJoinAction}
-                joinStatus={joinStatus}
-                isMember={isMember}
-              />
-            </>
+            <ResumenTab
+              project={project}
+              isOwner={isOwner}
+              showJoinButton={showJoinButton}
+              onJoinAction={onJoinAction}
+              joinStatus={joinStatus}
+              isMember={isMember}
+              pendingReturnPropuesta={pendingReturnPropuesta}
+            />
           )}
 
           {activeTab === 'finanzas' && (

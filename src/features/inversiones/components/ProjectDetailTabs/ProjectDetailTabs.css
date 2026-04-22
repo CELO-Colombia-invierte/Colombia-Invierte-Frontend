@@ -4,10 +4,10 @@
   top: 0;
   z-index: 10;
   background: white;
-  box-shadow: 0 1px 0 0 #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
-  padding: 8px 4px;
+  padding: 0 4px;
   gap: 2px;
 }
 
@@ -18,8 +18,8 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  gap: 4px;
-  padding: 0 8px;
+  gap: 0;
+  padding: 0 4px;
   min-width: 0;
   -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
   mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
@@ -29,19 +29,37 @@
   display: none;
 }
 
+.tab-active-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  margin-left: 5px;
+  flex-shrink: 0;
+  animation: dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.8); }
+}
+
 .project-detail-tabs .tab-button {
   flex-shrink: 0;
   background: transparent;
   border: none;
-  border-radius: 20px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   padding: 0 14px;
-  height: 32px;
+  height: 40px;
+  margin-bottom: -1px;
   font-size: 13px;
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  transition: color 0.18s, border-color 0.18s;
   letter-spacing: 0.01em;
   line-height: 1;
   display: flex;
@@ -50,18 +68,17 @@
 }
 
 .project-detail-tabs .tab-button.active {
-  background: #3b82f6;
-  color: #ffffff !important;
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
   font-weight: 600;
 }
 
 .project-detail-tabs .tab-button:hover:not(.active) {
-  background: #f3f4f6;
   color: #374151;
 }
 
 .project-detail-tabs .tab-button:active:not(.active) {
-  background: #e5e7eb;
+  color: #111827;
 }
 
 
@@ -198,6 +215,15 @@
   flex-direction: column;
   gap: 12px;
   z-index: 9;
+}
+
+.resumen-actions--row {
+  flex-direction: row;
+  gap: 12px;
+}
+
+.resumen-actions--row .action-button {
+  flex: 1;
 }
 
 

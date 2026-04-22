@@ -78,6 +78,7 @@ export interface Investment {
   projectId: string;
   name: string;
   amount: number;
+  totalCollected: number;
   currency: string;
   changePercentage: number;
   icon?: string;

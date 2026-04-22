@@ -62,6 +62,15 @@ const PropuestaPreviewPage = lazy(
 const PropuestaDetallePage = lazy(
   () => import('@/features/inversiones/pages/PropuestaDetallePage')
 );
+const CuotasPage = lazy(
+  () => import('@/features/natillera/pages/CuotasPage')
+);
+const VolverAportarPage = lazy(
+  () => import('@/features/natillera/pages/VolverAportarPage')
+);
+const TransaccionDetallePage = lazy(
+  () => import('@/features/natillera/pages/TransaccionDetallePage')
+);
 
 export const routes: RouteConfig[] = [
   {
@@ -192,6 +201,21 @@ export const routes: RouteConfig[] = [
   {
     path: '/recibir/wallet',
     component: RecibirWalletPage,
+    exact: true,
+  },
+  {
+    path: '/cuotas/:id',
+    component: CuotasPage,
+    exact: true,
+  },
+  {
+    path: '/volver-aportar/:propuestaId',
+    component: VolverAportarPage,
+    exact: true,
+  },
+  {
+    path: '/detalle-transaccion',
+    component: TransaccionDetallePage,
     exact: true,
   },
 ];

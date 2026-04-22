@@ -235,3 +235,105 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* Profit Modal */
+.propuesta-profit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.propuesta-profit-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.propuesta-profit-modal h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.propuesta-profit-modal p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+.propuesta-profit-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  gap: 4px;
+}
+
+.propuesta-profit-input-wrapper:focus-within {
+  border-color: #3b82f6;
+}
+
+.propuesta-profit-currency {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.propuesta-profit-input {
+  border: none;
+  outline: none;
+  font-size: 16px;
+  width: 100%;
+  background: transparent;
+}
+
+.propuesta-profit-preview {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 0 0;
+}
+
+.propuesta-profit-preview.positive {
+  color: #10b981;
+}
+
+.propuesta-profit-preview.negative {
+  color: #ef4444;
+}
+
+.propuesta-profit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.propuesta-profit-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.propuesta-profit-btn.cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.propuesta-profit-btn.confirm {
+  background: #3b82f6;
+  color: white;
+}

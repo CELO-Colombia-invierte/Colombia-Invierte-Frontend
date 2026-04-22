@@ -138,10 +138,19 @@ export const useNotifications = (): UseNotificationsReturn => {
       socketRef.current = socket;
     }
 
-    const interval = setInterval(fetchNotifications, 60000);
+    const POLL_MS = 5 * 60 * 1000;
+    const tick = () => {
+      if (!document.hidden) fetchNotifications();
+    };
+    const interval = setInterval(tick, POLL_MS);
+    const onVisibility = () => {
+      if (!document.hidden) fetchNotifications();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
       socketRef.current?.disconnect();
       socketRef.current = null;
     };

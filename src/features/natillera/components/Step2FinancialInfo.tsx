@@ -2,6 +2,7 @@ import React from 'react';
 import { IonIcon } from '@ionic/react';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
 import InfoTooltip from '../../../components/ui/InfoTooltip';
+import FeeBreakdown from '../../../components/ui/FeeBreakdown';
 import './StepStyles.css';
 
 interface Step2FinancialInfoProps {
@@ -43,6 +44,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           </div>
         </div>
         <span className="form-hint">Mínimo: $1,000 COP</span>
+        <FeeBreakdown mode="creation" />
       </div>
 
       <div className="form-group">

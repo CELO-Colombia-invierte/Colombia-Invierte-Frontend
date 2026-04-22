@@ -10,6 +10,7 @@ import {
   trophyOutline,
 } from 'ionicons/icons';
 import { Project } from '@/models/projects';
+import { Propuesta } from '@/types/propuesta';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
 import './ProjectDetailTabs.css';
@@ -21,6 +22,7 @@ interface ResumenTabProps {
   onJoinAction?: () => void;
   joinStatus?: 'pending' | 'approved' | null;
   isMember?: boolean;
+  pendingReturnPropuesta?: Propuesta | null;
 }
 
 export const ResumenTab: React.FC<ResumenTabProps> = ({
@@ -30,6 +32,7 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
   onJoinAction,
   joinStatus,
   isMember = false,
+  pendingReturnPropuesta = null,
 }) => {
   const history = useHistory();
   const { account, claimFinalNatillera } = useBlockchain();
@@ -163,6 +166,34 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
           </div>
         )}
       </div>
+
+      {(isMember || isOwner) && !showJoinButton && project.type === 'NATILLERA' && (
+        <div className="resumen-actions resumen-actions--row">
+          <button
+            className="action-button secondary"
+            onClick={() => history.push(`/inversiones/${project.id}`)}
+          >
+            Ver progreso
+          </button>
+          <button
+            className="action-button secondary"
+            onClick={() => history.push(`/cuotas/${project.id}`)}
+          >
+            Cuotas
+          </button>
+        </div>
+      )}
+
+      {pendingReturnPropuesta && (
+        <div className="resumen-actions">
+          <button
+            className="action-button primary"
+            onClick={() => history.push(`/volver-aportar/${pendingReturnPropuesta.id}`)}
+          >
+            Volver a aportar
+          </button>
+        </div>
+      )}
 
       {showJoinButton && (
         <div className="resumen-actions">

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { IonPage, IonContent, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
-import { projectMembershipService } from '@/services/projects';
+import { projectMembershipService, projectsService } from '@/services/projects';
 import { InvestmentPosition } from '@/models/membership';
 import { PropuestaFormData } from '@/types/propuesta';
 import { MemberSearch } from '../components/propuestas/MemberSearch';
+import { blockchainService } from '@/services/blockchain.service';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import FeeBreakdown from '@/components/ui/FeeBreakdown';
 import './CrearPropuestaPage.css';
 import { IonIcon } from '@ionic/react';
 import { arrowBackOutline } from 'ionicons/icons'; 
@@ -25,17 +28,28 @@ const CrearPropuestaPage: React.FC = () => {
   const [ganancia, setGanancia] = useState('');
   const [imageFile, setImageFile] = useState<File | undefined>();
   const [imagePreview, setImagePreview] = useState<string | undefined>();
+  const [vaultBalance, setVaultBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    const loadMembers = async () => {
+    const load = async () => {
       try {
-        const data = await projectMembershipService.getMembers(projectId);
+        const [data, project] = await Promise.all([
+          projectMembershipService.getMembers(projectId),
+          projectsService.findOne(projectId),
+        ]);
         setMembers(data);
+        if (project.vault_address) {
+          const balance = await blockchainService.getTokenBalance(
+            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+            project.vault_address,
+          );
+          setVaultBalance(Number(balance) / 1e6);
+        }
       } catch {
         console.error("error loading member")
       }
     };
-    loadMembers();
+    load();
   }, [projectId]);
 
   const handleMemberSelect = (member: InvestmentPosition) => {
@@ -75,6 +89,17 @@ const CrearPropuestaPage: React.FC = () => {
     if (!monto || isNaN(Number(monto)) || Number(monto) <= 0) {
       await present({ message: 'Ingresa un monto válido', duration: 2000, color: 'warning' });
       return;
+    }
+    if (vaultBalance !== null) {
+      const vaultInCop = vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE;
+      if (Number(monto) > vaultInCop) {
+        await present({
+          message: `El monto excede los fondos disponibles (~${Math.floor(vaultInCop).toLocaleString('es-CO')} COP)`,
+          duration: 3000,
+          color: 'danger',
+        });
+        return;
+      }
     }
 
     const formData: PropuestaFormData = {
@@ -151,6 +176,14 @@ const CrearPropuestaPage: React.FC = () => {
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
             />
+            {vaultBalance !== null && (
+              <span className="form-hint">
+                Disponible en la natillera: ~{Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toLocaleString('es-CO')} COP ({vaultBalance.toLocaleString('es-CO')} USDC)
+              </span>
+            )}
+            {Number(monto) > 0 && (
+              <FeeBreakdown mode="withdrawal" amountCOP={Number(monto)} />
+            )}
           </div>
 
           <div className="form-field">

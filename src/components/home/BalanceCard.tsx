@@ -13,14 +13,26 @@ type BalanceTab = 'total' | 'utilizable';
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
   const [activeTab, setActiveTab] = useState<BalanceTab>('total');
+  const [showCOP, setShowCOP] = useState(() => localStorage.getItem('currency_display') === 'COP');
   const activeAccount = useActiveAccount();
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: number, decimals = 2) => {
     return amount.toLocaleString('es-CO', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
     });
   };
+
+  const handleCurrencyToggle = () => {
+    const next = !showCOP;
+    setShowCOP(next);
+    localStorage.setItem('currency_display', next ? 'COP' : 'USDT');
+  };
+
+  const displayAmount = showCOP
+    ? formatAmount(balance.amount * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE, 0)
+    : formatAmount(balance.amount);
+  const displayCurrency = showCOP ? 'COP' : balance.currency;
 
   const formatAddress = (address?: string) => {
     if (!address) return '';
@@ -92,14 +104,17 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
 
         <div className="balance-card-amount-section">
           <h1 className="balance-card-value">
-            {formatAmount(balance.amount)}
-            <span className="balance-card-currency"> {balance.currency}</span>
+            {displayAmount}
+            <span className="balance-card-currency"> {displayCurrency}</span>
           </h1>
-          {balance.secondaryAmount !== undefined && balance.secondaryCurrency && (
+          {!showCOP && balance.secondaryAmount !== undefined && balance.secondaryCurrency && (
             <p className="balance-card-secondary-value" style={{ margin: '4px 0 0 0', fontSize: '15px', color: '#4b5563', fontWeight: '500' }}>
               + {formatAmount(balance.secondaryAmount)} {balance.secondaryCurrency}
             </p>
           )}
+          <button className="balance-card-currency-toggle" onClick={handleCurrencyToggle}>
+            {showCOP ? 'Ver en USDT' : 'Ver en COP'} ⇄
+          </button>
           {balance.address && (
             <p className="balance-card-address" style={{ marginTop: '8px' }}>{formatAddress(balance.address)}</p>
           )}

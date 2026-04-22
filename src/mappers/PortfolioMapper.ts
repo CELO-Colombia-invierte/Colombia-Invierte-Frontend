@@ -33,8 +33,9 @@ export class PortfolioMapper {
       projectCoverUrl: dto.project.cover_url,
       baseAmount: dto.base_amount,
       baseCurrency: dto.base_currency,
-      monthlyFeeAmount: dto.natillera_monthly_fee_amount,
-      monthlyFeeCurrency: dto.natillera_monthly_fee_currency,
+      pctChange: dto.pct_change ?? 0,
+      currentValue: dto.current_value ?? dto.base_amount,
+      totalCollected: dto.total_collected ?? 0,
       createdAt: dto.created_at,
     });
   }

@@ -1,10 +1,11 @@
-export type PropuestaStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type PropuestaStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
 
 export interface PropuestaResponsibleUser {
   id: string;
   display_name: string;
   username: string;
   avatar_url?: string;
+  wallet_address?: string | null;
 }
 
 export interface Propuesta {
@@ -15,6 +16,7 @@ export interface Propuesta {
   responsible_user: PropuestaResponsibleUser;
   withdrawal_amount: number;
   estimated_profit?: number;
+  actual_profit?: number;
   background_image_url?: string;
   status: PropuestaStatus;
   votes_yes: number;
@@ -23,6 +25,16 @@ export interface Propuesta {
   can_vote?: boolean;
   created_at: string;
   user_vote?: 'YES' | 'NO' | null;
+  proposal_chain_id?: string | null;
+  propose_tx_hash?: string | null;
+  governance_address?: string | null;
+  natillera_address?: string | null;
+  vault_address?: string | null;
+  project_type?: string | null;
+  tx_hash?: string | null;
+  execute_tx_hash?: string | null;
+  return_yield_tx_hash?: string | null;
+  returned_amount?: number | null;
 }
 
 export interface PaginatedPropuestas {

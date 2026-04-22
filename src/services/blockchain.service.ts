@@ -8,6 +8,7 @@ import {
   BLOCKCHAIN_CONFIG,
   PlatformV2Abi,
 } from '@/contracts/config';
+import GovernanceAbi from '@/contracts/abis/GovernanceModule.json';
 
 export interface NatilleraConfig {
   paymentToken: string;
@@ -87,7 +88,20 @@ export interface V2ContractAddresses {
 
 class BlockchainService {
 
+  private validateChain(account: Account): void {
+    const walletChainId = account.sendTransaction
+      ? (account as any).chainId ?? (account as any).chain?.id
+      : undefined;
+    // If we can detect the chain and it's wrong, throw
+    if (walletChainId && walletChainId !== BLOCKCHAIN_CONFIG.CHAIN_ID) {
+      throw new Error(
+        `Red incorrecta. Por favor cambia a ${BLOCKCHAIN_CONFIG.NETWORK_NAME} (Chain ID: ${BLOCKCHAIN_CONFIG.CHAIN_ID})`,
+      );
+    }
+  }
+
   private async sendWithFeeCurrency(account: Account, contractAddress: string, calldata: `0x${string}`, value?: bigint): Promise<string> {
+    this.validateChain(account);
     const tx = prepareTransaction({
       client: thirdwebClient,
       chain: CHAIN,
@@ -122,7 +136,11 @@ class BlockchainService {
     const txHash = await this.sendWithFeeCurrency(account, BLOCKCHAIN_CONFIG.CONTRACTS.PLATFORM_V2, calldata);
     const receipt = await waitForReceipt({ client: thirdwebClient, chain: CHAIN, transactionHash: txHash as `0x${string}` });
 
-    return this.parseProjectCreatedEvent(receipt.logs, txHash);
+    const addresses = this.parseProjectCreatedEvent(receipt.logs, txHash);
+    console.log('[CREATE_NATILLERA] signer wallet:', account.address);
+    console.log('[CREATE_NATILLERA] natillera address:', addresses.module);
+    await this.joinNatilleraAsCreator(account, addresses.module);
+    return addresses;
   }
 
   async deployTokenizacionV2(
@@ -145,7 +163,21 @@ class BlockchainService {
     const txHash = await this.sendWithFeeCurrency(account, BLOCKCHAIN_CONFIG.CONTRACTS.PLATFORM_V2, calldata);
     const receipt = await waitForReceipt({ client: thirdwebClient, chain: CHAIN, transactionHash: txHash as `0x${string}` });
 
-    return this.parseProjectCreatedEvent(receipt.logs, txHash);
+    const addresses = this.parseProjectCreatedEvent(receipt.logs, txHash);
+    return addresses;
+  }
+
+  // After activating the vault, enroll the creator as a natillera member so
+  // they have voting power on future proposals.
+  private async joinNatilleraAsCreator(account: Account, natilleraAddress: string): Promise<void> {
+    const natillera = getContract({ client: thirdwebClient, chain: CHAIN, address: natilleraAddress });
+    const tx = prepareContractCall({
+      contract: natillera,
+      method: 'function join()',
+      params: [],
+    });
+    const data = await encode(tx);
+    await this.sendWithFeeCurrency(account, natilleraAddress, data);
   }
 
   private parseProjectCreatedEvent(logs: readonly { topics: readonly string[]; data: string; address: string }[], txHash: string): V2ContractAddresses {
@@ -436,6 +468,7 @@ class BlockchainService {
       method: 'function buyTokens(uint256 amount) payable',
       params: [amount],
     });
+    this.validateChain(account);
     const result = await sendTransaction({ account, transaction: tx });
     return result.transactionHash;
   }
@@ -460,6 +493,125 @@ class BlockchainService {
     });
     const calldata = await encode(tx);
     return this.sendWithFeeCurrency(account, milestonesAddress, calldata);
+  }
+
+  // ── GOVERNANCE V2 ──────────────────
+
+  async proposeOnChain(
+    account: Account,
+    governanceAddress: string,
+    action: number,
+    targetId: bigint,
+    amount: bigint,
+    recipient: string,
+    token: string,
+    description: string,
+  ): Promise<{ txHash: string; proposalId: string }> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: governanceAddress });
+    const tx = prepareContractCall({
+      contract,
+      method:
+        'function propose(uint8 action, uint256 targetId, uint256 amount, address recipient, address token, string description) returns (uint256)',
+      params: [action, targetId, amount, recipient, token, description],
+    });
+    const calldata = await encode(tx);
+    const txHash = await this.sendWithFeeCurrency(account, governanceAddress, calldata);
+    const receipt = await waitForReceipt({
+      client: thirdwebClient,
+      chain: CHAIN,
+      transactionHash: txHash as `0x${string}`,
+    });
+
+    for (const log of receipt.logs) {
+      if (log.address.toLowerCase() !== governanceAddress.toLowerCase()) continue;
+      try {
+        const decoded = decodeEventLog({
+          abi: GovernanceAbi as Parameters<typeof decodeEventLog>[0]['abi'],
+          eventName: 'ProposalCreated',
+          topics: log.topics as [`0x${string}`, ...`0x${string}`[]],
+          data: log.data as `0x${string}`,
+        });
+        const args = decoded.args as { id: bigint };
+        return { txHash, proposalId: args.id.toString() };
+      } catch {
+        continue;
+      }
+    }
+    throw new Error('No se encontró evento ProposalCreated en el receipt');
+  }
+
+  async voteOnChain(
+    account: Account,
+    governanceAddress: string,
+    proposalId: bigint,
+    support: boolean,
+  ): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: governanceAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function vote(uint256 id, uint8 vote_)',
+      params: [proposalId, support ? 1 : 2],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, governanceAddress, calldata);
+  }
+
+  async executeProposalOnChain(
+    account: Account,
+    governanceAddress: string,
+    proposalId: bigint,
+  ): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: governanceAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function execute(uint256 id)',
+      params: [proposalId],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, governanceAddress, calldata);
+  }
+
+  // ── DISPUTES V2 ──────────────────
+
+  async openDisputeOnChain(
+    account: Account,
+    disputesAddress: string,
+    reason: string,
+  ): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: disputesAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function openDispute(string reason) returns (uint256)',
+      params: [reason],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, disputesAddress, calldata);
+  }
+
+  // ── REVENUE V2: deposit / refund ──────────────────
+
+  async depositRevenue(
+    account: Account,
+    revenueAddress: string,
+    vaultAddress: string,
+    amount: bigint,
+  ): Promise<string> {
+    await this.approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress, amount);
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function depositRevenue(uint256 amount)',
+      params: [amount],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, revenueAddress, calldata);
+  }
+
+  async refundInvestment(account: Account, revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    const tx = prepareContractCall({ contract, method: 'function refund()' });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, revenueAddress, calldata);
   }
 
   async executeMilestone(account: Account, milestonesAddress: string, milestoneId: bigint): Promise<string> {

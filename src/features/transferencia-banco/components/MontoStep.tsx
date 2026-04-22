@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { SelectedBank, AmountData } from '../pages/BankTransferPage';
+import FeeBreakdown from '../../../components/ui/FeeBreakdown';
 import './MontoStep.css';
 
 interface Props {
@@ -89,6 +90,8 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
               </button>
             ))}
           </div>
+
+          {isValid && <FeeBreakdown mode="withdrawal" amountCOP={numericValue} />}
 
           <input
             className="ms-detail"

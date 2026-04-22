@@ -29,8 +29,9 @@ export class Position {
   projectCoverUrl: string | null;
   baseAmount: number;
   baseCurrency: string;
-  monthlyFeeAmount: number | null;
-  monthlyFeeCurrency: string | null;
+  pctChange: number;
+  currentValue: number;
+  totalCollected: number;
   createdAt: string;
 
   constructor(data: {
@@ -41,8 +42,9 @@ export class Position {
     projectCoverUrl: string | null;
     baseAmount: number;
     baseCurrency: string;
-    monthlyFeeAmount: number | null;
-    monthlyFeeCurrency: string | null;
+    pctChange: number;
+    currentValue: number;
+    totalCollected: number;
     createdAt: string;
   }) {
     this.id = data.id;
@@ -52,8 +54,9 @@ export class Position {
     this.projectCoverUrl = data.projectCoverUrl;
     this.baseAmount = data.baseAmount;
     this.baseCurrency = data.baseCurrency;
-    this.monthlyFeeAmount = data.monthlyFeeAmount;
-    this.monthlyFeeCurrency = data.monthlyFeeCurrency;
+    this.pctChange = data.pctChange;
+    this.currentValue = data.currentValue;
+    this.totalCollected = data.totalCollected;
     this.createdAt = data.createdAt;
   }
 
@@ -66,8 +69,9 @@ export class Position {
       projectCoverUrl: this.projectCoverUrl,
       baseAmount: this.baseAmount,
       baseCurrency: this.baseCurrency,
-      monthlyFeeAmount: this.monthlyFeeAmount,
-      monthlyFeeCurrency: this.monthlyFeeCurrency,
+      pctChange: this.pctChange,
+      currentValue: this.currentValue,
+      totalCollected: this.totalCollected,
       createdAt: this.createdAt,
     };
   }

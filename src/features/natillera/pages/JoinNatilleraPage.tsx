@@ -88,8 +88,11 @@ const JoinNatilleraPage: React.FC = () => {
         if (project.natillera_address) {
           try {
             await joinNatilleraOnChain(project.natillera_address);
-          } catch {
-            // Si falla el join on-chain, se completará automáticamente al hacer el primer pago
+          } catch (err: any) {
+            console.error('[JOIN] on-chain join failed:', err);
+            const msg = err?.message || 'La unión on-chain falló. Intenta de nuevo.';
+            await present({ message: msg, duration: 5000, color: 'danger' });
+            return;
           }
         }
         setJoinStatus('approved');

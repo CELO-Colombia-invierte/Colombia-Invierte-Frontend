@@ -12,6 +12,7 @@ export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onCl
   const isFiat = investment.currency === 'COP';
   const decimals = isFiat ? 0 : 2;
 
+  console.log(investment)
   const formatAmount = (amount: number) => {
     const numAmount = Number(amount) || 0;
     return `$${numAmount.toLocaleString('es-CO', {
@@ -30,7 +31,7 @@ export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onCl
         <div className="investment-card-info">
           <h3 className="investment-card-name">{investment.name}</h3>
           <p className="investment-card-currency">
-            {safeAmount.toLocaleString('es-CO', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })} {investment.currency}
+            {(Number(investment.totalCollected) || 0).toLocaleString('es-CO', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })} {investment.currency}
           </p>
         </div>
       </div>

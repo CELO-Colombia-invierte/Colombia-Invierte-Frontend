@@ -9,9 +9,9 @@ export const BLOCKCHAIN_CONFIG = {
   BLOCK_EXPLORER: 'https://sepolia.celoscan.io',
 
   CONTRACTS: {
-    PLATFORM_V2: '0xd6BA650Fb9426508707E77e8fb58037B39723F69',
-    FEE_MANAGER: '0x36e23fE797F04C5197A713B29508C80b5b9f25aa',
-    FEE_TREASURY: '0x8392dD63883Fc5566e54B3431E35bA100D10Ae86',
+    PLATFORM_V2: '0x05e383Db1F080D3662ecb49f32c6715e6F6d32Ed',
+    FEE_MANAGER: '0xA28eBC51cEe3b508d2C0440D992E170563fbE3C3',
+    FEE_TREASURY: '0xACfc21A8b59d12d8b4ccE4Eff0E98474afcf6eB2',
   },
   PAYMENT_TOKEN_ADDRESS: '0x01c5c0122039549ad1493b8220cabedd739bc44e',
   PAYMENT_TOKEN_DECIMALS: 6,
@@ -31,6 +31,7 @@ export { default as FeeTreasuryAbi } from './abis/FeeTreasury.json';
 
 export const getBlockExplorerTxUrl = (txHash: string) =>
   `${BLOCKCHAIN_CONFIG.BLOCK_EXPLORER}/tx/${txHash}`;
+
 
 export const getBlockExplorerAddressUrl = (address: string) =>
   `${BLOCKCHAIN_CONFIG.BLOCK_EXPLORER}/address/${address}`;
