@@ -4,9 +4,13 @@ import { useHistory, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { Propuesta, PropuestaStatus } from '@/types/propuesta';
 import { propuestasService } from '@/services/propuestas/propuestas.service';
+import { useBlockchain } from '@/hooks/use-blockchain';
 import { useProposalVotes } from '@/hooks/use-proposal-votes';
+import { usePropuestaExecute } from '../hooks/use-propuesta-execute';
+import { ReturnYieldForm } from '@/features/natillera/components/ReturnYieldForm';
 import { VotingResults } from '../components/propuestas/VotingResults';
 import { WithdrawBlockedModal } from '../components/propuestas/WithdrawBlockedModal';
+import FeeBreakdown from '@/components/ui/FeeBreakdown';
 import './PropuestaDetallePage.css';
 import { IonIcon } from '@ionic/react';
 import { arrowBackOutline } from 'ionicons/icons'; 
@@ -17,12 +21,16 @@ const PropuestaDetallePage: React.FC = () => {
   const history = useHistory();
   const { user } = useAuth();
   const [present] = useIonToast();
+  const { voteOnChain } = useBlockchain();
+  const { execute: executeOnChain, isExecuting } = usePropuestaExecute();
 
   const [propuesta, setPropuesta] = useState<Propuesta | null>(null);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [showWithdrawBlockedModal, setShowWithdrawBlockedModal] = useState(false);
+  const [showProfitModal, setShowProfitModal] = useState(false);
+  const [actualProfitInput, setActualProfitInput] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -59,27 +67,64 @@ const PropuestaDetallePage: React.FC = () => {
     if (!propuesta) return;
     setVoting(true);
     try {
-      const updated = await propuestasService.vote(propuesta.id, answer);
+      let txHash: string | undefined;
+      if (propuesta.proposal_chain_id && propuesta.governance_address) {
+        await present({
+          message: 'Firma el voto en tu wallet',
+          duration: 2000,
+        });
+        txHash = await voteOnChain(
+          propuesta.governance_address,
+          BigInt(propuesta.proposal_chain_id),
+          answer === 'YES',
+        );
+      }
+      const updated = await propuestasService.vote(propuesta.id, answer, txHash);
       setPropuesta({ ...updated, user_vote: answer });
       await present({ message: 'Voto registrado exitosamente', duration: 2000, color: 'success' });
     } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Error al registrar el voto';
+      console.error('[VOTE] error:', err);
+      const msg = err?.response?.data?.message || err?.message || 'Error al registrar el voto';
       await present({ message: msg, duration: 3000, color: 'danger' });
     } finally {
       setVoting(false);
     }
   };
 
-  const handleWithdraw = async () => {
+  const handleWithdraw = () => {
+    setActualProfitInput('');
+    setShowProfitModal(true);
+  };
+
+  const handleConfirmWithdraw = async () => {
     if (!propuesta) return;
+    const actualProfit = Number(actualProfitInput);
+    if (isNaN(actualProfit) || actualProfit < 0) {
+      await present({ message: 'Ingresa un monto válido', duration: 2000, color: 'warning' });
+      return;
+    }
+    if (!propuesta.governance_address || !propuesta.proposal_chain_id) {
+      await present({
+        message: 'La propuesta no está vinculada on-chain. Contacta al administrador.',
+        duration: 3000,
+        color: 'danger',
+      });
+      return;
+    }
+    setShowProfitModal(false);
     setWithdrawing(true);
     try {
-      await propuestasService.withdraw(propuesta.id);
-      await present({ message: 'Retiro iniciado exitosamente', duration: 2500, color: 'success' });
+      const txHash = await executeOnChain(
+        propuesta.governance_address,
+        propuesta.proposal_chain_id,
+      );
+      await propuestasService.withdraw(propuesta.id, txHash, actualProfit);
+      await present({ message: 'Retiro completado exitosamente', duration: 2500, color: 'success' });
       const data = await propuestasService.getById(propuesta.id);
       setPropuesta(data);
-    } catch {
-      await present({ message: 'Error al retirar el dinero', duration: 3000, color: 'danger' });
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || 'Error al retirar el dinero';
+      await present({ message: msg, duration: 3000, color: 'danger' });
     } finally {
       setWithdrawing(false);
     }
@@ -106,6 +151,7 @@ const PropuestaDetallePage: React.FC = () => {
   const isPending = propuesta.status === 'PENDING';
   const isApproved = propuesta.status === 'APPROVED';
   const isRejected = propuesta.status === 'REJECTED';
+  const isCompleted = propuesta.status === 'COMPLETED';
   const hasVoted = propuesta.user_vote != null;
   const canVote = propuesta.can_vote ?? true;
 
@@ -152,6 +198,17 @@ const PropuestaDetallePage: React.FC = () => {
         </div>
       );
     }
+    if (isCompleted) {
+      return (
+        <div className="propuesta-status approved">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>Dinero retirado</span>
+        </div>
+      );
+    }
     return null;
   };
 
@@ -186,6 +243,7 @@ const PropuestaDetallePage: React.FC = () => {
               <span className="propuesta-data-label">Monto a retirar:</span>
               <span className="propuesta-data-value">{formatMonto(propuesta.withdrawal_amount)}</span>
             </div>
+            <FeeBreakdown mode="withdrawal" amountCOP={propuesta.withdrawal_amount ?? 0} />
             {propuesta.estimated_profit != null && (
               <div className="propuesta-data-item">
                 <span className="propuesta-data-label">Ganancia de dinero estimado:</span>
@@ -235,15 +293,72 @@ const PropuestaDetallePage: React.FC = () => {
           )}
         </div>
 
-        {isEncargado && (
+        {isEncargado && !isCompleted && (
           <div className="propuesta-detalle-footer">
             <button
               className={`propuesta-detalle-withdraw-btn ${isApproved ? 'active' : 'disabled'}`}
               onClick={isApproved ? handleWithdraw : () => setShowWithdrawBlockedModal(true)}
-              disabled={withdrawing}
+              disabled={withdrawing || isExecuting}
             >
-              {withdrawing ? 'Retirando...' : 'Retirar dinero'}
+              {isExecuting ? 'Firmando...' : withdrawing ? 'Retirando...' : 'Retirar dinero'}
             </button>
+          </div>
+        )}
+
+        {isCompleted
+          && isEncargado
+          && propuesta.project_type === 'NATILLERA'
+          && !propuesta.return_yield_tx_hash
+          && propuesta.natillera_address
+          && propuesta.vault_address && (
+            <div className="propuesta-detalle-footer">
+              <ReturnYieldForm
+                propuestaId={propuesta.id}
+                natilleraAddress={propuesta.natillera_address}
+                vaultAddress={propuesta.vault_address}
+                onSuccess={async () => {
+                  const data = await propuestasService.getById(propuesta.id);
+                  setPropuesta(data);
+                }}
+              />
+            </div>
+        )}
+
+        {showProfitModal && (
+          <div className="propuesta-profit-modal-overlay" onClick={() => setShowProfitModal(false)}>
+            <div className="propuesta-profit-modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Registrar resultado de la actividad</h3>
+              <p>Se retiraron {formatMonto(propuesta.withdrawal_amount)} del pool. ¿Cuánto dinero regresa al pool?</p>
+              <div className="propuesta-profit-input-wrapper">
+                <span className="propuesta-profit-currency">$</span>
+                <input
+                  type="number"
+                  className="propuesta-profit-input"
+                  placeholder="Ej: 300000"
+                  value={actualProfitInput}
+                  onChange={(e) => setActualProfitInput(e.target.value)}
+                  min="0"
+                  autoFocus
+                />
+              </div>
+              {actualProfitInput && Number(actualProfitInput) >= 0 && (
+                <p className={`propuesta-profit-preview ${Number(actualProfitInput) >= propuesta.withdrawal_amount ? 'positive' : 'negative'}`}>
+                  {Number(actualProfitInput) > propuesta.withdrawal_amount
+                    ? `Ganancia para el pool: ${formatMonto(Number(actualProfitInput) - propuesta.withdrawal_amount)}`
+                    : Number(actualProfitInput) === propuesta.withdrawal_amount
+                    ? 'Sin ganancia ni pérdida'
+                    : `Pérdida para el pool: ${formatMonto(propuesta.withdrawal_amount - Number(actualProfitInput))}`}
+                </p>
+              )}
+              <div className="propuesta-profit-actions">
+                <button className="propuesta-profit-btn cancel" onClick={() => setShowProfitModal(false)}>
+                  Cancelar
+                </button>
+                <button className="propuesta-profit-btn confirm" onClick={handleConfirmWithdraw}>
+                  Confirmar retiro
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

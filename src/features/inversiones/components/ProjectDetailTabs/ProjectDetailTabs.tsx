@@ -19,6 +19,7 @@ interface ProjectDetailTabsProps {
   isOwner?: boolean;
   isMember?: boolean;
   hasV2?: boolean;
+  hasActivePropuesta?: boolean;
 }
 
 export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
@@ -27,6 +28,7 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
   isOwner = false,
   isMember = false,
   hasV2 = false,
+  hasActivePropuesta = false,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -92,6 +94,9 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
             onClick={() => onTabChange(tab.id)}
           >
             {tab.label}
+            {tab.id === 'propuestas' && hasActivePropuesta && (
+              <span className="tab-active-dot" />
+            )}
           </button>
         ))}
       </div>

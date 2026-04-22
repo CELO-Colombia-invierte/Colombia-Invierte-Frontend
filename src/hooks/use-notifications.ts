@@ -103,10 +103,20 @@ export const useNotifications = (): UseNotificationsReturn => {
   useEffect(() => {
     fetchNotifications();
 
-    // Polling: refrescar notificaciones cada 30 segundos
-    const interval = setInterval(fetchNotifications, 30000);
+    const POLL_MS = 5 * 60 * 1000;
+    const tick = () => {
+      if (!document.hidden) fetchNotifications();
+    };
+    const interval = setInterval(tick, POLL_MS);
+    const onVisibility = () => {
+      if (!document.hidden) fetchNotifications();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [fetchNotifications]);
 
   return {

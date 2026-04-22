@@ -1,19 +1,21 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { IonContent, IonPage, useIonViewWillEnter } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { authService } from '@/services/auth';
 import { usePortfolio } from '@/hooks/use-portfolio';
+import { useTransactions } from '@/hooks/use-transactions';
 import { Balance, Investment } from '@/types';
 import {
   HomeHeader,
   BalanceCard,
   ActionButtons,
   InvestmentList,
+  TransactionList,
 } from '@/components/home';
 import { TransferModal } from '@/components/home/TransferModal';
 import { RecibirModal } from '@/components/home/RecibirModal';
-import { PageTransition } from '@/components/ui';
+import { PageTransition, Tabs } from '@/components/ui';
 import './HomePage.css';
 
 import { useBlockchain } from '@/hooks/use-blockchain';
@@ -24,6 +26,8 @@ const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const history = useHistory();
   const { portfolio, fetchPortfolio, isLoading } = usePortfolio();
+  const { transactions, fetchTransactions } = useTransactions();
+  const [activeTab, setActiveTab] = useState<string>('inversiones');
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isRecibirModalOpen, setIsRecibirModalOpen] = useState(false);
   const { account } = useBlockchain();
@@ -32,12 +36,6 @@ const HomePage: React.FC = () => {
     return saved ? parseFloat(saved) : 0;
   });
 
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchPortfolio();
-    }
-  }, [fetchPortfolio, isAuthenticated]);
 
   const fetchUsdtBalance = useCallback(async () => {
     if (account?.address) {
@@ -57,23 +55,30 @@ const HomePage: React.FC = () => {
     }
   }, [account?.address]);
 
-  useEffect(() => {
-    fetchUsdtBalance();
-  }, [fetchUsdtBalance]);
-
-  // Refresca al volver al home — isFetchingRef evita duplicados con el useEffect de arriba
   useIonViewWillEnter(() => {
-    if (authService.getToken()) {
+    if (isAuthenticated && authService.getToken()) {
       fetchPortfolio();
+      fetchTransactions();
     }
     fetchUsdtBalance();
   });
+
+  // Calculate weighted average pctChange across all positions
+  const totalPctChange = (() => {
+    const positions = portfolio?.positions || [];
+    const totalAmount = positions.reduce((acc, p) => acc + p.baseAmount, 0);
+    if (totalAmount <= 0) return 0;
+    return positions.reduce(
+      (acc, p) => acc + p.pctChange * (p.baseAmount / totalAmount),
+      0,
+    );
+  })();
 
   const balance: Balance = {
     amount: usdtBalance,
     currency: 'USDT',
     address: account?.address || '',
-    changePercentage: 0,
+    changePercentage: Math.round(totalPctChange * 100) / 100,
     secondaryAmount: portfolio?.balances.ousd || 0,
     secondaryCurrency: 'OUSD',
   };
@@ -85,9 +90,10 @@ const HomePage: React.FC = () => {
       return {
         id: pos.id,
         name: pos.projectName,
-        amount: pos.baseAmount,
+        amount: pos.currentValue,
+        totalCollected: pos.totalCollected,
         currency: pos.baseCurrency,
-        changePercentage: 0,
+        changePercentage: pos.pctChange,
         color: colors[index % colors.length],
         icon: icons[index % icons.length],
         imageUrl: pos.projectCoverUrl,
@@ -133,10 +139,26 @@ const HomePage: React.FC = () => {
           <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
           <BalanceCard balance={balance} />
           <ActionButtons onSend={handleSend} onReceive={handleReceive} />
-          <InvestmentList
-            investments={investments}
-            onInvestmentClick={handleInvestmentClick}
-          />
+          <div className="home-section-tabs">
+            <Tabs
+              tabs={[
+                { id: 'inversiones', label: 'Inversiones' },
+                { id: 'historial', label: 'Historial' },
+              ]}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          </div>
+          {activeTab === 'inversiones' && (
+            <InvestmentList
+              investments={investments}
+              title=""
+              onInvestmentClick={handleInvestmentClick}
+            />
+          )}
+          {activeTab === 'historial' && (
+            <TransactionList transactions={transactions} />
+          )}
         </PageTransition>
       </IonContent>
       <TransferModal

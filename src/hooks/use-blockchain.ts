@@ -24,6 +24,20 @@ interface UseBlockchainReturn {
   claimFinalNatillera: (natilleraAddress: string) => Promise<string>;
   proposeMilestoneOnChain: (milestonesAddress: string, description: string, vaultAddress: string) => Promise<string>;
   executeMilestone: (milestonesAddress: string, milestoneId: bigint) => Promise<string>;
+  proposeOnChain: (
+    governanceAddress: string,
+    action: number,
+    targetId: bigint,
+    amount: bigint,
+    recipient: string,
+    token: string,
+    description: string,
+  ) => Promise<{ txHash: string; proposalId: string }>;
+  voteOnChain: (governanceAddress: string, proposalId: bigint, support: boolean) => Promise<string>;
+  executeProposalOnChain: (governanceAddress: string, proposalId: bigint) => Promise<string>;
+  openDisputeOnChain: (disputesAddress: string, reason: string) => Promise<string>;
+  depositRevenue: (revenueAddress: string, vaultAddress: string, amount: bigint) => Promise<string>;
+  refundInvestment: (revenueAddress: string) => Promise<string>;
   clearError: () => void;
 }
 
@@ -194,6 +208,28 @@ export function useBlockchain(): UseBlockchainReturn {
     }
   };
 
+  const wrap = <T extends unknown[], R>(fn: (account: Account, ...args: T) => Promise<R>) => {
+    return async (...args: T): Promise<R> => {
+      if (!account) throw new Error('Wallet no conectada');
+      setLoading(true);
+      setError(null);
+      try {
+        return await fn(account, ...args);
+      } catch (err) {
+        return handleError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  };
+
+  const proposeOnChain = wrap(blockchainService.proposeOnChain.bind(blockchainService));
+  const voteOnChain = wrap(blockchainService.voteOnChain.bind(blockchainService));
+  const executeProposalOnChain = wrap(blockchainService.executeProposalOnChain.bind(blockchainService));
+  const openDisputeOnChain = wrap(blockchainService.openDisputeOnChain.bind(blockchainService));
+  const depositRevenue = wrap(blockchainService.depositRevenue.bind(blockchainService));
+  const refundInvestment = wrap(blockchainService.refundInvestment.bind(blockchainService));
+
   return {
     account,
     loading,
@@ -210,6 +246,12 @@ export function useBlockchain(): UseBlockchainReturn {
     claimFinalNatillera,
     proposeMilestoneOnChain,
     executeMilestone,
+    proposeOnChain,
+    voteOnChain,
+    executeProposalOnChain,
+    openDisputeOnChain,
+    depositRevenue,
+    refundInvestment,
     clearError: () => setError(null),
   };
 }

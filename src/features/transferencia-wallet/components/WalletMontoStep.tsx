@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { SelectedNetwork, SelectedCoin } from './WalletSelectionStep';
+import FeeBreakdown from '../../../components/ui/FeeBreakdown';
 import './WalletMontoStep.css';
 
 export interface WalletAmountData {
@@ -15,15 +16,8 @@ interface Props {
   onPreview: (data: WalletAmountData) => void;
 }
 
-const MOCK_COMMISSION = 0.01;
+const PLATFORM_FEE_RATE = 0.03;
 
-const IconInfo = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
-  </svg>
-);
 
 const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
   const [rawValue, setRawValue] = useState('');
@@ -32,7 +26,7 @@ const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
 
   const numericValue = parseFloat(rawValue) || 0;
   const hasAddress = walletAddress.trim().length > 0;
-  const commission = hasAddress ? MOCK_COMMISSION : 0;
+  const commission = numericValue * PLATFORM_FEE_RATE;
   const isValid = numericValue > 0 && hasAddress;
 
   const displayValue = rawValue || '0.0';
@@ -107,13 +101,9 @@ const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
           onChange={e => setWalletAddress(e.target.value)}
         />
 
-        {/* Comisión */}
-        <div className="wm-commission-row">
-          <IconInfo />
-          <span className="wm-commission-text">
-            Comisión: {commission.toFixed(2)} {coin.symbol}
-          </span>
-        </div>
+        {numericValue > 0 && (
+          <FeeBreakdown mode="withdrawal" amountUSDC={numericValue} />
+        )}
       </div>
 
       <button

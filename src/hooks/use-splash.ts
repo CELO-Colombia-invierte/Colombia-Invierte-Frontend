@@ -16,10 +16,8 @@ export const useSplash = (): UseSplashReturn => {
   useEffect(() => {
     const splashTimer = setTimeout(() => {
       setShowSplash(false);
-      setTimeout(() => {
-        setShowLoading(true);
-      }, 300);
-    }, 2000);
+      setShowLoading(true);
+    }, 300);
 
     return () => clearTimeout(splashTimer);
   }, []);
@@ -31,15 +29,13 @@ export const useSplash = (): UseSplashReturn => {
       setLoadingProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval);
-          setTimeout(() => {
-            setShowLoading(false);
-            setIsReady(true);
-          }, 500);
+          setShowLoading(false);
+          setIsReady(true);
           return 100;
         }
-        return prev + 2;
+        return prev + 10;
       });
-    }, 50);
+    }, 25);
 
     return () => clearInterval(progressInterval);
   }, [showLoading]);

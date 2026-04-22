@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { IonContent, IonPage, IonIcon, IonSpinner } from '@ionic/react';
+import { IonContent, IonPage, IonIcon, IonSpinner, useIonViewWillEnter } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { walletOutline, businessOutline } from 'ionicons/icons';
 import { useAuth } from '@/hooks/use-auth';
-import { portfolioService } from '@/services/portfolio/portfolio.service';
+import { usePortfolio } from '@/hooks/use-portfolio';
 import { projectsService } from '@/services/projects/projects.service';
 import { Position } from '@/models/Portfolio.model';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
@@ -22,23 +22,15 @@ import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
-  const [positions, setPositions] = useState<Position[]>([]);
+  const { portfolio, fetchPortfolio } = usePortfolio();
+  const positions: Position[] = portfolio?.positions ?? [];
   const positionsRef = useRef<Position[]>([]);
+  positionsRef.current = positions;
   const [publicProjects, setPublicProjects] = useState<Project[]>([]);
   const [loadingPublic, setLoadingPublic] = useState(false);
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('mi-portafolio');
-
-  const fetchPortfolio = useCallback(async () => {
-    try {
-      const portfolio = await portfolioService.getPortfolio();
-      positionsRef.current = portfolio.positions;
-      setPositions(portfolio.positions);
-    } catch (error) {
-      console.error('Error fetching portfolio:', error);
-    }
-  }, []);
 
   const fetchPublicProjects = useCallback(async () => {
     try {
@@ -59,9 +51,9 @@ const PortafolioPage: React.FC = () => {
     }
   }, [user?.id]);
 
-  useEffect(() => {
+  useIonViewWillEnter(() => {
     fetchPortfolio();
-  }, [fetchPortfolio]);
+  });
 
   useEffect(() => {
     if (activeTab === 'comunidad') {
@@ -92,7 +84,7 @@ const PortafolioPage: React.FC = () => {
       id: position.projectId,
       name: position.projectName,
       type: isNatillera ? 'natillera' : 'tokenizacion',
-      changePercentage: 0,
+      changePercentage: position.pctChange,
       period: 'Anual',
       participants: 0,
       avatars: [],

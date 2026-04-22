@@ -3,6 +3,7 @@ import { IonPage, IonContent, IonButton, useIonToast } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
 import { projectMembershipService } from '@/services/projects/membership.service';
+import { propuestasService } from '@/services/propuestas/propuestas.service';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { MembershipStatus } from '@/models/membership/membership.model';
 import { useAuth } from '@/hooks/use-auth';
@@ -46,6 +47,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('resumen');
+  const [hasActivePropuesta, setHasActivePropuesta] = useState(false);
 
   useEffect(() => {
     fetchProjectDetails();
@@ -61,7 +63,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       const data = await projectsService.findOne(identifier);
       setProject(data);
 
-   
+      propuestasService.getByProject(data.id, 1, 50).then((result) => {
+        const active = (result.items ?? []).some((p) => p.status === 'PENDING');
+        setHasActivePropuesta(active);
+      }).catch(() => {});
+
       if (user?.id) {
         try {
           const membership = await projectMembershipService.checkMembership(
@@ -197,6 +203,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           isOwner={isOwner}
           isMember={isMember}
           hasV2={hasV2}
+          hasActivePropuesta={hasActivePropuesta}
         />
 
         <div className="project-detail-content">

@@ -1,0 +1,58 @@
+.fee-breakdown {
+  margin-top: 10px;
+  background: #fffbeb;
+  border: 1px solid #f6d860;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #5a4a00;
+}
+
+.fee-breakdown__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #7a5c00;
+}
+
+.fee-breakdown__icon {
+  font-size: 14px;
+}
+
+.fee-breakdown__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fee-breakdown__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-breakdown__label {
+  color: #6b5500;
+  flex-shrink: 0;
+}
+
+.fee-breakdown__value {
+  color: #4a3800;
+  font-weight: 500;
+  text-align: right;
+}
+
+.fee-breakdown__row--net {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed #e8c900;
+}
+
+.fee-breakdown__value--net {
+  color: #1a7a1a;
+  font-weight: 700;
+}

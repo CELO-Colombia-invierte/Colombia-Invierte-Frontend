@@ -33,6 +33,9 @@ export class PortfolioMapper {
       projectCoverUrl: dto.project.cover_url,
       baseAmount: dto.base_amount,
       baseCurrency: dto.base_currency,
+      pctChange: dto.pct_change ?? 0,
+      currentValue: dto.current_value ?? dto.base_amount,
+      totalCollected: dto.total_collected ?? 0,
       createdAt: dto.created_at,
     });
   }

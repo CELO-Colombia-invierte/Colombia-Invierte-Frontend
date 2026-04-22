@@ -22,6 +22,9 @@ export interface PositionDto {
   project: PositionProjectDto;
   base_amount: number;
   base_currency: string;
+  pct_change: number;
+  current_value: number;
+  total_collected: number;
   created_at: string;
 }
 

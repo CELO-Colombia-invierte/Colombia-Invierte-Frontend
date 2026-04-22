@@ -67,16 +67,49 @@ class PropuestasService {
     return response.data;
   }
 
-  async vote(propuestaId: string, answer: 'YES' | 'NO'): Promise<Propuesta> {
+  async vote(propuestaId: string, answer: 'YES' | 'NO', txHash?: string): Promise<Propuesta> {
     const response = await apiService.post<Propuesta>(
       `/propuestas/${propuestaId}/vote`,
-      { answer }
+      { answer, ...(txHash ? { tx_hash: txHash } : {}) }
     );
     return response.data;
   }
 
-  async withdraw(propuestaId: string): Promise<void> {
-    await apiService.post(`/propuestas/${propuestaId}/withdraw`, {});
+  async attachChain(
+    propuestaId: string,
+    proposalChainId: string,
+    proposeTxHash: string,
+  ): Promise<Propuesta> {
+    const response = await apiService.patch<Propuesta>(
+      `/propuestas/${propuestaId}/chain`,
+      { proposal_chain_id: proposalChainId, propose_tx_hash: proposeTxHash }
+    );
+    return response.data;
+  }
+
+  async withdraw(
+    propuestaId: string,
+    executeTxHash: string,
+    actualProfit?: number,
+  ): Promise<Propuesta> {
+    const response = await apiService.post<Propuesta>(
+      `/propuestas/${propuestaId}/withdraw`,
+      { execute_tx_hash: executeTxHash, actual_profit: actualProfit },
+    );
+    return response.data;
+  }
+
+  async returnYield(
+    propuestaId: string,
+    amountUsdc: number,
+    source: string,
+    txHash: string,
+  ): Promise<Propuesta> {
+    const response = await apiService.post<Propuesta>(
+      `/propuestas/${propuestaId}/return-yield`,
+      { amount_usdc: amountUsdc, source, tx_hash: txHash },
+    );
+    return response.data;
   }
 }
 
