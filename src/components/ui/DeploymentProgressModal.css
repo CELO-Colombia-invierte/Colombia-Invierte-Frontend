@@ -1,0 +1,108 @@
+.dpm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+
+.dpm-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.dpm-header-icon {
+  align-self: center;
+}
+
+.dpm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  align-self: flex-start;
+}
+
+.dpm-steps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dpm-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.dpm-step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.dpm-step-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dpm-step-icon--active {
+  animation: dpm-spin 1.2s linear infinite;
+}
+
+@keyframes dpm-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dpm-step-line {
+  width: 2px;
+  height: 28px;
+  background: #e5e7eb;
+  margin: 2px 0;
+}
+
+.dpm-step-line--done {
+  background: #3b82f6;
+}
+
+.dpm-step-label {
+  font-size: 14px;
+  color: #111827;
+  margin: 0;
+  padding: 2px 0 28px;
+  line-height: 1.4;
+}
+
+.dpm-step-label--pending {
+  color: #9ca3af;
+}
+
+.dpm-step-row:last-child .dpm-step-label {
+  padding-bottom: 0;
+}
+
+.dpm-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}

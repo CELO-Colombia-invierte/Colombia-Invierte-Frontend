@@ -635,6 +635,15 @@ class BlockchainService {
     }) as Promise<bigint>;
   }
 
+  async getVaultAvailableBalance(vaultAddress: string, tokenAddress: string): Promise<bigint> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: vaultAddress });
+    return readContract({
+      contract,
+      method: 'function availableBalance(address) view returns (uint256)',
+      params: [tokenAddress],
+    }) as Promise<bigint>;
+  }
+
   async getNativeBalance(address: string): Promise<bigint> {
     const rpc = getRpcClient({ client: thirdwebClient, chain: CHAIN });
     return eth_getBalance(rpc, { address: address as `0x${string}` });

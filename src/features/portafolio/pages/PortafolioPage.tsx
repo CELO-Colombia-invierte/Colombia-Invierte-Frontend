@@ -4,8 +4,10 @@ import { IonContent, IonPage, IonIcon, IonSpinner, useIonViewWillEnter } from '@
 import { useHistory } from 'react-router-dom';
 import { walletOutline, businessOutline } from 'ionicons/icons';
 import { useAuth } from '@/hooks/use-auth';
+import { useBlockchain } from '@/hooks/use-blockchain';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { projectsService } from '@/services/projects/projects.service';
+import { computeNatilleraContribution, fetchQuotaPaidEvents } from '@/services/natillera-contribution';
 import { Position } from '@/models/Portfolio.model';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { PortfolioProject } from '@/types';
@@ -22,6 +24,7 @@ import './PortafolioPage.css';
 
 const PortafolioPage: React.FC = () => {
   const { user } = useAuth();
+  const { account } = useBlockchain();
   const { portfolio, fetchPortfolio } = usePortfolio();
   const positions: Position[] = portfolio?.positions ?? [];
   const positionsRef = useRef<Position[]>([]);
@@ -31,6 +34,7 @@ const PortafolioPage: React.FC = () => {
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('mi-portafolio');
+  const [enrichedMap, setEnrichedMap] = useState<Record<string, { baseAmount: number; pctChange: number }>>({});
 
   const fetchPublicProjects = useCallback(async () => {
     try {
@@ -54,6 +58,54 @@ const PortafolioPage: React.FC = () => {
   useIonViewWillEnter(() => {
     fetchPortfolio();
   });
+
+  const positionsKey = positions.map((p) => p.projectId).join(',');
+
+  useEffect(() => {
+    if (!account?.address) {
+      setEnrichedMap({});
+      return;
+    }
+    const natilleraPositions = positions.filter((p) => p.projectType === 'NATILLERA');
+    if (natilleraPositions.length === 0) {
+      setEnrichedMap({});
+      return;
+    }
+
+    let cancelled = false;
+    setEnrichedMap({});
+
+    const enrichOne = async (position: Position) => {
+      try {
+        const [project, events] = await Promise.all([
+          projectsService.findOne(position.projectId),
+          fetchQuotaPaidEvents(position.projectId),
+        ]);
+        const quotaCop = Number(project.natillera_details?.monthly_fee_amount) || 0;
+        if (quotaCop === 0) return;
+
+        const { paidMonths, currentValueCop, pctYield } = computeNatilleraContribution({
+          events,
+          myAddress: account.address,
+          quotaCop,
+          vaultCop: Number(position.totalCollected) || 0,
+        });
+        if (paidMonths === 0) return;
+
+        if (cancelled) return;
+        setEnrichedMap((prev) => ({
+          ...prev,
+          [position.projectId]: { baseAmount: currentValueCop, pctChange: pctYield },
+        }));
+      } catch (err) {
+        console.warn(`[PortafolioPage] enrich ${position.projectId} failed`, err);
+      }
+    };
+
+    Promise.all(natilleraPositions.map(enrichOne));
+
+    return () => { cancelled = true; };
+  }, [positionsKey, account?.address]);
 
   useEffect(() => {
     if (activeTab === 'comunidad') {
@@ -80,16 +132,17 @@ const PortafolioPage: React.FC = () => {
       ? gradients.natillera
       : gradients.tokenization;
 
+    const enriched = enrichedMap[position.projectId];
     return {
       id: position.projectId,
       name: position.projectName,
       type: isNatillera ? 'natillera' : 'tokenizacion',
-      changePercentage: position.pctChange,
+      changePercentage: enriched?.pctChange ?? position.pctChange,
       period: 'Anual',
       participants: 0,
       avatars: [],
       gradient: gradientList[index % gradientList.length],
-      amount: position.baseAmount,
+      amount: enriched?.baseAmount ?? position.baseAmount,
       description: undefined,
       emoji: undefined,
     };

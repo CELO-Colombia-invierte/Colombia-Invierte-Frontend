@@ -10,7 +10,6 @@ import { usePropuestaExecute } from '../hooks/use-propuesta-execute';
 import { ReturnYieldForm } from '@/features/natillera/components/ReturnYieldForm';
 import { VotingResults } from '../components/propuestas/VotingResults';
 import { WithdrawBlockedModal } from '../components/propuestas/WithdrawBlockedModal';
-import FeeBreakdown from '@/components/ui/FeeBreakdown';
 import './PropuestaDetallePage.css';
 import { IonIcon } from '@ionic/react';
 import { arrowBackOutline } from 'ionicons/icons'; 
@@ -243,7 +242,6 @@ const PropuestaDetallePage: React.FC = () => {
               <span className="propuesta-data-label">Monto a retirar:</span>
               <span className="propuesta-data-value">{formatMonto(propuesta.withdrawal_amount)}</span>
             </div>
-            <FeeBreakdown mode="withdrawal" amountCOP={propuesta.withdrawal_amount ?? 0} />
             {propuesta.estimated_profit != null && (
               <div className="propuesta-data-item">
                 <span className="propuesta-data-label">Ganancia de dinero estimado:</span>

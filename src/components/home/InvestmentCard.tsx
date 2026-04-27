@@ -12,7 +12,6 @@ export const InvestmentCard: React.FC<InvestmentCardProps> = ({ investment, onCl
   const isFiat = investment.currency === 'COP';
   const decimals = isFiat ? 0 : 2;
 
-  console.log(investment)
   const formatAmount = (amount: number) => {
     const numAmount = Number(amount) || 0;
     return `$${numAmount.toLocaleString('es-CO', {

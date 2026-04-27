@@ -8,7 +8,8 @@ import { Step2FinancialInfo } from '../components/Step2FinancialInfo';
 import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
-import { useIonToast, useIonLoading } from '@ionic/react';
+import { useIonToast } from '@ionic/react';
+import { DeploymentProgressModal } from '@/components/ui/DeploymentProgressModal';
 import { ConnectButton } from 'thirdweb/react';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
@@ -52,7 +53,7 @@ interface FormData {
 const CrearNatilleraPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
-  const [presentLoading, dismissLoading] = useIonLoading();
+  const [deployStep, setDeployStep] = useState(0);
   const contentRef = useRef<HTMLIonContentElement>(null);
   const { account } = useBlockchain();
   const [createdNatillera, setCreatedNatillera] = useState<Project | null>(
@@ -156,15 +157,14 @@ const CrearNatilleraPage: React.FC = () => {
         return;
       }
 
-      await presentLoading({ message: 'Preparando billetera y verificando gas...' });
+      setDeployStep(1);
       try {
         await apiService.post('/blockchain/fund-gas', { address: account!.address });
-        
-        // Esperemos hasta 15 segundos chequeando si el fondo llegó
+
         let retries = 5;
         const MIN_GAS = BigInt('50000000000000000');
         let newBalance = await blockchainService.getNativeBalance(account!.address);
-        
+
         while (newBalance < MIN_GAS && retries > 0) {
           await new Promise((resolve) => setTimeout(resolve, 3000));
           newBalance = await blockchainService.getNativeBalance(account!.address);
@@ -180,7 +180,7 @@ const CrearNatilleraPage: React.FC = () => {
         const MIN_GAS = BigInt('50000000000000000');
         const celoBalance = await blockchainService.getNativeBalance(account!.address);
         if (celoBalance < MIN_GAS) {
-          await dismissLoading();
+          setDeployStep(0);
           await present({
             message: 'Sin saldo para gas. Reinicia la app o contacta al soporte.',
             duration: 6000,
@@ -189,9 +189,6 @@ const CrearNatilleraPage: React.FC = () => {
           return;
         }
       }
-
-      await dismissLoading();
-      await presentLoading({ message: 'Creando natillera...' });
 
       const paymentDate = new Date(formData.fechaPago);
       if (formData.horaPago) {
@@ -222,37 +219,15 @@ const CrearNatilleraPage: React.FC = () => {
       currentProjectId = projectId;
 
       if (selectedImage) {
-        await dismissLoading();
-        await presentLoading({ message: 'Subiendo imagen miniatura...' });
-
-        await projectsService.uploadImage(
-          projectId,
-          selectedImage,
-          true,
-          'Miniatura de la natillera'
-        );
+        await projectsService.uploadImage(projectId, selectedImage, true, 'Miniatura de la natillera');
       }
       if (documentsWithFiles.length > 0) {
-        for (let i = 0; i < documentsWithFiles.length; i++) {
-          const doc = documentsWithFiles[i];
-          await dismissLoading();
-          await presentLoading({
-            message: `Subiendo documento ${i + 1}/${documentsWithFiles.length}...`,
-          });
-
-          await projectsService.uploadDocument(
-            projectId,
-            doc.file!,
-            doc.motivo || doc.file!.name,
-            'GENERAL',
-            doc.motivo
-          );
+        for (const doc of documentsWithFiles) {
+          await projectsService.uploadDocument(projectId, doc.file!, doc.motivo || doc.file!.name, 'GENERAL', doc.motivo);
         }
       }
 
-
-      await dismissLoading();
-      await presentLoading({ message: 'Desplegando contrato en blockchain...' });
+      setDeployStep(2);
 
       const copToUsdc = (cop: number): bigint =>
         blockchainService.parseUnits(
@@ -270,22 +245,23 @@ const CrearNatilleraPage: React.FC = () => {
         },
       );
 
-      await dismissLoading();
-      await presentLoading({ message: 'Registrando contrato...' });
+      setDeployStep(3);
 
       const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
       setCreatedNatillera(publishedProject);
 
+      setDeployStep(4);
+      await new Promise((r) => setTimeout(r, 600));
+      setDeployStep(0);
       setShowSuccess(true);
 
-      await dismissLoading();
       await present({
         message: 'Natillera creada exitosamente',
         duration: 2000,
         color: 'success',
       });
     } catch (error: any) {
-      await dismissLoading();
+      setDeployStep(0);
 
       console.log(error)
       if (currentProjectId) {
@@ -497,6 +473,19 @@ const CrearNatilleraPage: React.FC = () => {
           )}
         </div>
       </IonContent>
+
+      <DeploymentProgressModal
+        visible={deployStep > 0}
+        title="Creando tu Natillera"
+        subtitle="Creando y configurando la Natillera, ya casi terminamos"
+        currentStep={deployStep}
+        steps={[
+          { label: 'Organizando las reglas de tu Natillera...' },
+          { label: 'Poniéndole el candado a los ahorros...' },
+          { label: 'Asignando permisos de administrador' },
+          { label: 'Preparando tu nueva Natillera...' },
+        ]}
+      />
     </IonPage>
   );
 };

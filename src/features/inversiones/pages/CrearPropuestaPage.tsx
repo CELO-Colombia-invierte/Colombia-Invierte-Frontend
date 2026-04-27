@@ -7,7 +7,6 @@ import { PropuestaFormData } from '@/types/propuesta';
 import { MemberSearch } from '../components/propuestas/MemberSearch';
 import { blockchainService } from '@/services/blockchain.service';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
-import FeeBreakdown from '@/components/ui/FeeBreakdown';
 import './CrearPropuestaPage.css';
 import { IonIcon } from '@ionic/react';
 import { arrowBackOutline } from 'ionicons/icons'; 
@@ -39,9 +38,10 @@ const CrearPropuestaPage: React.FC = () => {
         ]);
         setMembers(data);
         if (project.vault_address) {
-          const balance = await blockchainService.getTokenBalance(
-            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+          // Leer availableBalance (totalBalance - reservedFees) — es lo que vault.release puede mover.
+          const balance = await blockchainService.getVaultAvailableBalance(
             project.vault_address,
+            BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
           );
           setVaultBalance(Number(balance) / 1e6);
         }
@@ -91,10 +91,13 @@ const CrearPropuestaPage: React.FC = () => {
       return;
     }
     if (vaultBalance !== null) {
-      const vaultInCop = vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE;
-      if (Number(monto) > vaultInCop) {
+      // 1 COP de margen porque toFixed(6) en USDC puede redondear hacia arriba
+      // al construir la tx, dejando el valor un sub-centavo por encima del balance real.
+      const COP_ROUNDING_BUFFER = 1;
+      const maxCop = Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE) - COP_ROUNDING_BUFFER;
+      if (Number(monto) > maxCop) {
         await present({
-          message: `El monto excede los fondos disponibles (~${Math.floor(vaultInCop).toLocaleString('es-CO')} COP)`,
+          message: `El monto excede los fondos disponibles (~${maxCop.toLocaleString('es-CO')} COP)`,
           duration: 3000,
           color: 'danger',
         });
@@ -178,11 +181,8 @@ const CrearPropuestaPage: React.FC = () => {
             />
             {vaultBalance !== null && (
               <span className="form-hint">
-                Disponible en la natillera: ~{Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toLocaleString('es-CO')} COP ({vaultBalance.toLocaleString('es-CO')} USDC)
+                Disponible en la natillera: ~{(Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE) - 1).toLocaleString('es-CO')} COP ({vaultBalance.toLocaleString('es-CO')} USDC)
               </span>
-            )}
-            {Number(monto) > 0 && (
-              <FeeBreakdown mode="withdrawal" amountCOP={Number(monto)} />
             )}
           </div>
 

@@ -13,6 +13,8 @@ import { Project } from '@/models/projects';
 import { Propuesta } from '@/types/propuesta';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
+import { computeNatilleraContribution, fetchQuotaPaidEvents } from '@/services/natillera-contribution';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import './ProjectDetailTabs.css';
 
 interface ResumenTabProps {
@@ -40,9 +42,16 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
   const [v2Matured, setV2Matured] = useState(false);
   const [v2Claimed, setV2Claimed] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [myContribution, setMyContribution] = useState<{
+    paidMonths: number;
+    totalMonths: number;
+    totalCop: number;
+    currentValueCop: number;
+    pctYield: number;
+  } | null>(null);
 
   useEffect(() => {
-    if (!account?.address || !isMember || project.type !== 'NATILLERA') return;
+    if (!account?.address || (!isMember && !isOwner) || project.type !== 'NATILLERA') return;
 
     if (project.natillera_address) {
       const checkV2 = async () => {
@@ -59,8 +68,35 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
             state.currentMonth,
           );
           setHasPaidCurrentCycle(paid);
-        } catch {
-          // silenciar
+
+          const totalMonths = Number(state.duration);
+          const quotaCop = Number(project.natillera_details?.monthly_fee_amount) || 0;
+          try {
+            const events = await fetchQuotaPaidEvents(project.id);
+            let vaultCop = 0;
+            if (project.vault_address) {
+              try {
+                const vaultBalance = await blockchainService.getVaultAvailableBalance(
+                  project.vault_address,
+                  BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
+                );
+                vaultCop = (Number(vaultBalance) / 1e6) * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE;
+              } catch (err) {
+                console.warn('[ResumenTab] vault balance fetch failed', err);
+              }
+            }
+            const { paidMonths, totalCop, currentValueCop, pctYield } = computeNatilleraContribution({
+              events,
+              myAddress: account.address,
+              quotaCop,
+              vaultCop,
+            });
+            setMyContribution({ paidMonths, totalMonths, totalCop, currentValueCop, pctYield });
+          } catch (err) {
+            console.warn('[ResumenTab] contribution compute failed', err);
+          }
+        } catch (err) {
+          console.warn('[ResumenTab] V2 state fetch failed', err);
         }
       };
       checkV2();
@@ -80,7 +116,7 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
       };
       checkV1();
     }
-  }, [account?.address, project.contract_address, project.natillera_address, isMember]);
+  }, [account?.address, project.contract_address, project.natillera_address, isMember, isOwner]);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -145,6 +181,33 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
             <span>Creado el {formatDate(project.created_at)}</span>
           </div>
         </div>
+
+        {myContribution && (isMember || isOwner) && (
+          <div className="mi-aporte-card">
+            <h3 className="mi-aporte-title">Mi participación</h3>
+            <div className="mi-aporte-grid">
+              <div className="mi-aporte-item">
+                <span className="mi-aporte-label">Mis cuotas pagadas</span>
+                <span className="mi-aporte-value">{myContribution.paidMonths} / {myContribution.totalMonths}</span>
+              </div>
+              <div className="mi-aporte-item">
+                <span className="mi-aporte-label">Lo que he aportado</span>
+                <span className="mi-aporte-value">{myContribution.totalCop.toLocaleString('es-CO')} COP</span>
+              </div>
+              <div className="mi-aporte-item mi-aporte-item--full">
+                <span className="mi-aporte-label">Valor actual</span>
+                <span className="mi-aporte-value mi-aporte-value--highlight">
+                  {myContribution.currentValueCop.toLocaleString('es-CO')} COP
+                </span>
+                {myContribution.pctYield !== 0 && (
+                  <span className="mi-aporte-note">
+                    {myContribution.pctYield > 0 ? '+' : ''}{myContribution.pctYield.toFixed(2)}% rendimiento
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {project.description_rich && (
           <div className="resumen-content-block">
@@ -217,7 +280,7 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
         </div>
       )}
 
-      {isMember && !isOwner && !showJoinButton && project.type === 'NATILLERA' && v2Matured && !v2Claimed && (
+      {(isMember || isOwner) && !showJoinButton && project.type === 'NATILLERA' && v2Matured && !v2Claimed && (
         <div className="resumen-actions">
           <button
             className="action-button primary"
@@ -230,7 +293,7 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
         </div>
       )}
 
-      {isMember && !isOwner && !showJoinButton && project.type === 'NATILLERA' && !v2Matured && (() => {
+      {(isMember || isOwner) && !showJoinButton && project.type === 'NATILLERA' && !v2Matured && (() => {
         if (hasPaidCurrentCycle === true) return null;
         const deadline = project.natillera_details?.payment_deadline_at;
         const isPaymentDue = hasPaidCurrentCycle === false

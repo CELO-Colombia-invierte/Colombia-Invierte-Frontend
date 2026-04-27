@@ -1390,3 +1390,60 @@
   font-size: 14px;
   color: #dc2626;
 }
+
+.mi-aporte-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.mi-aporte-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px;
+}
+
+.mi-aporte-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mi-aporte-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mi-aporte-item--full {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+}
+
+.mi-aporte-label {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mi-aporte-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.mi-aporte-value--highlight {
+  color: #3b82f6;
+  font-size: 18px;
+}
+
+.mi-aporte-note {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}

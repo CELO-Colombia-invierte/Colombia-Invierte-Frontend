@@ -8,7 +8,8 @@ import { Step2FinancialInfo } from '../components/Step2FinancialInfo';
 import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
-import { useIonToast, useIonLoading } from '@ionic/react';
+import { useIonToast } from '@ionic/react';
+import { DeploymentProgressModal } from '@/components/ui/DeploymentProgressModal';
 import { ConnectButton } from 'thirdweb/react';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
@@ -67,7 +68,7 @@ interface TokenFaqDto {
 const CrearTokenizacionPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
-  const [presentLoading, dismissLoading] = useIonLoading();
+  const [deployStep, setDeployStep] = useState(0);
   const contentRef = useRef<HTMLIonContentElement>(null);
   const { account } = useBlockchain();
 
@@ -163,15 +164,14 @@ const CrearTokenizacionPage: React.FC = () => {
       const precioPorToken = parseFloat(formData.precioPorToken);
       const totalTokens = parseInt(formData.totalTokens);
 
-      await presentLoading({ message: 'Preparando billetera y verificando gas...' });
+      setDeployStep(1);
       try {
         await apiService.post('/blockchain/fund-gas', { address: account!.address });
-        
-        // Esperar hasta 15 segundos confirmando fondos
+
         let retries = 5;
         const MIN_GAS = BigInt('50000000000000000');
         let newBalance = await blockchainService.getNativeBalance(account!.address);
-        
+
         while (newBalance < MIN_GAS && retries > 0) {
           await new Promise((resolve) => setTimeout(resolve, 3000));
           newBalance = await blockchainService.getNativeBalance(account!.address);
@@ -184,11 +184,10 @@ const CrearTokenizacionPage: React.FC = () => {
 
       } catch (fundErr) {
         console.error('[CrearTokenizacion] fund-gas falló o demoró mucho:', fundErr);
-        // Si falla el fondeo, verificamos si ya tiene gas suficiente de antes
         const MIN_GAS = BigInt('50000000000000000');
         const celoBalance = await blockchainService.getNativeBalance(account!.address);
         if (celoBalance < MIN_GAS) {
-          await dismissLoading();
+          setDeployStep(0);
           await present({
             message: 'Sin saldo para gas. Reinicia la app o contacta al soporte.',
             duration: 6000,
@@ -197,9 +196,6 @@ const CrearTokenizacionPage: React.FC = () => {
           return;
         }
       }
-
-      await dismissLoading();
-      await presentLoading({ message: 'Creando tokenizacion...' });
 
       const ventaAnticipada = formData.ventaAnticipada === 'true';
       let presaleStartsAt: string | undefined;
@@ -269,39 +265,15 @@ const CrearTokenizacionPage: React.FC = () => {
       currentProjectId = projectId;
 
       if (selectedImage) {
-        await dismissLoading();
-        await presentLoading({ message: 'Subiendo imagen miniatura...' });
-
-        await projectsService.uploadImage(
-          projectId,
-          selectedImage,
-          true,
-          'Miniatura de tokenizacion'
-        );
+        await projectsService.uploadImage(projectId, selectedImage, true, 'Miniatura de tokenizacion');
       }
 
       const documentsWithFiles = selectedDocuments.filter((d) => d.file);
-      if (documentsWithFiles.length > 0) {
-        for (let i = 0; i < documentsWithFiles.length; i++) {
-          const doc = documentsWithFiles[i];
-          await dismissLoading();
-          await presentLoading({
-            message: `Subiendo documento ${i + 1}/${documentsWithFiles.length}...`,
-          });
-
-          await projectsService.uploadDocument(
-            projectId,
-            doc.file!,
-            doc.motivo || doc.file!.name,
-            'GENERAL',
-            doc.motivo
-          );
-        }
+      for (const doc of documentsWithFiles) {
+        await projectsService.uploadDocument(projectId, doc.file!, doc.motivo || doc.file!.name, 'GENERAL', doc.motivo);
       }
 
-
-      await dismissLoading();
-      await presentLoading({ message: 'Desplegando contrato en blockchain...' });
+      setDeployStep(2);
 
       const copToUsdc = (cop: number): bigint =>
         blockchainService.parseUnits(
@@ -322,22 +294,23 @@ const CrearTokenizacionPage: React.FC = () => {
         },
       );
 
-      await dismissLoading();
-      await presentLoading({ message: 'Registrando contrato...' });
+      setDeployStep(3);
 
       const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
       setCreatedTokenizacion(publishedProject);
 
+      setDeployStep(4);
+      await new Promise((r) => setTimeout(r, 600));
+      setDeployStep(0);
       setShowSuccess(true);
 
-      await dismissLoading();
       await present({
-        message: 'Tokenizacion creada exitosamente',
+        message: 'Tokenización creada exitosamente',
         duration: 2000,
         color: 'success',
       });
     } catch (error: any) {
-      await dismissLoading();
+      setDeployStep(0);
 
       if (currentProjectId) {
         try {
@@ -592,6 +565,19 @@ const CrearTokenizacionPage: React.FC = () => {
           )}
         </div>
       </IonContent>
+
+      <DeploymentProgressModal
+        visible={deployStep > 0}
+        title="Creando tu Tokenización"
+        subtitle="Configurando y desplegando la Tokenización, ya casi terminamos"
+        currentStep={deployStep}
+        steps={[
+          { label: 'Organizando las reglas de tu Tokenización...' },
+          { label: 'Configurando el contrato inteligente...' },
+          { label: 'Asignando permisos de administrador' },
+          { label: 'Preparando tu nueva Tokenización...' },
+        ]}
+      />
     </IonPage>
   );
 };
