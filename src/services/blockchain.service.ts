@@ -1,5 +1,5 @@
 import { getContract, readContract, prepareContractCall, sendTransaction, encode, prepareTransaction, waitForReceipt } from 'thirdweb';
-import { decodeEventLog } from 'viem';
+import { decodeEventLog, decodeErrorResult } from 'viem';
 import { getRpcClient, eth_getBalance } from 'thirdweb/rpc';
 import type { Account } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
@@ -7,8 +7,71 @@ import {
   CHAIN,
   BLOCKCHAIN_CONFIG,
   PlatformV2Abi,
+  RevenueModelV2Abi,
+  ProjectVaultAbi,
+  NatilleraV2Abi,
+  MilestonesModuleAbi,
+  DisputesModuleAbi,
+  FeeManagerAbi,
 } from '@/contracts/config';
 import GovernanceAbi from '@/contracts/abis/GovernanceModule.json';
+
+const REVENUE_ERROR_MESSAGES_ES: Record<string, string> = {
+  FundingTargetReached: 'El monto excede el cupo restante de la tokenización.',
+  SaleClosed: 'La venta ya está cerrada.',
+  DistributionEnded: 'La distribución de rendimientos ya finalizó.',
+  NothingToClaim: 'No tienes rendimientos disponibles para cobrar.',
+  ZeroAmount: 'El monto debe ser mayor a 0.',
+  BelowMinimumCap: 'El monto está por debajo del mínimo permitido.',
+  InvalidAmount: 'Monto inválido.',
+  Unauthorized: 'No autorizado para esta operación.',
+  VaultPaused: 'El proyecto está pausado por una disputa.',
+  InvalidVaultState: 'El estado del proyecto no permite esta operación.',
+  InvalidState: 'Estado inválido para esta operación.',
+};
+
+function combinedRevertAbi(): readonly unknown[] {
+  return [
+    ...(RevenueModelV2Abi as unknown[]),
+    ...(ProjectVaultAbi as unknown[]),
+    ...(NatilleraV2Abi as unknown[]),
+    ...(MilestonesModuleAbi as unknown[]),
+    ...(DisputesModuleAbi as unknown[]),
+    ...(FeeManagerAbi as unknown[]),
+    ...(PlatformV2Abi as unknown[]),
+  ];
+}
+
+function extractRevertData(err: unknown): `0x${string}` | null {
+  const visited = new Set<unknown>();
+  const stack: unknown[] = [err];
+  while (stack.length) {
+    const node = stack.pop();
+    if (!node || typeof node !== 'object' || visited.has(node)) continue;
+    visited.add(node);
+    const anyNode = node as Record<string, unknown>;
+    const data = anyNode.data;
+    if (typeof data === 'string' && /^0x[0-9a-fA-F]{8,}$/.test(data)) return data as `0x${string}`;
+    for (const key of ['cause', 'error', 'reason', 'info']) {
+      if (anyNode[key]) stack.push(anyNode[key]);
+    }
+  }
+  // Last resort: scan message text for a 0x... selector+data
+  const msg = (err as { message?: string })?.message ?? '';
+  const m = msg.match(/0x[0-9a-fA-F]{8,}/);
+  return m ? (m[0] as `0x${string}`) : null;
+}
+
+export function decodeContractRevert(err: unknown): string | null {
+  try {
+    const data = extractRevertData(err);
+    if (!data) return null;
+    const decoded = decodeErrorResult({ abi: combinedRevertAbi() as never, data });
+    return REVENUE_ERROR_MESSAGES_ES[decoded.errorName] ?? `Error del contrato: ${decoded.errorName}`;
+  } catch {
+    return null;
+  }
+}
 
 export interface NatilleraConfig {
   paymentToken: string;
@@ -245,7 +308,13 @@ class BlockchainService {
     });
 
     const calldata = await encode(contractCall);
-    return this.sendWithFeeCurrency(account, revenueAddress, calldata);
+    try {
+      return await this.sendWithFeeCurrency(account, revenueAddress, calldata);
+    } catch (err) {
+      const friendly = decodeContractRevert(err);
+      if (friendly) throw new Error(friendly);
+      throw err;
+    }
   }
 
   async claimRendimientos(account: Account, revenueAddress: string): Promise<string> {

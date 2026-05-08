@@ -103,6 +103,23 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
       return;
     }
     if (amount <= 0n) { setInvestError('Ingresa un monto mayor a 0'); return; }
+    if (chainState && project.type === 'TOKENIZATION' && isV2) {
+      const s = chainState as RevenueModuleState;
+      const remaining = s.fundingTarget > s.totalRaised ? s.fundingTarget - s.totalRaised : 0n;
+      if (remaining === 0n) {
+        setInvestError('La tokenización ya alcanzó su objetivo de financiación.');
+        return;
+      }
+      if (amount > remaining) {
+        const remainingFmt = blockchainService.formatUnits(remaining, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+        setInvestError(`El monto excede el cupo restante. Máximo disponible: ${remainingFmt} USDC`);
+        return;
+      }
+    }
+    if (userUsdcBalance !== null && amount > userUsdcBalance) {
+      setInvestError('Saldo USDC insuficiente.');
+      return;
+    }
     setInvesting(true);
     try {
       const txHash = await investInProject(revenueAddress, amount);
