@@ -440,6 +440,28 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
                         {userUsdcBalance !== null && (
                           <p className="invest-balance">Balance disponible: {formatUsdc(userUsdcBalance)} USDC</p>
                         )}
+                        {(() => {
+                          const remaining = s.fundingTarget > s.totalRaised ? s.fundingTarget - s.totalRaised : 0n;
+                          const maxAllowed = userUsdcBalance !== null && userUsdcBalance < remaining ? userUsdcBalance : remaining;
+                          return (
+                            <p className="invest-balance">
+                              Cupo restante: <strong>{formatUsdc(remaining)} USDC</strong>
+                              {maxAllowed > 0n && (
+                                <button
+                                  type="button"
+                                  className="invest-max-btn"
+                                  onClick={() => {
+                                    setInvestAmount(blockchainService.formatUnits(maxAllowed, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS));
+                                    setInvestError(null);
+                                  }}
+                                  style={{ marginLeft: 8, padding: '2px 10px', fontSize: 12, borderRadius: 8, border: '1px solid #4F6BFF', background: 'transparent', color: '#4F6BFF', cursor: 'pointer' }}
+                                >
+                                  Máximo
+                                </button>
+                              )}
+                            </p>
+                          );
+                        })()}
                         <div className="invest-input-row">
                           <input
                             type="number"
@@ -454,7 +476,13 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
                             try {
                               const amt = blockchainService.parseUnits(investAmount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
                               const tokens = amt / s.tokenPrice;
-                              return <span className="invest-tokens-preview">≈ {Number(tokens).toLocaleString('es-CO')} tokens</span>;
+                              const remaining = s.fundingTarget > s.totalRaised ? s.fundingTarget - s.totalRaised : 0n;
+                              const exceeds = amt > remaining;
+                              return (
+                                <span className="invest-tokens-preview" style={exceeds ? { color: '#c0392b' } : undefined}>
+                                  {exceeds ? '⚠ excede cupo' : `≈ ${Number(tokens).toLocaleString('es-CO')} tokens`}
+                                </span>
+                              );
                             } catch { return null; }
                           })()}
                         </div>

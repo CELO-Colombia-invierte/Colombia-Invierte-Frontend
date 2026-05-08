@@ -56,10 +56,12 @@ function extractRevertData(err: unknown): `0x${string}` | null {
       if (anyNode[key]) stack.push(anyNode[key]);
     }
   }
-  // Last resort: scan message text for a 0x... selector+data
+  // Last resort: scan message text for a 0x... selector+data; choose the longest match
   const msg = (err as { message?: string })?.message ?? '';
-  const m = msg.match(/0x[0-9a-fA-F]{8,}/);
-  return m ? (m[0] as `0x${string}`) : null;
+  const matches = msg.match(/0x[0-9a-fA-F]{8,}/g);
+  if (!matches || matches.length === 0) return null;
+  const longest = matches.reduce((a, b) => (b.length > a.length ? b : a));
+  return longest as `0x${string}`;
 }
 
 export function decodeContractRevert(err: unknown): string | null {
