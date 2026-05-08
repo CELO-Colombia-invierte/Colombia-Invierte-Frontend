@@ -152,9 +152,7 @@ export interface V2ContractAddresses {
 class BlockchainService {
 
   private validateChain(account: Account): void {
-    const walletChainId = account.sendTransaction
-      ? (account as any).chainId ?? (account as any).chain?.id
-      : undefined;
+    const walletChainId = (account as any).chainId ?? (account as any).chain?.id;
     // If we can detect the chain and it's wrong, throw
     if (walletChainId && walletChainId !== BLOCKCHAIN_CONFIG.CHAIN_ID) {
       throw new Error(
