@@ -90,7 +90,7 @@ const WalletTransferPage: React.FC = () => {
 
         {showEstado && (
           <WalletEstadoModal
-            onViewTx={() => { /* placeholder: explorador de bloques */ }}
+            onViewTx={() => {}}
             onDone={() => history.replace('/home')}
           />
         )}

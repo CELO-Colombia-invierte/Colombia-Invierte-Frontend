@@ -87,8 +87,8 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
 
       <div className="form-group">
         <label className="form-label">
-          Rendimiento anual esperado
-          <InfoTooltip text="Porcentaje de rentabilidad anual proyectada. Se recomienda un valor realista entre el 5% y el 25% anual, acorde al tipo de activo." />
+          Rendimiento anual proyectado
+          <InfoTooltip text="Es una proyección que tú como creador prometes a los inversores. El contrato NO la enforce automáticamente: tendrás que depositar los rendimientos manualmente vía 'Depositar rendimientos' para que los tokenholders los reclamen. Si no depositas, ellos pueden abrir una disputa." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">%</span>

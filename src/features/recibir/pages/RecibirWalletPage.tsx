@@ -89,17 +89,14 @@ const RecibirWalletPage: React.FC = () => {
 
         <div className="rw-body">
 
-          {/* QR */}
           <div className="rw-qr-wrap">
             <QRCode value={address} size={180} bgColor="#ffffff" fgColor="#000000" level="M" />
           </div>
 
-          {/* Address — solo display, sin copiar */}
           <div className="rw-address-display">
             <span className="rw-address-text">{truncateAddress(address)}</span>
           </div>
 
-          {/* Red */}
           <div className="rw-section">
             <p className="rw-label">Escoge la red</p>
             <button
@@ -126,7 +123,6 @@ const RecibirWalletPage: React.FC = () => {
             )}
           </div>
 
-          {/* Monedas */}
           <div className="rw-section">
             <p className="rw-label">Lista de monedas</p>
             <button

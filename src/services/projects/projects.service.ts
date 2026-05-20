@@ -127,8 +127,6 @@ class ProjectsService {
     await apiService.delete(`/projects/${projectId}/documents/${docId}`);
   }
 
-  // ============= BLOCKCHAIN =============
-
   async registerContract(
     id: string,
     dto: { contractAddress: string; txHash: string },
@@ -182,6 +180,31 @@ class ProjectsService {
       disputesAddress?: string;
       milestonesAddress?: string;
     }>(`/projects/${id}/blockchain`);
+    return response.data;
+  }
+
+  async getRentabilidad(id: string): Promise<{
+    expectedApy: number;
+    realApy: number;
+    distributedTotal: number;
+    principal: number;
+    durationMonths: number;
+  }> {
+    const response = await apiService.get<{
+      expectedApy: number;
+      realApy: number;
+      distributedTotal: number;
+      principal: number;
+      durationMonths: number;
+    }>(`/projects/${id}/rentabilidad`);
+    return response.data;
+  }
+
+  async finalizeSale(id: string): Promise<{ tx_hash: string; sale_finalized_at: string }> {
+    const response = await apiService.post<{ tx_hash: string; sale_finalized_at: string }>(
+      `/projects/${id}/finalize-sale`,
+      {},
+    );
     return response.data;
   }
 }

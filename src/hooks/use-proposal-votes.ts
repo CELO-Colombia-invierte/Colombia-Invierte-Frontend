@@ -1,10 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { chatWebSocketService, ProposalVoteUpdateEvent } from '@/services/chat/chat-websocket.service';
 
-/**
- * Hook to listen for real-time proposal vote updates via WebSocket.
- * Call with a callback that receives vote update events.
- */
 export const useProposalVotes = (
   onVoteUpdate: (event: ProposalVoteUpdateEvent) => void
 ) => {

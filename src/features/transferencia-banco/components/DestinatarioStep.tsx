@@ -25,7 +25,6 @@ const DestinatarioStep: React.FC<Props> = ({ bank, onNext }) => {
   return (
     <div className="ds-container">
       <div className="ds-content">
-        {/* Banco seleccionado */}
         <div className="ds-bank-row">
           <div className="ds-bank-logo" style={{ backgroundColor: bank.color }}>
             <span className="ds-bank-initials">{bank.initials}</span>
@@ -33,7 +32,6 @@ const DestinatarioStep: React.FC<Props> = ({ bank, onNext }) => {
           <span className="ds-bank-name">{bank.name}</span>
         </div>
 
-        {/* Formulario */}
         <div className="ds-card">
           <p className="ds-card-title">Ingrese los datos</p>
           <input
@@ -55,7 +53,6 @@ const DestinatarioStep: React.FC<Props> = ({ bank, onNext }) => {
           />
         </div>
 
-        {/* Texto de ayuda */}
         <div className="ds-helper">
           <span className="ds-helper-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -68,7 +65,6 @@ const DestinatarioStep: React.FC<Props> = ({ bank, onNext }) => {
         </div>
       </div>
 
-      {/* Boton */}
       <button
         className={`ds-btn${isValid ? ' ds-btn--active' : ''}`}
         onClick={handleSearch}
@@ -77,7 +73,6 @@ const DestinatarioStep: React.FC<Props> = ({ bank, onNext }) => {
         Buscar destinatario
       </button>
 
-      {/* Overlay de carga */}
       {isSearching && (
         <div className="ds-overlay">
           <div className="ds-loading-card">

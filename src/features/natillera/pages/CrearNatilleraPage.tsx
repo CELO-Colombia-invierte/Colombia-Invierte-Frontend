@@ -85,10 +85,6 @@ const CrearNatilleraPage: React.FC = () => {
     privacidad: 'PRIVATE',
     invitarAmigos: '',
   });
-  // Estado manejado en Step3Content
-  // const [documents, setDocuments] = useState<Document[]>([
-  //   { id: '1', motivo: '' },
-  // ]);
 
   const totalSteps = 4;
 

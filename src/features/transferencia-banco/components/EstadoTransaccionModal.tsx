@@ -35,7 +35,6 @@ const TIMELINE: Record<TransactionStatus, TimelineItem[]> = {
   ],
 };
 
-/* ── Iconos del timeline ── */
 const IconDone = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
     <circle cx="10" cy="10" r="10" fill="#3B5BDB" />
@@ -65,7 +64,6 @@ const IconWaiting = () => (
   </svg>
 );
 
-/* ── Icono principal según estado ── */
 const MainIcon: React.FC<{ status: TransactionStatus }> = ({ status }) => {
   if (status === 'success') return (
     <div className="et-main-icon et-main-icon--success">
@@ -112,10 +110,8 @@ const EstadoTransaccionModal: React.FC<Props> = ({ status, onViewReceipt, onDone
     <div className="et-overlay">
       <div className="et-card">
 
-        {/* Icono principal */}
         <MainIcon status={status} />
 
-        {/* Timeline */}
         <div className="et-section">
           <p className="et-section-title">Estado</p>
           <div className="et-timeline">
@@ -136,7 +132,6 @@ const EstadoTransaccionModal: React.FC<Props> = ({ status, onViewReceipt, onDone
           </div>
         </div>
 
-        {/* Botones */}
         <div className="et-actions">
           <button
             className={`et-btn et-btn--receipt${canViewReceipt ? ' et-btn--receipt-active' : ''}`}

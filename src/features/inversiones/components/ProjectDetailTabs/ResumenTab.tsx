@@ -14,6 +14,7 @@ import { Propuesta } from '@/types/propuesta';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
 import { computeNatilleraContribution, fetchQuotaPaidEvents } from '@/services/natillera-contribution';
+import { projectsService } from '@/services/projects/projects.service';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import './ProjectDetailTabs.css';
 
@@ -49,6 +50,20 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
     currentValueCop: number;
     pctYield: number;
   } | null>(null);
+  const [rentabilidad, setRentabilidad] = useState<{
+    expectedApy: number;
+    realApy: number;
+    distributedTotal: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    projectsService
+      .getRentabilidad(project.id)
+      .then((data) => { if (!cancelled) setRentabilidad(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [project.id]);
 
   useEffect(() => {
     if (!account?.address || (!isMember && !isOwner) || project.type !== 'NATILLERA') return;
@@ -138,7 +153,6 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
       await claimFinalNatillera(project.natillera_address);
       setV2Claimed(true);
     } catch {
-      // silenciar
     } finally {
       setClaiming(false);
     }
@@ -181,6 +195,26 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
             <span>Creado el {formatDate(project.created_at)}</span>
           </div>
         </div>
+
+        {rentabilidad && (
+          <div className="mi-aporte-card">
+            <h3 className="mi-aporte-title">Rentabilidad</h3>
+            <div className="mi-aporte-grid">
+              <div className="mi-aporte-item">
+                <span className="mi-aporte-label">APY esperado</span>
+                <span className="mi-aporte-value">{rentabilidad.expectedApy.toFixed(2)}%</span>
+              </div>
+              <div className="mi-aporte-item">
+                <span className="mi-aporte-label">APY real</span>
+                <span className="mi-aporte-value">{rentabilidad.realApy.toFixed(2)}%</span>
+              </div>
+              <div className="mi-aporte-item">
+                <span className="mi-aporte-label">Distribuido</span>
+                <span className="mi-aporte-value">{rentabilidad.distributedTotal.toLocaleString('es-CO')} USDC</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {myContribution && (isMember || isOwner) && (
           <div className="mi-aporte-card">

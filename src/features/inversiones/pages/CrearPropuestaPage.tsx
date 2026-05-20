@@ -38,7 +38,6 @@ const CrearPropuestaPage: React.FC = () => {
         ]);
         setMembers(data);
         if (project.vault_address) {
-          // Leer availableBalance (totalBalance - reservedFees) — es lo que vault.release puede mover.
           const balance = await blockchainService.getVaultAvailableBalance(
             project.vault_address,
             BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
@@ -91,8 +90,6 @@ const CrearPropuestaPage: React.FC = () => {
       return;
     }
     if (vaultBalance !== null) {
-      // 1 COP de margen porque toFixed(6) en USDC puede redondear hacia arriba
-      // al construir la tx, dejando el valor un sub-centavo por encima del balance real.
       const COP_ROUNDING_BUFFER = 1;
       const maxCop = Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE) - COP_ROUNDING_BUFFER;
       if (Number(monto) > maxCop) {

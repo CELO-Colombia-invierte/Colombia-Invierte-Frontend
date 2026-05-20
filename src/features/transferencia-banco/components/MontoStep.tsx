@@ -48,7 +48,6 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
     <div className="ms-container">
       <div className="ms-content">
 
-        {/* Banco seleccionado */}
         <div className="ms-bank-row">
           <div className="ms-bank-logo" style={{ backgroundColor: bank.color }}>
             <span className="ms-bank-initials">{bank.initials}</span>
@@ -56,11 +55,9 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
           <span className="ms-bank-name">{bank.name}</span>
         </div>
 
-        {/* Tarjeta de monto */}
         <div className="ms-card">
           <p className="ms-card-title">Ingrese el monto</p>
 
-          {/* Display del monto — al tocar enfoca el input oculto */}
           <div className="ms-amount-display" onClick={() => inputRef.current?.focus()}>
             <span className="ms-currency">COP</span>
             <span className={`ms-value${isValid ? ' ms-value--active' : ''}`}>
@@ -103,7 +100,6 @@ const MontoStep: React.FC<Props> = ({ bank, balance, onNext }) => {
         </div>
       </div>
 
-      {/* Botón pagar */}
       <button
         className={`ms-btn${isValid ? ' ms-btn--active' : ''}`}
         onClick={handlePay}

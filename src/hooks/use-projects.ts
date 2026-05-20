@@ -19,8 +19,6 @@ export const useProjects = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // TODO: projectsService.findAll() no acepta params actualmente
-      // Si necesitas filtrar, debes implementarlo en el backend
       const data = await projectsService.findAll();
       setProjects(data);
       return data;

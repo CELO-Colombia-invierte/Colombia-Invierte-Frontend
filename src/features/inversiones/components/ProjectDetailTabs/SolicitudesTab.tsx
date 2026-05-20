@@ -49,7 +49,6 @@ export const SolicitudesTab: React.FC<SolicitudesTabProps> = ({ project }) => {
         color: 'success',
       });
 
-      // Actualizar la lista
       await fetchPendingRequests();
     } catch (error: any) {
       await present({
@@ -73,7 +72,6 @@ export const SolicitudesTab: React.FC<SolicitudesTabProps> = ({ project }) => {
         color: 'warning',
       });
 
-      // Actualizar la lista
       await fetchPendingRequests();
     } catch (error: any) {
       await present({

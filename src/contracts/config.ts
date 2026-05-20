@@ -3,19 +3,19 @@ import { celoSepoliaTestnet } from 'thirdweb/chains';
 export const CHAIN = celoSepoliaTestnet;
 
 export const BLOCKCHAIN_CONFIG = {
-  CHAIN_ID: 11142220,
-  RPC_URL: 'https://forno.celo-sepolia.celo-testnet.org',
-  NETWORK_NAME: 'Celo Sepolia Testnet',
-  BLOCK_EXPLORER: 'https://sepolia.celoscan.io',
+  CHAIN_ID: Number(import.meta.env.VITE_CHAIN_ID ?? 11142220),
+  RPC_URL: import.meta.env.VITE_RPC_URL ?? 'https://forno.celo-sepolia.celo-testnet.org',
+  NETWORK_NAME: import.meta.env.VITE_NETWORK_NAME ?? 'Celo Sepolia Testnet',
+  BLOCK_EXPLORER: import.meta.env.VITE_BLOCK_EXPLORER ?? 'https://sepolia.celoscan.io',
 
   CONTRACTS: {
-    PLATFORM_V2: '0x05e383Db1F080D3662ecb49f32c6715e6F6d32Ed',
-    FEE_MANAGER: '0xA28eBC51cEe3b508d2C0440D992E170563fbE3C3',
-    FEE_TREASURY: '0xACfc21A8b59d12d8b4ccE4Eff0E98474afcf6eB2',
+    PLATFORM_V2: import.meta.env.VITE_CONTRACT_PLATFORM_V2 ?? '',
+    FEE_MANAGER: import.meta.env.VITE_CONTRACT_FEE_MANAGER ?? '',
+    FEE_TREASURY: import.meta.env.VITE_CONTRACT_FEE_TREASURY ?? '',
   },
-  PAYMENT_TOKEN_ADDRESS: '0x01c5c0122039549ad1493b8220cabedd739bc44e',
-  PAYMENT_TOKEN_DECIMALS: 6,
-  COP_TO_USDT_RATE: 3650,
+  PAYMENT_TOKEN_ADDRESS: import.meta.env.VITE_PAYMENT_TOKEN_ADDRESS ?? '0x01c5c0122039549ad1493b8220cabedd739bc44e',
+  PAYMENT_TOKEN_DECIMALS: Number(import.meta.env.VITE_PAYMENT_TOKEN_DECIMALS ?? 6),
+  COP_TO_USDT_RATE: Number(import.meta.env.VITE_COP_TO_USDT_RATE ?? 3650),
 } as const;
 
 export { default as PlatformV2Abi } from './abis/PlatformV2.json';

@@ -47,7 +47,6 @@ const CuentaMontoStep: React.FC<Props> = ({ contact, balance, onNext }) => {
     <div className="cmo-container">
       <div className="cmo-content">
 
-        {/* Contacto seleccionado */}
         <div className="cmo-contact-row">
           <div className="cmo-avatar" style={{ backgroundColor: contact.avatarColor }}>
             <span className="cmo-avatar-initials">{contact.initials}</span>
@@ -55,11 +54,9 @@ const CuentaMontoStep: React.FC<Props> = ({ contact, balance, onNext }) => {
           <span className="cmo-contact-name">{contact.displayName}</span>
         </div>
 
-        {/* Tarjeta de monto */}
         <div className="cmo-card">
           <p className="cmo-card-title">Ingrese el monto</p>
 
-          {/* Display del monto — al tocar enfoca el input oculto */}
           <div className="cmo-amount-display" onClick={() => inputRef.current?.focus()}>
             <span className="cmo-currency">COP</span>
             <span className={`cmo-value${isValid ? ' cmo-value--active' : ''}`}>
@@ -100,7 +97,6 @@ const CuentaMontoStep: React.FC<Props> = ({ contact, balance, onNext }) => {
         </div>
       </div>
 
-      {/* Botón pagar */}
       <button
         className={`cmo-btn${isValid ? ' cmo-btn--active' : ''}`}
         onClick={handlePay}

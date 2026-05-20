@@ -88,10 +88,10 @@ export interface Investment {
 
 export interface Balance {
   amount: number;
-  currency: string;      // principal (ej. OUSD)
+  currency: string;
   address?: string;
   changePercentage?: number;
-  secondaryAmount?: number;   // secundario (ej. USDT)
+  secondaryAmount?: number;
   secondaryCurrency?: string;
 }
 
@@ -129,7 +129,6 @@ export interface Message {
   userId: string;
 }
 
-// Notificaciones
 export enum NotificationType {
   PROJECT_INVITATION = 'PROJECT_INVITATION',
   PROJECT_INVITATION_ACCEPTED = 'PROJECT_INVITATION_ACCEPTED',

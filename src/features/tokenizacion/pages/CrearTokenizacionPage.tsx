@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { IonPage, IonContent, IonIcon } from '@ionic/react';
+import { IonPage, IonContent, IonIcon, useIonToast } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { arrowBackOutline } from 'ionicons/icons';
 import { motion } from 'framer-motion';
@@ -8,147 +8,83 @@ import { Step2FinancialInfo } from '../components/Step2FinancialInfo';
 import { Step3Content } from '../components/Step3Content';
 import { Step4Preview } from '../components/Step4Preview';
 import { Step4Success } from '../components/Step4Success';
-import { useIonToast } from '@ionic/react';
 import { DeploymentProgressModal } from '@/components/ui/DeploymentProgressModal';
 import { ConnectButton } from 'thirdweb/react';
 import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import { thirdwebClient } from '@/app/App';
-import { projectsService } from '@/services/projects';
-import { apiService } from '@/services/api/api.service';
 import { projectInvitationsService } from '@/services/projects/invitations.service';
-import { blockchainService } from '@/services/blockchain.service';
 import { useBlockchain } from '@/hooks/use-blockchain';
-import { CHAIN, BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { CHAIN } from '@/contracts/config';
+import { Project } from '@/models/projects';
+import { useTokenizacionDeploy } from '../hooks/useTokenizacionDeploy';
+import type { TokenizacionFormData, TokenRightDto, TokenFaqDto } from '../hooks/types';
+import './CrearTokenizacionPage.css';
 
 const wallets = [
   inAppWallet({ auth: { options: ['email', 'google', 'apple'] } }),
   createWallet('io.metamask'),
 ];
-import {
-  Project,
-  ProjectType,
-  Currency,
-  ProjectVisibility,
-} from '@/models/projects';
-import './CrearTokenizacionPage.css';
 
-interface TokenizacionFormData {
-  tipoProyecto: string;
-  nombreProyecto: string;
-  descripcion: string;
-  aspectosDestacados: string;
-  valorActivo: string;
-  moneda: string;
-  rendimiento: string;
-  precioPorToken: string;
-  monedaToken: string;
-  totalTokens: string;
-  simboloToken: string;
-  nombreToken: string;
-  ventaAnticipada: string;
-  fechaVentaAnticipada: string;
-  horaVentaAnticipada: string;
-  fechaVentaPublica: string;
-  horaVentaPublica: string;
-  privacidad: string;
-  invitarAmigos: string;
-}
+const STEP_TITLES = [
+  'Información básica',
+  'Información financiera',
+  'Contenido y descargables',
+  'Así se verá tu Tokenización',
+];
+const TOTAL_STEPS = 4;
 
-interface TokenRightDto {
-  id: string;
-  title: string;
-}
-
-interface TokenFaqDto {
-  id: string;
-  question: string;
-  answer: string;
-}
+const DEFAULT_FORM: TokenizacionFormData = {
+  tipoProyecto: 'Tokenización',
+  nombreProyecto: '',
+  descripcion: '',
+  aspectosDestacados: '',
+  valorActivo: '',
+  moneda: 'COP',
+  rendimiento: '',
+  precioPorToken: '',
+  monedaToken: 'COP',
+  totalTokens: '',
+  simboloToken: '',
+  nombreToken: '',
+  ventaAnticipada: 'false',
+  fechaVentaAnticipada: '',
+  horaVentaAnticipada: '10:00',
+  fechaVentaPublica: '',
+  horaVentaPublica: '10:00',
+  privacidad: 'PRIVATE',
+  invitarAmigos: '',
+};
 
 const CrearTokenizacionPage: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
-  const [deployStep, setDeployStep] = useState(0);
   const contentRef = useRef<HTMLIonContentElement>(null);
   const { account } = useBlockchain();
+  const { deployStep, run: deployTokenizacion } = useTokenizacionDeploy();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [createdTokenizacion, setCreatedTokenizacion] =
-    useState<Project | null>(null);
-
-  const [formData, setFormData] = useState<TokenizacionFormData>({
-    tipoProyecto: 'Tokenización',
-    nombreProyecto: '',
-    descripcion: '',
-    aspectosDestacados: '',
-    valorActivo: '',
-    moneda: 'COP',
-    rendimiento: '',
-    precioPorToken: '',
-    monedaToken: 'COP',
-    totalTokens: '',
-    simboloToken: '',
-    nombreToken: '',
-    ventaAnticipada: 'false',
-    fechaVentaAnticipada: '',
-    horaVentaAnticipada: '10:00',
-    fechaVentaPublica: '',
-    horaVentaPublica: '10:00',
-    privacidad: 'PRIVATE',
-    invitarAmigos: '',
-  });
-
+  const [createdTokenizacion, setCreatedTokenizacion] = useState<Project | null>(null);
+  const [formData, setFormData] = useState<TokenizacionFormData>(DEFAULT_FORM);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<
     { id: string; file?: File; motivo: string }[]
   >([{ id: '1', motivo: '' }]);
-
-  const [tokenRights, setTokenRights] = useState<TokenRightDto[]>([
-    { id: '1', title: '' },
-  ]);
-
-  const [tokenFaqs, setTokenFaqs] = useState<TokenFaqDto[]>([
-    { id: '1', question: '', answer: '' },
-  ]);
-
-  const totalSteps = 4;
-
-  const stepTitles = [
-    'Información básica',
-    'Información financiera',
-    'Contenido y descargables',
-    'Así se verá tu Tokenización',
-  ];
+  const [tokenRights, setTokenRights] = useState<TokenRightDto[]>([{ id: '1', title: '' }]);
+  const [tokenFaqs, setTokenFaqs] = useState<TokenFaqDto[]>([{ id: '1', question: '', answer: '' }]);
 
   const handleFieldChange = (field: string, value: string) => {
-    const updatedFormData = { ...formData, [field]: value };
-    setFormData(updatedFormData);
+    setFormData({ ...formData, [field]: value });
   };
 
-  const handleTokenRightsChange = (rights: TokenRightDto[]) => {
-    setTokenRights(rights);
-  };
-
-  const handleTokenFaqsChange = (faqs: TokenFaqDto[]) => {
-    setTokenFaqs(faqs);
-  };
-
-  const handleClose = () => {
-    history.push('/portafolio');
-  };
-
-  const scrollToTop = () => {
-    contentRef.current?.scrollToTop(300);
-  };
+  const scrollToTop = () => contentRef.current?.scrollToTop(300);
 
   const handleNext = () => {
-    if (currentStep < totalSteps) {
+    if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
       scrollToTop();
     }
   };
-
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -157,178 +93,23 @@ const CrearTokenizacionPage: React.FC = () => {
   };
 
   const handleCreateTokenizacion = async () => {
-    let currentProjectId: string | null = null;
-    try {
-      const valorActivo = parseFloat(formData.valorActivo);
-      const rendimiento = parseFloat(formData.rendimiento);
-      const precioPorToken = parseFloat(formData.precioPorToken);
-      const totalTokens = parseInt(formData.totalTokens);
+    if (!account) return;
+    const result = await deployTokenizacion(
+      account,
+      formData,
+      tokenRights,
+      tokenFaqs,
+      selectedImage,
+      selectedDocuments,
+    );
 
-      setDeployStep(1);
-      try {
-        await apiService.post('/blockchain/fund-gas', { address: account!.address });
-
-        let retries = 5;
-        const MIN_GAS = BigInt('50000000000000000');
-        let newBalance = await blockchainService.getNativeBalance(account!.address);
-
-        while (newBalance < MIN_GAS && retries > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          newBalance = await blockchainService.getNativeBalance(account!.address);
-          retries--;
-        }
-
-        if (newBalance < MIN_GAS) {
-          throw new Error('El backend envió gas pero no impactó en la blockchain a tiempo.');
-        }
-
-      } catch (fundErr) {
-        console.error('[CrearTokenizacion] fund-gas falló o demoró mucho:', fundErr);
-        const MIN_GAS = BigInt('50000000000000000');
-        const celoBalance = await blockchainService.getNativeBalance(account!.address);
-        if (celoBalance < MIN_GAS) {
-          setDeployStep(0);
-          await present({
-            message: 'Sin saldo para gas. Reinicia la app o contacta al soporte.',
-            duration: 6000,
-            color: 'danger',
-          });
-          return;
-        }
-      }
-
-      const ventaAnticipada = formData.ventaAnticipada === 'true';
-      let presaleStartsAt: string | undefined;
-      let publicSaleStartsAt: string | undefined;
-
-      if (
-        ventaAnticipada &&
-        formData.fechaVentaAnticipada &&
-        formData.fechaVentaPublica
-      ) {
-        const presaleDate = new Date(
-          `${formData.fechaVentaAnticipada}T${formData.horaVentaAnticipada}`
-        );
-        const publicSaleDate = new Date(
-          `${formData.fechaVentaPublica}T${formData.horaVentaPublica}`
-        );
-
-        presaleStartsAt = presaleDate.toISOString();
-        publicSaleStartsAt = publicSaleDate.toISOString();
-      }
-
-      const rightsFiltered = tokenRights.filter((r) => r.title.trim() !== '');
-      const faqsFiltered = tokenFaqs.filter(
-        (f) => f.question.trim() !== '' && f.answer.trim() !== ''
-      );
-
-      const tokenizacionData = {
-        type: ProjectType.TOKENIZATION,
-        name: formData.nombreProyecto,
-        description_rich: formData.descripcion,
-        highlights_rich: formData.aspectosDestacados,
-        visibility: formData.privacidad as ProjectVisibility,
-
-        tokenization_details: {
-          asset_value_amount: valorActivo,
-          asset_value_currency: formData.moneda as Currency,
-          expected_annual_return_pct: rendimiento,
-          price_per_token_amount: precioPorToken,
-          price_per_token_currency: formData.monedaToken as Currency,
-          total_tokens: totalTokens,
-          token_symbol: formData.simboloToken,
-          token_name: formData.nombreToken,
-
-          ...(ventaAnticipada &&
-            presaleStartsAt &&
-            publicSaleStartsAt && {
-            presale_enabled: true,
-            presale_starts_at: presaleStartsAt,
-            public_sale_starts_at: publicSaleStartsAt,
-          }),
-        },
-
-        token_rights: rightsFiltered.map((r) => ({
-          title: r.title,
-          description: r.title,
-        })),
-
-        token_faqs: faqsFiltered.map((f) => ({
-          question: f.question,
-          answer: f.answer,
-        })),
-      };
-
-      const project = await projectsService.create(tokenizacionData);
-
-      const projectId = project.id;
-      currentProjectId = projectId;
-
-      if (selectedImage) {
-        await projectsService.uploadImage(projectId, selectedImage, true, 'Miniatura de tokenizacion');
-      }
-
-      const documentsWithFiles = selectedDocuments.filter((d) => d.file);
-      for (const doc of documentsWithFiles) {
-        await projectsService.uploadDocument(projectId, doc.file!, doc.motivo || doc.file!.name, 'GENERAL', doc.motivo);
-      }
-
-      setDeployStep(2);
-
-      const copToUsdc = (cop: number): bigint =>
-        blockchainService.parseUnits(
-          (cop / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS),
-          BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
-        );
-
-      const addresses = await blockchainService.deployTokenizacionV2(
-        account!,
-        {
-          settlementToken: BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS,
-          fundingTarget: copToUsdc(valorActivo),
-          minimumCap: copToUsdc(valorActivo),
-          tokenPrice: copToUsdc(precioPorToken),
-          saleDuration: BigInt(30 * 24 * 60 * 60),
-          name: formData.nombreToken || formData.nombreProyecto,
-          symbol: formData.simboloToken || 'TKN',
-        },
-      );
-
-      setDeployStep(3);
-
-      const publishedProject = await projectsService.registerV2Contract(projectId, addresses);
-      setCreatedTokenizacion(publishedProject);
-
-      setDeployStep(4);
-      await new Promise((r) => setTimeout(r, 600));
-      setDeployStep(0);
+    if (result.ok && result.project) {
+      setCreatedTokenizacion(result.project);
       setShowSuccess(true);
-
+      await present({ message: 'Tokenización creada exitosamente', duration: 2000, color: 'success' });
+    } else if (result.error) {
       await present({
-        message: 'Tokenización creada exitosamente',
-        duration: 2000,
-        color: 'success',
-      });
-    } catch (error: any) {
-      setDeployStep(0);
-
-      if (currentProjectId) {
-        try {
-          await projectsService.delete(currentProjectId);
-        } catch (e) {
-          console.error("Error al hacer el rollback del proyecto fantasma", e);
-        }
-      }
-
-      const msg: string = error?.message ?? '';
-      const isGasError =
-        msg.includes('insufficient funds') ||
-        msg.includes('error_forwarding_sequencer') ||
-        msg.includes('gas');
-      await present({
-        message: isGasError
-          ? 'Sin saldo para gas. Contacta al soporte.'
-          : msg || 'Error al crear la tokenización',
+        message: result.error.isGasError ? 'Sin saldo para gas. Contacta al soporte.' : result.error.message,
         duration: 6000,
         color: 'danger',
       });
@@ -336,79 +117,42 @@ const CrearTokenizacionPage: React.FC = () => {
   };
 
   const handleFinish = () => {
-    if (createdTokenizacion?.id) {
-      history.replace(`/inversiones/${createdTokenizacion.id}`);
-    } else {
-      history.replace('/portafolio');
-    }
+    history.replace(createdTokenizacion?.id ? `/inversiones/${createdTokenizacion.id}` : '/portafolio');
   };
 
   const handleCopyLink = async () => {
     if (!createdTokenizacion?.share_slug) return;
-
     const shareLink = `${window.location.origin}/tokenizacion/${createdTokenizacion.share_slug}`;
-
     try {
       await navigator.clipboard.writeText(shareLink);
-      await present({
-        message: 'Link copiado al portapapeles',
-        duration: 2000,
-        color: 'success',
-      });
-    } catch (error) {
-      console.error('[CrearTokenizacion] Error al copiar link:', error);
-      await present({
-        message: 'Error al copiar el link',
-        duration: 2000,
-        color: 'danger',
-      });
+      await present({ message: 'Link copiado al portapapeles', duration: 2000, color: 'success' });
+    } catch {
+      await present({ message: 'Error al copiar el link', duration: 2000, color: 'danger' });
     }
   };
 
-  const handleInvite = async (
-    emailOrUsername: string
-  ): Promise<{ success: boolean; message: string }> => {
+  const handleInvite = async (emailOrUsername: string): Promise<{ success: boolean; message: string }> => {
     if (!createdTokenizacion?.id) {
       return { success: false, message: 'Error: No se encontró el proyecto' };
     }
-
     try {
-      const isEmail = emailOrUsername.includes('@');
-      const inviteData = isEmail
+      const inviteData = emailOrUsername.includes('@')
         ? { invitee_email: emailOrUsername }
         : { invitee_username: emailOrUsername };
-
-      await projectInvitationsService.create(
-        createdTokenizacion.id,
-        inviteData
-      );
-
-      return {
-        success: true,
-        message: `Invitación enviada a ${emailOrUsername}`,
-      };
+      await projectInvitationsService.create(createdTokenizacion.id, inviteData);
+      return { success: true, message: `Invitación enviada a ${emailOrUsername}` };
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || 'Error al enviar la invitación';
-      return { success: false, message: errorMessage };
+      return { success: false, message: error.response?.data?.message || 'Error al enviar la invitación' };
     }
   };
 
-  const getProgressWidth = () => {
-    const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-    return `${progressPercentage}%`;
-  };
+  const progressWidth = `${((currentStep - 1) / (TOTAL_STEPS - 1)) * 100}%`;
 
   return (
     <IonPage className="ion-page-light">
-      <IonContent
-        ref={contentRef}
-        fullscreen
-        className="crear-natillera-page"
-        color="light"
-      >
+      <IonContent ref={contentRef} fullscreen className="crear-natillera-page" color="light">
         <div className="page-header">
-          <button className="header-back-button" onClick={handleClose}>
+          <button className="header-back-button" onClick={() => history.push('/portafolio')}>
             <IonIcon icon={arrowBackOutline} />
           </button>
           <h1 className="page-title">Nuevo Proyecto</h1>
@@ -417,24 +161,20 @@ const CrearTokenizacionPage: React.FC = () => {
         {!showSuccess && (
           <div className="progress-section">
             <div className="progress-bar">
-              {Array.from({ length: totalSteps }).map((_, index) => (
-                <div
-                  key={index}
-                  className={`progress-dot ${index + 1 <= currentStep ? 'active' : ''}`}
-                />
+              {Array.from({ length: TOTAL_STEPS }).map((_, index) => (
+                <div key={index} className={`progress-dot ${index + 1 <= currentStep ? 'active' : ''}`} />
               ))}
               <motion.div
                 className="progress-line"
                 initial={{ width: '0%' }}
-                animate={{ width: getProgressWidth() }}
+                animate={{ width: progressWidth }}
                 transition={{ duration: 0.3 }}
               />
             </div>
-
             <div className="step-info">
-              <h2 className="step-title">{stepTitles[currentStep - 1]}</h2>
+              <h2 className="step-title">{STEP_TITLES[currentStep - 1]}</h2>
               <span className="step-counter">
-                {currentStep}/{totalSteps}
+                {currentStep}/{TOTAL_STEPS}
               </span>
             </div>
           </div>
@@ -455,8 +195,8 @@ const CrearTokenizacionPage: React.FC = () => {
                   tokenRights={tokenRights}
                   tokenFaqs={tokenFaqs}
                   onChange={handleFieldChange}
-                  onTokenRightsChange={handleTokenRightsChange}
-                  onTokenFaqsChange={handleTokenFaqsChange}
+                  onTokenRightsChange={setTokenRights}
+                  onTokenFaqsChange={setTokenFaqs}
                 />
               )}
               {currentStep === 2 && (
@@ -520,9 +260,7 @@ const CrearTokenizacionPage: React.FC = () => {
                   : ''
               }
               projectId={createdTokenizacion?.id || ''}
-              onInvitarAmigosChange={(value) =>
-                handleFieldChange('invitarAmigos', value)
-              }
+              onInvitarAmigosChange={(value) => handleFieldChange('invitarAmigos', value)}
               onCopyLink={handleCopyLink}
               onInvite={handleInvite}
             />
@@ -547,13 +285,12 @@ const CrearTokenizacionPage: React.FC = () => {
                   chain={CHAIN}
                   locale="es_ES"
                   wallets={wallets}
-                  connectButton={{ style: { width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' } }}
+                  connectButton={{
+                    style: { width: '100%', borderRadius: '50px', height: '52px', fontSize: '15px', fontWeight: '600' },
+                  }}
                 />
               ) : (
-                <button
-                  className="btn-primary"
-                  onClick={handleCreateTokenizacion}
-                >
+                <button className="btn-primary" onClick={handleCreateTokenizacion}>
                   Crear Tokenización
                 </button>
               )}

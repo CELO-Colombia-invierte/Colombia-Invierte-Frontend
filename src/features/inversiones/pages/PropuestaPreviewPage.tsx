@@ -72,7 +72,7 @@ const PropuestaPreviewPage: React.FC = () => {
         console.log('[PROPOSE] calling proposeOnChain...');
         const { txHash, proposalId } = await proposeOnChain(
           chain.governanceAddress,
-          6, // Action.Disbursement
+          6,
           BigInt(0),
           amountBigInt,
           recipient,
@@ -96,7 +96,6 @@ const PropuestaPreviewPage: React.FC = () => {
       console.error('[PROPOSE] error:', err);
       const anyErr = err as any;
       const fullMsg: string = (err instanceof Error ? err.message : '') + ' ' + JSON.stringify(anyErr ?? {});
-      // Match "data":"0x..." specifically (revert payload)
       const dataMatch = fullMsg.match(/"data"\s*:\s*"(0x[a-fA-F0-9]+)"/);
       const selectorMatch = dataMatch ? dataMatch[1] : fullMsg.match(/0x[a-fA-F0-9]{8,}/)?.[0];
       console.error('[PROPOSE] revert data (full):', fullMsg);

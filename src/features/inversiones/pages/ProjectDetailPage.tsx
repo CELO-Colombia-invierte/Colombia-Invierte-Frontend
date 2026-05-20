@@ -8,6 +8,8 @@ import { Project, ProjectVisibility } from '@/models/projects/project.model';
 import { MembershipStatus } from '@/models/membership/membership.model';
 import { Propuesta } from '@/types/propuesta';
 import { useAuth } from '@/hooks/use-auth';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { blockchainService } from '@/services/blockchain.service';
 import { InvestmentHeader } from '../components';
 import {
   ProjectDetailTabs,
@@ -40,7 +42,9 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const history = useHistory();
   const [present] = useIonToast();
   const { user } = useAuth();
+  const { account } = useBlockchain();
   const [project, setProject] = useState<Project | null>(null);
+  const [hasPendingRewards, setHasPendingRewards] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [membershipStatus, setMembershipStatus] =
@@ -54,6 +58,23 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   useEffect(() => {
     fetchProjectDetails();
   }, [id, slug, user]);
+
+  useEffect(() => {
+    if (!project?.revenue_address || !account?.address) {
+      setHasPendingRewards(false);
+      return;
+    }
+    let cancelled = false;
+    blockchainService
+      .getPendingRewards(project.revenue_address, account.address)
+      .then((pending) => {
+        if (!cancelled) setHasPendingRewards(pending > 0n);
+      })
+      .catch(() => {
+        if (!cancelled) setHasPendingRewards(false);
+      });
+    return () => { cancelled = true; };
+  }, [project?.revenue_address, account?.address]);
 
   const fetchProjectDetails = async () => {
     try {
@@ -218,6 +239,8 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           isMember={isMember}
           hasV2={hasV2}
           hasActivePropuesta={hasActivePropuesta}
+          hasPendingRewards={hasPendingRewards}
+          isNatillera={project.type === 'NATILLERA'}
         />
 
         <div className="project-detail-content">
@@ -271,7 +294,7 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             <DisputasTab project={project} />
           )}
 
-          {activeTab === 'hitos' && hasV2 && (
+          {activeTab === 'hitos' && hasV2 && !isNatillera && (
             <MilestonesTab project={project} isOwner={isOwner} />
           )}
 

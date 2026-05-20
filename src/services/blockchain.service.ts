@@ -19,15 +19,38 @@ import GovernanceAbi from '@/contracts/abis/GovernanceModule.json';
 const REVENUE_ERROR_MESSAGES_ES: Record<string, string> = {
   FundingTargetReached: 'El monto excede el cupo restante de la tokenización.',
   SaleClosed: 'La venta ya está cerrada.',
+  SaleNotEnded: 'La venta todavía no ha terminado. Espera a que se cumpla el plazo.',
+  SaleNotClosed: 'La venta aún está abierta. Cierra la recaudación antes de continuar.',
+  AlreadyFinalized: 'Esta venta ya fue finalizada anteriormente.',
   DistributionEnded: 'La distribución de rendimientos ya finalizó.',
   NothingToClaim: 'No tienes rendimientos disponibles para cobrar.',
   ZeroAmount: 'El monto debe ser mayor a 0.',
   BelowMinimumCap: 'El monto está por debajo del mínimo permitido.',
   InvalidAmount: 'Monto inválido.',
-  Unauthorized: 'No autorizado para esta operación.',
-  VaultPaused: 'El proyecto está pausado por una disputa.',
-  InvalidVaultState: 'El estado del proyecto no permite esta operación.',
-  InvalidState: 'Estado inválido para esta operación.',
+  InsufficientBalance: 'El vault no tiene fondos suficientes para esta operación.',
+  Unauthorized: 'Tu wallet no tiene permiso para hacer esta acción. Solo el creator del proyecto o la gobernanza pueden ejecutarla.',
+  VaultPaused: 'La bóveda está pausada por una disputa. Pasa una propuesta de "Descongelar bóveda" en gobernanza para reactivarla.',
+  EnforcedPause: 'La bóveda está congelada (probablemente por una disputa aprobada). Para volver a operar, alguien debe proponer "Descongelar bóveda" en gobernanza y que se vote afirmativamente.',
+  ExpectedPause: 'La bóveda no está pausada — esta acción solo aplica cuando está congelada.',
+  InvalidVaultState: 'El estado actual del proyecto no permite esta operación.',
+  InvalidState: 'El proyecto no está en el estado correcto para esta acción.',
+  InvalidDispute: 'La disputa referenciada no existe o ya fue resuelta. Abre una nueva si necesitas reclamar algo.',
+  DisputeAlreadyResolved: 'Esta disputa ya fue resuelta y no se puede modificar.',
+  DisputeNotFrozen: 'La bóveda no está congelada por esta disputa.',
+  MilestoneNotFound: 'El hito referenciado no existe en este proyecto.',
+  MilestoneAlreadyExecuted: 'Este hito ya fue ejecutado previamente.',
+  MilestoneAlreadyCancelled: 'Este hito ya fue cancelado.',
+  ExceedsProjectFunds: 'El monto supera lo disponible en el capital del proyecto (los rendimientos no se cuentan).',
+  AlreadyVoted: 'Ya votaste en esta propuesta.',
+  VotingClosed: 'El período de votación ya cerró para esta propuesta.',
+  VotingStillOpen: 'La votación aún está abierta. Espera a que cierre antes de ejecutar.',
+  QuorumNotReached: 'No se alcanzó el quórum mínimo de votación.',
+  AlreadyExecuted: 'Esta propuesta ya fue ejecutada.',
+  ProposalRejected: 'La propuesta fue rechazada — ganaron los votos en contra.',
+  NoVotingPower: 'Tu wallet no tiene tokens delegados para votar. Activa tu poder de voto primero.',
+  ZeroAddress: 'La dirección no puede ser la dirección cero (0x0000…).',
+  TransferFailed: 'La transferencia de USDC falló. Verifica tu balance y la aprobación.',
+  AllowanceInsufficient: 'Necesitas aprobar más USDC antes de continuar.',
 };
 
 function combinedRevertAbi(): readonly unknown[] {
@@ -39,6 +62,7 @@ function combinedRevertAbi(): readonly unknown[] {
     ...(DisputesModuleAbi as unknown[]),
     ...(FeeManagerAbi as unknown[]),
     ...(PlatformV2Abi as unknown[]),
+    ...(GovernanceAbi as unknown[]),
   ];
 }
 
@@ -56,7 +80,6 @@ function extractRevertData(err: unknown): `0x${string}` | null {
       if (anyNode[key]) stack.push(anyNode[key]);
     }
   }
-  // Last resort: scan message text for a 0x... selector+data; choose the longest match
   const msg = (err as { message?: string })?.message ?? '';
   const matches = msg.match(/0x[0-9a-fA-F]{8,}/g);
   if (!matches || matches.length === 0) return null;
@@ -64,14 +87,55 @@ function extractRevertData(err: unknown): `0x${string}` | null {
   return longest as `0x${string}`;
 }
 
+const KNOWN_SELECTORS_TO_ERROR_NAME: Record<string, string> = {
+  '0x82b42900': 'Unauthorized',
+  '0x88c081c7': 'VotingStillOpen',
+  '0x66b6cb4a': 'VotingClosed',
+  '0x7c9a1cf9': 'AlreadyVoted',
+  '0x0dc10197': 'AlreadyExecuted',
+  '0xaa26a693': 'QuorumNotReached',
+  '0xd5dd0c66': 'InvalidVote',
+  '0x0bd3e45f': 'InvalidDisbursement',
+  '0xee032808': 'InvalidProposal',
+  '0xda9f8b34': 'VaultPaused',
+  '0x194b573d': 'InvalidVaultState',
+  '0xdace2af6': 'FundingTargetReached',
+  '0xd92e233d': 'ZeroAddress',
+};
+
 export function decodeContractRevert(err: unknown): string | null {
+  const data = extractRevertData(err);
+  console.log('[decodeContractRevert] data extraída:', data);
+  if (!data) return null;
   try {
-    const data = extractRevertData(err);
-    if (!data) return null;
     const decoded = decodeErrorResult({ abi: combinedRevertAbi() as never, data });
-    return REVENUE_ERROR_MESSAGES_ES[decoded.errorName] ?? `Error del contrato: ${decoded.errorName}`;
-  } catch {
+    console.log('[decodeContractRevert] viem decodificó:', decoded.errorName);
+    return REVENUE_ERROR_MESSAGES_ES[decoded.errorName] ?? `La operación falló en la blockchain (${decoded.errorName}). Verifica el estado del proyecto o contacta al equipo.`;
+  } catch (decodeErr) {
+    console.warn('[decodeContractRevert] viem falló, usando tabla local. Error:', decodeErr);
+    const selector = data.slice(0, 10).toLowerCase();
+    const errorName = KNOWN_SELECTORS_TO_ERROR_NAME[selector];
+    if (errorName) {
+      console.log('[decodeContractRevert] selector', selector, '→', errorName);
+      return REVENUE_ERROR_MESSAGES_ES[errorName] ?? `Error del contrato: ${errorName}`;
+    }
+    console.warn('[decodeContractRevert] selector desconocido:', selector);
     return null;
+  }
+}
+
+export function decodeContractRevertRaw(err: unknown): string | null {
+  const data = extractRevertData(err);
+  if (!data) return null;
+  const selector = data.slice(0, 10).toLowerCase();
+  try {
+    const decoded = decodeErrorResult({ abi: combinedRevertAbi() as never, data });
+    const args = (decoded.args ?? []).map((a) => (typeof a === 'bigint' ? a.toString() : String(a))).join(', ');
+    return `${decoded.errorName}(${args}) [${selector}]`;
+  } catch {
+    const known = KNOWN_SELECTORS_TO_ERROR_NAME[selector];
+    if (known) return `${known}() [${selector}]`;
+    return `revert [${selector}]`;
   }
 }
 
@@ -121,6 +185,8 @@ export interface RevenueModuleState {
   tokenPrice: bigint;
   saleFinalized: boolean;
   state: number;
+  distributionEnd: bigint;
+  pendingRevenue: bigint;
 }
 
 export interface DeployNatilleraV2Params {
@@ -155,7 +221,6 @@ class BlockchainService {
 
   private validateChain(account: Account): void {
     const walletChainId = (account as any).chainId ?? (account as any).chain?.id;
-    // If we can detect the chain and it's wrong, throw
     if (walletChainId && walletChainId !== BLOCKCHAIN_CONFIG.CHAIN_ID) {
       throw new Error(
         `Red incorrecta. Por favor cambia a ${BLOCKCHAIN_CONFIG.NETWORK_NAME} (Chain ID: ${BLOCKCHAIN_CONFIG.CHAIN_ID})`,
@@ -230,8 +295,6 @@ class BlockchainService {
     return addresses;
   }
 
-  // After activating the vault, enroll the creator as a natillera member so
-  // they have voting power on future proposals.
   private async joinNatilleraAsCreator(account: Account, natilleraAddress: string): Promise<void> {
     const natillera = getContract({ client: thirdwebClient, chain: CHAIN, address: natilleraAddress });
     const tx = prepareContractCall({
@@ -271,7 +334,6 @@ class BlockchainService {
     throw new Error('No se encontró evento ProjectCreated en el receipt');
   }
 
-  // ── ESCRITURA: approve ERC20 ─────────────
 
   async approveToken(
     account: Account,
@@ -291,14 +353,17 @@ class BlockchainService {
     return this.sendWithFeeCurrency(account, tokenAddress, calldata);
   }
 
-  // ── ESCRITURA: Tokenización V2 ──────────────
 
   async investInProject(
     account: Account,
     revenueAddress: string,
     amount: bigint,
+    vaultAddress?: string,
   ): Promise<string> {
-    await this.approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, revenueAddress, amount);
+    if (!vaultAddress) {
+      throw new Error('vaultAddress es requerido para invertir (approve va al vault, no al revenue module).');
+    }
+    await this.approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress, amount);
 
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
     const contractCall = prepareContractCall({
@@ -308,13 +373,25 @@ class BlockchainService {
     });
 
     const calldata = await encode(contractCall);
+    let txHash: string;
     try {
-      return await this.sendWithFeeCurrency(account, revenueAddress, calldata);
+      txHash = await this.sendWithFeeCurrency(account, revenueAddress, calldata);
     } catch (err) {
       const friendly = decodeContractRevert(err);
       if (friendly) throw new Error(friendly);
       throw err;
     }
+    try {
+      const tokenAddr = await this.getProjectTokenAddress(revenueAddress);
+      const currentDelegate = await this.getDelegate(tokenAddr, account.address);
+      if (currentDelegate === '0x0000000000000000000000000000000000000000') {
+        await this.delegateToSelf(account, tokenAddr);
+      }
+    } catch (err) {
+      console.warn('[invest] auto-delegate falló (no es crítico):', err);
+    }
+
+    return txHash;
   }
 
   async claimRendimientos(account: Account, revenueAddress: string): Promise<string> {
@@ -335,13 +412,15 @@ class BlockchainService {
 
   async getRevenueModuleState(revenueAddress: string): Promise<RevenueModuleState> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
-    const [totalRaised, fundingTarget, minimumCap, tokenPrice, saleFinalized, state] = await Promise.all([
+    const [totalRaised, fundingTarget, minimumCap, tokenPrice, saleFinalized, state, distributionEnd, pendingRevenue] = await Promise.all([
       readContract({ contract, method: 'function totalRaised() view returns (uint128)' }),
       readContract({ contract, method: 'function fundingTarget() view returns (uint128)' }),
       readContract({ contract, method: 'function minimumCap() view returns (uint128)' }),
       readContract({ contract, method: 'function tokenPrice() view returns (uint128)' }),
       readContract({ contract, method: 'function saleFinalized() view returns (bool)' }),
       readContract({ contract, method: 'function state() view returns (uint8)' }),
+      readContract({ contract, method: 'function distributionEnd() view returns (uint64)' }).catch(() => 0n),
+      readContract({ contract, method: 'function pendingRevenue() view returns (uint256)' }).catch(() => 0n),
     ]);
     return {
       totalRaised: totalRaised as bigint,
@@ -350,6 +429,8 @@ class BlockchainService {
       tokenPrice: tokenPrice as bigint,
       saleFinalized: saleFinalized as boolean,
       state: Number(state),
+      distributionEnd: BigInt(distributionEnd as bigint | number),
+      pendingRevenue: pendingRevenue as bigint,
     };
   }
 
@@ -362,7 +443,6 @@ class BlockchainService {
     }) as Promise<bigint>;
   }
 
-  // ── ESCRITURA: Natillera V2 ──────────────
 
   async joinNatilleraOnChain(account: Account, natilleraAddress: string): Promise<string> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: natilleraAddress });
@@ -445,7 +525,6 @@ class BlockchainService {
     }) as Promise<boolean>;
   }
 
-  // ── LECTURA: Natillera V1 (backward compat) ──
 
   async getNatilleraConfig(contractAddress: string): Promise<NatilleraConfig> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: contractAddress });
@@ -487,7 +566,6 @@ class BlockchainService {
     return result as boolean;
   }
 
-  // ── LECTURA: Tokenizacion V1 (backward compat) ──
 
   async getTokenizacionConfig(contractAddress: string): Promise<TokenizacionConfig> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: contractAddress });
@@ -521,7 +599,6 @@ class BlockchainService {
     };
   }
 
-  // ── ESCRITURA: V1 deposit (backward compat) ──
 
   async depositToNatillera(account: Account, contractAddress: string): Promise<string> {
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: contractAddress });
@@ -542,29 +619,190 @@ class BlockchainService {
     return result.transactionHash;
   }
 
-  // ── MILESTONES V2 ──────────────────
 
-  async proposeMilestoneOnChain(
+  async proposeMilestoneCustom(
     account: Account,
     milestonesAddress: string,
     description: string,
-    vaultAddress: string,
+    recipient: string,
+    amount: bigint,
   ): Promise<string> {
-    // Leer balance actual del vault (cuánto se ha recaudado)
-    const vaultBalance = await this.getTokenBalance(BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress);
-    if (vaultBalance === BigInt(0)) throw new Error('El vault no tiene fondos aún. Espera a recibir pagos.');
-
     const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: milestonesAddress });
     const tx = prepareContractCall({
       contract,
       method: 'function proposeMilestone(string description, address token, address recipient, uint256 amount) returns (uint256)',
-      params: [description, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS as `0x${string}`, account.address, vaultBalance],
+      params: [description, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS as `0x${string}`, recipient as `0x${string}`, amount],
     });
     const calldata = await encode(tx);
     return this.sendWithFeeCurrency(account, milestonesAddress, calldata);
   }
 
-  // ── GOVERNANCE V2 ──────────────────
+  async getVaultOf(revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({ contract, method: 'function vault() view returns (address)' }) as Promise<string>;
+  }
+
+  async getSettlementTokenOf(revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({ contract, method: 'function settlementToken() view returns (address)' }) as Promise<string>;
+  }
+
+  async getGovernanceOf(revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({ contract, method: 'function governance() view returns (address)' }) as Promise<string>;
+  }
+
+  async getFeeManagerOf(revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({ contract, method: 'function feeManager() view returns (address)' }) as Promise<string>;
+  }
+
+  async getFeeTreasury(feeManagerAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: feeManagerAddress });
+    return readContract({ contract, method: 'function feeTreasury() view returns (address)' }) as Promise<string>;
+  }
+
+  async getRevenueState(revenueAddress: string): Promise<number> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    const v = await readContract({ contract, method: 'function state() view returns (uint8)' });
+    return Number(v);
+  }
+
+  async getSaleEnd(revenueAddress: string): Promise<bigint> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({ contract, method: 'function saleEnd() view returns (uint64)' }) as Promise<bigint>;
+  }
+
+  async getProjectFunds(revenueAddress: string): Promise<bigint> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({
+      contract,
+      method: 'function projectFunds() view returns (uint256)',
+    }) as Promise<bigint>;
+  }
+
+  async getMilestonesCommitted(milestonesAddress: string, tokenAddress: string): Promise<bigint> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: milestonesAddress });
+    return readContract({
+      contract,
+      method: 'function totalRequestedByToken(address) view returns (uint256)',
+      params: [tokenAddress],
+    }) as Promise<bigint>;
+  }
+
+  async getVotingPower(governanceAddress: string, user: string, blockNumber: bigint = 0n): Promise<bigint> {
+    const gov = getContract({ client: thirdwebClient, chain: CHAIN, address: governanceAddress });
+    const strategyAddress = await readContract({
+      contract: gov,
+      method: 'function votingStrategy() view returns (address)',
+    }) as string;
+    const strategy = getContract({ client: thirdwebClient, chain: CHAIN, address: strategyAddress });
+    return readContract({
+      contract: strategy,
+      method: 'function getVotingPower(address user, uint256 snapshotBlock) view returns (uint256)',
+      params: [user, blockNumber],
+    }) as Promise<bigint>;
+  }
+
+  async getProposalChainState(governanceAddress: string, proposalId: bigint): Promise<{
+    yesVotes: bigint;
+    noVotes: bigint;
+    endTime: bigint;
+    executed: boolean;
+  } | null> {
+    try {
+      const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: governanceAddress });
+      const result = await readContract({
+        contract,
+        method: 'function proposals(uint256) view returns (uint8 action, uint256 targetId, uint256 startTime, uint256 endTime, uint256 snapshotBlock, uint256 snapshotQuorum, uint256 yesVotes, uint256 noVotes, uint256 amount, address recipient, address token, bytes32 descriptionHash, bool executed)',
+        params: [proposalId],
+      }) as readonly [number, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, string, string, string, boolean];
+      const [, , startTime, endTime, , , yesVotes, noVotes, , , , , executed] = result;
+      if (startTime === 0n) return null;
+      return { yesVotes, noVotes, endTime, executed };
+    } catch {
+      return null;
+    }
+  }
+
+  async getUserVote(governanceAddress: string, proposalId: bigint, user: string): Promise<number> {
+    try {
+      const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: governanceAddress });
+      const v = await readContract({
+        contract,
+        method: 'function votes(uint256, address) view returns (uint8)',
+        params: [proposalId, user],
+      }) as number;
+      return Number(v);
+    } catch {
+      return 0;
+    }
+  }
+
+  async tryFinalizeSale(account: Account, revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function finalizeSale()',
+      params: [],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, revenueAddress, calldata);
+  }
+
+  async getTokenTotalSupply(tokenAddress: string): Promise<bigint> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });
+    return readContract({
+      contract,
+      method: 'function totalSupply() view returns (uint256)',
+    }) as Promise<bigint>;
+  }
+
+  async getProjectTokenAddress(revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({
+      contract,
+      method: 'function token() view returns (address)',
+    }) as Promise<string>;
+  }
+
+  async getCurrentVotes(tokenAddress: string, user: string): Promise<bigint> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });
+    return readContract({
+      contract,
+      method: 'function getVotes(address account) view returns (uint256)',
+      params: [user],
+    }) as Promise<bigint>;
+  }
+
+  async getDelegate(tokenAddress: string, user: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });
+    return readContract({
+      contract,
+      method: 'function delegates(address account) view returns (address)',
+      params: [user],
+    }) as Promise<string>;
+  }
+
+  async delegateToSelf(account: Account, tokenAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: tokenAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function delegate(address delegatee)',
+      params: [account.address],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, tokenAddress, calldata);
+  }
+
+  async getProjectCreator(revenueAddress: string): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: revenueAddress });
+    return readContract({
+      contract,
+      method: 'function projectCreator() view returns (address)',
+    }) as Promise<string>;
+  }
+
 
   async proposeOnChain(
     account: Account,
@@ -640,7 +878,6 @@ class BlockchainService {
     return this.sendWithFeeCurrency(account, governanceAddress, calldata);
   }
 
-  // ── DISPUTES V2 ──────────────────
 
   async openDisputeOnChain(
     account: Account,
@@ -657,7 +894,39 @@ class BlockchainService {
     return this.sendWithFeeCurrency(account, disputesAddress, calldata);
   }
 
-  // ── REVENUE V2: deposit / refund ──────────────────
+  async checkDisputeExists(disputesAddress: string, disputeChainId: string): Promise<boolean> {
+    try {
+      const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: disputesAddress });
+      const data = (await readContract({
+        contract,
+        method: 'function disputes(uint256) view returns (uint256 id, address opener, string reason, uint8 status, uint256 openedAt, uint256 resolvedAt)',
+        params: [BigInt(disputeChainId)],
+      })) as readonly unknown[];
+      const opener = (data[1] as string) ?? '';
+      const status = Number(data[3] as bigint);
+      if (!opener || opener === '0x0000000000000000000000000000000000000000') return false;
+      return status !== 2;
+    } catch {
+      return true;
+    }
+  }
+
+  async resolveDisputeOnChain(
+    account: Account,
+    disputesAddress: string,
+    disputeId: bigint,
+    accepted: boolean,
+  ): Promise<string> {
+    const contract = getContract({ client: thirdwebClient, chain: CHAIN, address: disputesAddress });
+    const tx = prepareContractCall({
+      contract,
+      method: 'function resolveDispute(uint256 id, bool accepted)',
+      params: [disputeId, accepted],
+    });
+    const calldata = await encode(tx);
+    return this.sendWithFeeCurrency(account, disputesAddress, calldata);
+  }
+
 
   async depositRevenue(
     account: Account,
@@ -743,18 +1012,32 @@ class BlockchainService {
   }
 
 
-  formatUnits(value: bigint, decimals: number): string {
+  formatUnits(value: bigint, decimals: number, displayDecimals: number = 2): string {
     const divisor = BigInt(10 ** decimals);
     const intPart = value / divisor;
     const remainder = value % divisor;
-    const decPart = remainder.toString().padStart(decimals, '0').slice(0, 2);
+    const decPart = remainder.toString().padStart(decimals, '0').slice(0, displayDecimals);
+    return `${intPart}.${decPart}`;
+  }
+
+  formatUnitsExact(value: bigint, decimals: number): string {
+    const divisor = BigInt(10 ** decimals);
+    const intPart = value / divisor;
+    const remainder = value % divisor;
+    if (remainder === 0n) return `${intPart}`;
+    const decPart = remainder.toString().padStart(decimals, '0').replace(/0+$/, '');
     return `${intPart}.${decPart}`;
   }
 
   parseUnits(value: string, decimals: number): bigint {
-    const [int, dec = ''] = value.split('.');
+    const cleaned = String(value ?? '').trim().replace(',', '.').replace(/\s+/g, '');
+    if (!cleaned || !/^-?\d*(\.\d*)?$/.test(cleaned)) {
+      throw new Error(`parseUnits: valor inválido "${value}"`);
+    }
+    const [int, dec = ''] = cleaned.split('.');
     const decPadded = dec.padEnd(decimals, '0').slice(0, decimals);
-    return BigInt(int + decPadded);
+    const intPart = int === '' || int === '-' ? '0' : int;
+    return BigInt(intPart + decPadded);
   }
 }
 

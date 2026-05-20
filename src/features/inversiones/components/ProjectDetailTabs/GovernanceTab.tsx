@@ -1,66 +1,166 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { IonIcon } from '@ionic/react';
-import { checkmarkCircleOutline, closeCircleOutline, timeOutline, thumbsUpOutline, thumbsDownOutline } from 'ionicons/icons';
+import { timeOutline, addOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
-import { apiService } from '@/services/api/api.service';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { blockchainService, decodeContractRevert, decodeContractRevertRaw } from '@/services/blockchain.service';
+import { governanceService, GovernanceAction } from '@/services/governance.service';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { useGovernanceData } from './GovernanceTab/useGovernanceData';
+import { ProposalForm } from './GovernanceTab/ProposalForm';
+import { ProposalCard } from './GovernanceTab/ProposalCard';
+import type { ProposalFormState } from './GovernanceTab/types';
 import './ProjectDetailTabs.css';
 
-interface Proposal {
-  id: string;
-  proposal_chain_id: string;
-  description: string;
-  status: 'ACTIVE' | 'EXECUTED' | 'DEFEATED';
-  votes_for: string;
-  votes_against: string;
-  created_at: string;
-}
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 interface GovernanceTabProps {
   project: Project;
 }
 
 export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { account } = useBlockchain();
+  const {
+    proposals,
+    loading,
+    projectCreator,
+    votingPower,
+    tokenBalance,
+    delegatedTo,
+    chainState,
+    userVotes,
+    loadProposals,
+    loadVotingState,
+  } = useGovernanceData(project, account);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const response = await apiService.get<Proposal[]>(`/projects/${project.id}/proposals`);
-        setProposals(response.data);
-      } catch {
+  const [showCreate, setShowCreate] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState<ProposalFormState>({
+    action: GovernanceAction.Disbursement,
+    amount: '',
+    recipient: '',
+    description: '',
+    targetId: '',
+  });
 
-      } finally {
-        setLoading(false);
+  const handleAction = async (op: () => Promise<unknown>, busyKey: string) => {
+    setBusy(busyKey);
+    setError(null);
+    try {
+      await op();
+      await loadProposals();
+    } catch (err) {
+      const raw = decodeContractRevertRaw(err);
+      const message = (err as Error).message ?? '';
+      if (raw) {
+        setError(`Revert on-chain: ${raw}`);
+      } else {
+        setError(decodeContractRevert(err) ?? message ?? 'Error al ejecutar');
       }
-    };
-    load();
-  }, [project.id]);
-
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('es-CO', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-
-  const statusLabel: Record<string, string> = {
-    ACTIVE: 'Activa',
-    EXECUTED: 'Ejecutada',
-    DEFEATED: 'Rechazada',
+    } finally {
+      setBusy(null);
+    }
   };
 
-  const statusClass: Record<string, string> = {
-    ACTIVE: 'badge-active',
-    EXECUTED: 'badge-done',
-    DEFEATED: 'badge-rejected',
+  const handleDelegate = async () => {
+    if (!account) return;
+    let tokenAddr = project.token_address;
+    if (!tokenAddr && project.revenue_address) {
+      try {
+        tokenAddr = await blockchainService.getProjectTokenAddress(project.revenue_address);
+      } catch {
+        setError('No se pudo obtener el token del proyecto.');
+        return;
+      }
+    }
+    if (!tokenAddr) {
+      setError('Este proyecto no tiene un ProjectToken asociado.');
+      return;
+    }
+    await handleAction(async () => {
+      await blockchainService.delegateToSelf(account, tokenAddr!);
+      await loadVotingState();
+    }, 'delegate');
   };
 
-  const statusIcon: Record<string, string> = {
-    ACTIVE: timeOutline,
-    EXECUTED: checkmarkCircleOutline,
-    DEFEATED: closeCircleOutline,
+  const resetForm = () =>
+    setForm({ action: GovernanceAction.Disbursement, amount: '', recipient: '', description: '', targetId: '' });
+
+  const handleCreate = async () => {
+    if (!account || !project.governance_address) return;
+
+    let amount: bigint = 0n;
+    let targetId = 0n;
+    let recipient = form.recipient;
+
+    if (form.action === GovernanceAction.Disbursement) {
+      if (!projectCreator) {
+        setError('No se pudo leer el creador del proyecto on-chain. Intenta recargar.');
+        return;
+      }
+      recipient = projectCreator;
+      if (!form.amount) {
+        setError('El monto es requerido para un retiro.');
+        return;
+      }
+      try {
+        amount = blockchainService.parseUnits(form.amount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+      } catch {
+        setError('Monto inválido');
+        return;
+      }
+    } else if (
+      form.action === GovernanceAction.FreezeFromDispute ||
+      form.action === GovernanceAction.ApproveAndExecuteMilestone ||
+      form.action === GovernanceAction.CancelMilestone
+    ) {
+      if (!form.targetId) {
+        setError('targetId requerido para esta acción.');
+        return;
+      }
+      targetId = BigInt(form.targetId);
+    } else if (
+      form.action === GovernanceAction.UpdateQuorum ||
+      form.action === GovernanceAction.UpdateVotingPeriod
+    ) {
+      if (!form.amount) {
+        setError('El nuevo valor es requerido.');
+        return;
+      }
+      amount = BigInt(form.amount);
+    }
+
+    await handleAction(async () => {
+      await governanceService.createProposal(account, {
+        projectId: project.id,
+        governanceAddress: project.governance_address!,
+        action: form.action,
+        targetId,
+        amount,
+        recipient: recipient || ZERO_ADDRESS,
+        token: form.action === GovernanceAction.Disbursement ? BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS : ZERO_ADDRESS,
+        description: form.description,
+      });
+      setShowCreate(false);
+      resetForm();
+    }, 'create');
+  };
+
+  const handleVote = (chainId: string, support: boolean) => {
+    if (!account || !project.governance_address) return;
+    return handleAction(
+      () => governanceService.vote(account, project.governance_address!, chainId, support),
+      `vote-${chainId}-${support}`,
+    );
+  };
+
+  const handleExecute = (chainId: string) => {
+    if (!account || !project.governance_address) return;
+    return handleAction(
+      () => governanceService.execute(account, project.governance_address!, chainId),
+      `execute-${chainId}`,
+    );
   };
 
   if (loading) {
@@ -74,7 +174,53 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
 
   return (
     <div className="historial-tab">
-      <h2 className="governance-title">Gobernanza</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <h2 className="governance-title" style={{ margin: 0 }}>
+          Gobernanza
+        </h2>
+        {account && project.governance_address && (
+          <button
+            className="invest-btn"
+            style={{ width: 'auto', padding: '8px 14px', fontSize: 13 }}
+            onClick={() => {
+              setShowCreate((s) => !s);
+              setError(null);
+            }}
+          >
+            <IonIcon icon={addOutline} /> {showCreate ? 'Cancelar' : 'Nueva propuesta'}
+          </button>
+        )}
+      </div>
+
+      {error && <p className="invest-error" style={{ marginBottom: 12 }}>{error}</p>}
+
+      {account && project.type === 'TOKENIZATION' && tokenBalance !== null && tokenBalance > 0n && votingPower === 0n && (
+        <div style={{ marginBottom: 12, padding: 12, background: '#fff8e6', border: '1px solid #f5c451', borderRadius: 8 }}>
+          <p style={{ margin: '0 0 8px', fontSize: 13, color: '#7a5300' }}>
+            Tienes <strong>{tokenBalance.toString()} tokens</strong> pero aún no has delegado tu voz. Para votar en
+            gobernanza necesitas delegarte a ti mismo (es una característica de ERC20Votes).
+            {delegatedTo === ZERO_ADDRESS && ' Delegate actual: ninguno.'}
+          </p>
+          <button
+            className="invest-btn"
+            style={{ width: 'auto', padding: '6px 14px', fontSize: 13 }}
+            onClick={handleDelegate}
+            disabled={busy === 'delegate'}
+          >
+            {busy === 'delegate' ? 'Delegando...' : 'Delegarme a mí mismo'}
+          </button>
+        </div>
+      )}
+
+      {showCreate && (
+        <ProposalForm
+          form={form}
+          setForm={setForm}
+          projectCreator={projectCreator}
+          busy={busy}
+          onSubmit={handleCreate}
+        />
+      )}
 
       {proposals.length === 0 ? (
         <div className="historial-empty">
@@ -83,29 +229,21 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
           <p className="empty-subtext">Las propuestas de gobernanza aparecerán aquí</p>
         </div>
       ) : (
-        <div className="governance-list">
-          {proposals.map(proposal => (
-            <div key={proposal.id} className="governance-item">
-              <div className="governance-item-header">
-                <span className="governance-item-id">#{proposal.proposal_chain_id}</span>
-                <span className={`chain-stat-badge ${statusClass[proposal.status] ?? 'badge-pending'}`}>
-                  <IonIcon icon={statusIcon[proposal.status] ?? timeOutline} />
-                  {statusLabel[proposal.status] ?? proposal.status}
-                </span>
-              </div>
-              <p className="governance-item-description">{proposal.description}</p>
-              <div className="governance-item-votes">
-                <span className="governance-vote governance-vote--for">
-                  <IonIcon icon={thumbsUpOutline} />
-                  {Number(proposal.votes_for).toLocaleString('es-CO')} a favor
-                </span>
-                <span className="governance-vote governance-vote--against">
-                  <IonIcon icon={thumbsDownOutline} />
-                  {Number(proposal.votes_against).toLocaleString('es-CO')} en contra
-                </span>
-              </div>
-              <span className="governance-item-date">{formatDate(proposal.created_at)}</span>
-            </div>
+        <div className="gov-list">
+          {proposals.map((p) => (
+            <ProposalCard
+              key={p.id}
+              proposal={p}
+              chainState={chainState[p.proposal_chain_id]}
+              userVote={userVotes[p.proposal_chain_id] ?? 0}
+              votingPower={votingPower}
+              tokenBalance={tokenBalance}
+              projectType={project.type}
+              account={account}
+              busy={busy}
+              onVote={handleVote}
+              onExecute={handleExecute}
+            />
           ))}
         </div>
       )}

@@ -51,7 +51,7 @@ export const Step4Success: React.FC<Step4SuccessProps> = ({
       const result = await onInvite(invitarAmigos.trim());
       if (result.success) {
         setInviteMessage({ type: 'success', text: result.message });
-        onInvitarAmigosChange(''); // Limpiar el campo
+        onInvitarAmigosChange('');
       } else {
         setInviteMessage({ type: 'error', text: result.message });
       }

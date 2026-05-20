@@ -18,7 +18,6 @@ const ConfirmacionModal: React.FC<Props> = ({ bank, destinatario, amount, onCanc
     <div className="cm-overlay">
       <div className="cm-card">
 
-        {/* Icono info */}
         <div className="cm-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="none">
             <circle cx="12" cy="12" r="12" fill="#3B5BDB" />
@@ -26,7 +25,6 @@ const ConfirmacionModal: React.FC<Props> = ({ bank, destinatario, amount, onCanc
           </svg>
         </div>
 
-        {/* Texto de confirmacion */}
         <p className="cm-text">
           ¿Estás seguro que desea transferir el monto de{' '}
           <strong>{formatCOP(amount.value)} COP</strong> a{' '}
@@ -35,7 +33,6 @@ const ConfirmacionModal: React.FC<Props> = ({ bank, destinatario, amount, onCanc
           <strong>{bank.name}</strong>?
         </p>
 
-        {/* Botones */}
         <div className="cm-actions">
           <button className="cm-btn cm-btn--cancel" onClick={onCancel}>
             Cancelar

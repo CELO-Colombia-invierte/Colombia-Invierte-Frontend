@@ -58,7 +58,6 @@ const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
     <div className="wm-container">
       <div className="wm-content">
 
-        {/* Moneda seleccionada */}
         <div className="wm-coin-row">
           <div className="wm-coin-logo" style={{ backgroundColor: coin.color }}>
             <span className="wm-coin-initials">{coin.initials}</span>
@@ -66,7 +65,6 @@ const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
           <span className="wm-coin-name">{coin.name}</span>
         </div>
 
-        {/* Display del monto */}
         <div className="wm-amount-display" onClick={() => inputRef.current?.focus()}>
           <span className={`wm-value${isActive ? ' wm-value--active' : ''}`}>
             {displayValue}
@@ -86,13 +84,11 @@ const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
           aria-hidden="true"
         />
 
-        {/* Saldo */}
         <div className="wm-balance-block">
           <p className="wm-balance-line">Tu saldo: {coin.symbol} {coin.balance}</p>
           <p className="wm-balance-line">USDT: 0</p>
         </div>
 
-        {/* Dirección de wallet */}
         <input
           className="wm-address-input"
           type="text"

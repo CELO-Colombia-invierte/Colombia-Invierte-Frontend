@@ -5,13 +5,7 @@ import {
   PositionDto,
 } from '@/dtos/portfolio';
 
-/**
- * PortfolioMapper - Transforma entre DTOs del API y Models del dominio
- */
 export class PortfolioMapper {
-  /**
-   * Convierte BalancesDto del API a Balances Model
-   */
   static balancesFromDto(dto: BalancesDto): Balances {
     return new Balances({
       cop: dto.COP,
@@ -21,9 +15,6 @@ export class PortfolioMapper {
     });
   }
 
-  /**
-   * Convierte PositionDto del API a Position Model
-   */
   static positionFromDto(dto: PositionDto): Position {
     return new Position({
       id: dto.id,
@@ -40,9 +31,6 @@ export class PortfolioMapper {
     });
   }
 
-  /**
-   * Convierte PortfolioResponseDto del API a Portfolio Model
-   */
   static fromDto(dto: PortfolioResponseDto): Portfolio {
     return new Portfolio({
       balances: this.balancesFromDto(dto.balances),

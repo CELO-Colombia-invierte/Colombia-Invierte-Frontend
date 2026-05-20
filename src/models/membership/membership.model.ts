@@ -15,6 +15,7 @@ export interface InvestmentPositionUser {
   phone: string | null;
   phone_country_code: string | null;
   is_verified: boolean;
+  wallet_address?: string | null;
   created_at: string;
   updated_at: string;
 }

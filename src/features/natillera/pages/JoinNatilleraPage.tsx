@@ -52,7 +52,6 @@ const JoinNatilleraPage: React.FC = () => {
       setLoading(true);
       const data = await projectsService.findOne(slug);
 
-      // Si el usuario es el dueño, redirigir a la vista normal del proyecto
       const token = localStorage.getItem('colombia_invierte_auth_token');
       if (token) {
         const payload = JSON.parse(atob(token.split('.')[1]));

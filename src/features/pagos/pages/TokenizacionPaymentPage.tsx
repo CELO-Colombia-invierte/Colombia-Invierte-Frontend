@@ -4,10 +4,28 @@ import { useHistory, useParams } from 'react-router-dom';
 import { arrowBackOutline, chevronDownOutline } from 'ionicons/icons';
 import { projectsService } from '@/services/projects';
 import { Project } from '@/models/projects';
-import { Country, State } from 'country-state-city';
+import { CardPaymentForm, CardFormState } from '../components/CardPaymentForm';
+import { CryptoPaymentForm } from '../components/CryptoPaymentForm';
+import { calculateCryptoTotal, NETWORK_FEE_USDT } from '../utils/paymentCalculator';
 import './TokenizacionPaymentPage.css';
 
 type PaymentMethod = 'card' | 'crypto' | null;
+
+const DEFAULT_CARD: CardFormState = {
+  cardNumber: '',
+  cardExpiry: '',
+  cardCVC: '',
+  cardName: '',
+  country: 'CO',
+  address1: '',
+  suburb: '',
+  city: '',
+  postalCode: '',
+  state: '',
+  email: '',
+};
+
+const WALLET_BALANCE_MOCK = 654;
 
 const TokenizacionPaymentPage: React.FC = () => {
   const history = useHistory();
@@ -17,110 +35,50 @@ const TokenizacionPaymentPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
 
-  // Cantidad de tokens
   const [tokenAmount, setTokenAmount] = useState('300');
   const [usdtAmount, setUsdtAmount] = useState('300');
 
-  // Datos cripto
   const [cryptoAmount, setCryptoAmount] = useState('');
   const [selectedCrypto] = useState('USDT');
 
-  // Datos de tarjeta
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCVC, setCardCVC] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [country, setCountry] = useState('CO');
-  const [address1, setAddress1] = useState('');
-  const [suburb, setSuburb] = useState('');
-  const [city, setCity] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [state, setState] = useState('');
-  const [email, setEmail] = useState('');
-
-  // Balance simulado
-  const walletBalance = 654;
+  const [card, setCard] = useState<CardFormState>(DEFAULT_CARD);
 
   useEffect(() => {
-    fetchProject();
+    (async () => {
+      try {
+        setLoading(true);
+        setProject(await projectsService.findOne(id));
+      } catch {
+        await present({ message: 'Error al cargar el proyecto', duration: 3000, color: 'danger' });
+        history.goBack();
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
-
-  const fetchProject = async () => {
-    try {
-      setLoading(true);
-      const data = await projectsService.findOne(id);
-      setProject(data);
-    } catch (error: any) {
-      await present({
-        message: 'Error al cargar el proyecto',
-        duration: 3000,
-        color: 'danger',
-      });
-      history.goBack();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const networkFee = 0.005; // Network fee en USDT
-
-  const calculateCryptoTotal = (): {
-    conversion: number;
-    fee: number;
-    total: number;
-  } => {
-    if (!cryptoAmount || parseFloat(cryptoAmount) <= 0) {
-      return { conversion: 0, fee: 0, total: 0 };
-    }
-    const amount = parseFloat(cryptoAmount);
-    // Conversión: 1 token ≈ 1 USDT (simplificado)
-    const conversion = amount;
-    const fee = conversion * 0.03; // 3% fee
-    const total = conversion + fee;
-    return { conversion, fee, total };
-  };
 
   const handlePayment = async () => {
     if (!selectedMethod) {
-      await present({
-        message: 'Selecciona un método de pago',
-        duration: 2000,
-        color: 'warning',
-      });
+      await present({ message: 'Selecciona un método de pago', duration: 2000, color: 'warning' });
       return;
     }
 
     if (selectedMethod === 'card') {
-      if (!cardNumber || !cardExpiry || !cardCVC || !cardName) {
-        await present({
-          message: 'Completa todos los campos de la tarjeta',
-          duration: 2000,
-          color: 'warning',
-        });
+      if (!card.cardNumber || !card.cardExpiry || !card.cardCVC || !card.cardName) {
+        await present({ message: 'Completa todos los campos de la tarjeta', duration: 2000, color: 'warning' });
         return;
       }
     }
 
     if (selectedMethod === 'crypto') {
       if (!cryptoAmount || parseFloat(cryptoAmount) <= 0) {
-        await present({
-          message: 'Ingresa una cantidad válida',
-          duration: 2000,
-          color: 'warning',
-        });
+        await present({ message: 'Ingresa una cantidad válida', duration: 2000, color: 'warning' });
         return;
       }
     }
 
-    await present({
-      message: 'Procesando pago...',
-      duration: 2000,
-      color: 'success',
-    });
-
-    setTimeout(() => {
-      history.push(`/inversiones/${id}`);
-    }, 2000);
+    await present({ message: 'Procesando pago...', duration: 2000, color: 'success' });
+    setTimeout(() => history.push(`/inversiones/${id}`), 2000);
   };
 
   if (loading) {
@@ -135,11 +93,9 @@ const TokenizacionPaymentPage: React.FC = () => {
     );
   }
 
-  if (!project) {
-    return null;
-  }
+  if (!project) return null;
 
-  const cryptoCalc = calculateCryptoTotal();
+  const cryptoCalc = calculateCryptoTotal(cryptoAmount);
 
   return (
     <IonPage>
@@ -148,9 +104,7 @@ const TokenizacionPaymentPage: React.FC = () => {
           <button className="tkn-back-btn" onClick={() => history.goBack()}>
             <IonIcon icon={arrowBackOutline} />
           </button>
-          <h1 className="tkn-payment-title">
-            Tokenización #{project.id.slice(-3)}
-          </h1>
+          <h1 className="tkn-payment-title">Tokenización #{project.id.slice(-3)}</h1>
         </div>
 
         <div className="tkn-image-container">
@@ -166,13 +120,11 @@ const TokenizacionPaymentPage: React.FC = () => {
         </div>
 
         <div className="tkn-payment-content">
-          {/* Sección de Cantidad */}
           <div className="tkn-quantity-section">
             <div className="tkn-quantity-header">
               <span className="tkn-quantity-label">Cantidad</span>
               <span className="tkn-balance">
-                Balance:{' '}
-                <span className="tkn-balance-value">{walletBalance} USDT</span>
+                Balance: <span className="tkn-balance-value">{WALLET_BALANCE_MOCK} USDT</span>
               </span>
             </div>
 
@@ -183,7 +135,7 @@ const TokenizacionPaymentPage: React.FC = () => {
                 value={tokenAmount}
                 onChange={(e) => {
                   setTokenAmount(e.target.value);
-                  setUsdtAmount(e.target.value); // 1:1 conversion
+                  setUsdtAmount(e.target.value);
                 }}
                 placeholder="0"
               />
@@ -207,15 +159,11 @@ const TokenizacionPaymentPage: React.FC = () => {
               <div className="tkn-usdt-badge">
                 <span className="tkn-usdt-icon">●</span>
                 <span className="tkn-usdt-name">USDT</span>
-                <IonIcon
-                  icon={chevronDownOutline}
-                  className="tkn-dropdown-icon"
-                />
+                <IonIcon icon={chevronDownOutline} className="tkn-dropdown-icon" />
               </div>
             </div>
           </div>
 
-          {/* Detalles */}
           <h2 className="tkn-section-title">Detalles</h2>
           <div className="tkn-details-box">
             <div className="tkn-detail-row">
@@ -224,30 +172,21 @@ const TokenizacionPaymentPage: React.FC = () => {
             </div>
             <div className="tkn-detail-row">
               <span className="tkn-detail-label">Network fee</span>
-              <span className="tkn-detail-value">{networkFee} USDT</span>
+              <span className="tkn-detail-value">{NETWORK_FEE_USDT} USDT</span>
             </div>
           </div>
 
-          {/* Método de pago: Tarjeta */}
           <div className="tkn-method-section">
             <div
               className={`tkn-method-header ${selectedMethod === 'card' ? 'active' : ''}`}
-              onClick={() =>
-                setSelectedMethod(selectedMethod === 'card' ? null : 'card')
-              }
+              onClick={() => setSelectedMethod(selectedMethod === 'card' ? null : 'card')}
             >
               <div className="tkn-radio">
-                <div
-                  className={`tkn-radio-outer ${selectedMethod === 'card' ? 'selected' : ''}`}
-                >
-                  {selectedMethod === 'card' && (
-                    <div className="tkn-radio-inner" />
-                  )}
+                <div className={`tkn-radio-outer ${selectedMethod === 'card' ? 'selected' : ''}`}>
+                  {selectedMethod === 'card' && <div className="tkn-radio-inner" />}
                 </div>
               </div>
-              <span className="tkn-method-title">
-                Tarjeta de débito / crédito
-              </span>
+              <span className="tkn-method-title">Tarjeta de débito / crédito</span>
             </div>
 
             <div className="tkn-method-icons">
@@ -264,157 +203,20 @@ const TokenizacionPaymentPage: React.FC = () => {
               <span className="tkn-more">+99</span>
             </div>
 
-            {selectedMethod === 'card' && (
-              <div className="tkn-card-form">
-                <div className="tkn-form-section">
-                  <label className="tkn-form-label">Card information</label>
-                  <div className="tkn-card-input-group">
-                    <input
-                      type="text"
-                      className="tkn-input"
-                      placeholder="Enter text"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      maxLength={19}
-                    />
-                    <div className="tkn-card-icons-inline">
-                      <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
-                        alt="MC"
-                        className="tkn-icon-small"
-                      />
-                      <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
-                        alt="Visa"
-                        className="tkn-icon-small"
-                      />
-                    </div>
-                  </div>
-                  <div className="tkn-card-row">
-                    <input
-                      type="text"
-                      className="tkn-input half"
-                      placeholder="MM / YY"
-                      value={cardExpiry}
-                      onChange={(e) => setCardExpiry(e.target.value)}
-                      maxLength={7}
-                    />
-                    <input
-                      type="text"
-                      className="tkn-input half"
-                      placeholder="CVC"
-                      value={cardCVC}
-                      onChange={(e) => setCardCVC(e.target.value)}
-                      maxLength={4}
-                    />
-                  </div>
-                </div>
-
-                <div className="tkn-form-section">
-                  <label className="tkn-form-label">Cardholder name</label>
-                  <input
-                    type="text"
-                    className="tkn-input"
-                    placeholder="Full name on card"
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                  />
-                </div>
-
-                <div className="tkn-form-section">
-                  <label className="tkn-form-label">Country or region</label>
-                  <select
-                    className="tkn-select"
-                    value={country}
-                    onChange={(e) => {
-                      setCountry(e.target.value);
-                      setState('');
-                    }}
-                  >
-                    {Country.getAllCountries().map((c) => (
-                      <option key={c.isoCode} value={c.isoCode}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="text"
-                    className="tkn-input"
-                    placeholder="Address line 1"
-                    value={address1}
-                    onChange={(e) => setAddress1(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    className="tkn-input"
-                    placeholder="Suburb"
-                    value={suburb}
-                    onChange={(e) => setSuburb(e.target.value)}
-                  />
-                  <div className="tkn-card-row">
-                    <input
-                      type="text"
-                      className="tkn-input half"
-                      placeholder="City"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      className="tkn-input half"
-                      placeholder="Postal code"
-                      value={postalCode}
-                      onChange={(e) => setPostalCode(e.target.value)}
-                    />
-                  </div>
-                  <select
-                    className="tkn-select"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                  >
-                    <option value="">State</option>
-                    {State.getStatesOfCountry(country).map((s) => (
-                      <option key={s.isoCode} value={s.isoCode}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="tkn-form-section">
-                  <label className="tkn-form-label">Contact information</label>
-                  <input
-                    type="email"
-                    className="tkn-input"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
+            {selectedMethod === 'card' && <CardPaymentForm value={card} onChange={setCard} />}
           </div>
 
-          {/* Método de pago: Cripto */}
           <div className="tkn-method-section">
             <div
               className={`tkn-method-header ${selectedMethod === 'crypto' ? 'active' : ''}`}
-              onClick={() =>
-                setSelectedMethod(selectedMethod === 'crypto' ? null : 'crypto')
-              }
+              onClick={() => setSelectedMethod(selectedMethod === 'crypto' ? null : 'crypto')}
             >
               <div className="tkn-radio">
-                <div
-                  className={`tkn-radio-outer ${selectedMethod === 'crypto' ? 'selected' : ''}`}
-                >
-                  {selectedMethod === 'crypto' && (
-                    <div className="tkn-radio-inner" />
-                  )}
+                <div className={`tkn-radio-outer ${selectedMethod === 'crypto' ? 'selected' : ''}`}>
+                  {selectedMethod === 'crypto' && <div className="tkn-radio-inner" />}
                 </div>
               </div>
-              <span className="tkn-method-title">
-                Tarjeta de débito / crédito
-              </span>
+              <span className="tkn-method-title">Tarjeta de débito / crédito</span>
             </div>
 
             <div className="tkn-method-icons">
@@ -426,72 +228,23 @@ const TokenizacionPaymentPage: React.FC = () => {
             </div>
 
             {selectedMethod === 'crypto' && (
-              <div className="tkn-crypto-form">
-                <div className="tkn-form-section">
-                  <label className="tkn-form-label">Wallet & Network</label>
-                  <div className="tkn-wallet-box">
-                    <span className="tkn-wallet-icon">👛</span>
-                    <span className="tkn-wallet-balance">
-                      {walletBalance.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="tkn-form-section">
-                  <label className="tkn-form-label">Coin</label>
-                  <div className="tkn-crypto-input-group">
-                    <input
-                      type="number"
-                      className="tkn-crypto-input"
-                      placeholder="0.1824"
-                      value={cryptoAmount}
-                      onChange={(e) => setCryptoAmount(e.target.value)}
-                      step="0.0001"
-                    />
-                    <div className="tkn-crypto-select-box">
-                      <span>{selectedCrypto}</span>
-                      <IonIcon icon={chevronDownOutline} />
-                    </div>
-                  </div>
-                </div>
-
-                {cryptoAmount && parseFloat(cryptoAmount) > 0 && (
-                  <div className="tkn-crypto-summary">
-                    <div className="tkn-summary-label">Total:</div>
-                    <div className="tkn-summary-row">
-                      <span className="tkn-summary-text">Conversión:</span>
-                      <span className="tkn-summary-value">
-                        {cryptoCalc.conversion.toFixed(2)} USDT
-                      </span>
-                    </div>
-                    <div className="tkn-summary-row">
-                      <span className="tkn-summary-text">Fee:</span>
-                      <span className="tkn-summary-value">
-                        {cryptoCalc.fee.toFixed(2)} USDT
-                      </span>
-                    </div>
-                    <div className="tkn-total-amount">
-                      {cryptoCalc.total.toFixed(2)} USDT
-                    </div>
-                  </div>
-                )}
-              </div>
+              <CryptoPaymentForm
+                cryptoAmount={cryptoAmount}
+                onCryptoAmountChange={setCryptoAmount}
+                selectedCrypto={selectedCrypto}
+                walletBalance={WALLET_BALANCE_MOCK}
+                conversion={cryptoCalc.conversion}
+                fee={cryptoCalc.fee}
+                total={cryptoCalc.total}
+              />
             )}
           </div>
 
-          {/* Botones de acción */}
           <div className="tkn-actions">
-            <button
-              className="tkn-btn secondary"
-              onClick={() => history.goBack()}
-            >
+            <button className="tkn-btn secondary" onClick={() => history.goBack()}>
               Regresar
             </button>
-            <button
-              className="tkn-btn primary"
-              onClick={handlePayment}
-              disabled={!selectedMethod}
-            >
+            <button className="tkn-btn primary" onClick={handlePayment} disabled={!selectedMethod}>
               {selectedMethod ? 'Pagar' : 'Siguiente'}
             </button>
           </div>

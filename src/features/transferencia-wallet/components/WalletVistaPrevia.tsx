@@ -3,7 +3,6 @@ import { SelectedNetwork, SelectedCoin } from './WalletSelectionStep';
 import { WalletAmountData } from './WalletMontoStep';
 import './WalletVistaPrevia.css';
 
-// Dirección de origen — mock hasta que el backend entregue la wallet del usuario
 const MOCK_ORIGIN = '0x742d35Cc6634C0532925a3b844Bc454e4438f44';
 
 interface Props {

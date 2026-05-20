@@ -257,7 +257,7 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                       {rendimiento ? `${rendimiento}%` : 'N/A'}
                     </div>
                     <div className="finance-label">
-                      Rendimiento anual esperado ⓘ
+                      Rendimiento anual proyectado ⓘ
                     </div>
                   </div>
                 </div>

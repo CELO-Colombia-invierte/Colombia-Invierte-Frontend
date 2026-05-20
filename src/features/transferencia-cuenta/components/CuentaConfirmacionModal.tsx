@@ -17,7 +17,6 @@ const CuentaConfirmacionModal: React.FC<Props> = ({ contact, amount, onCancel, o
     <div className="cc-overlay">
       <div className="cc-card">
 
-        {/* Icono info */}
         <div className="cc-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="none">
             <circle cx="12" cy="12" r="12" fill="#3B5BDB" />
@@ -25,7 +24,6 @@ const CuentaConfirmacionModal: React.FC<Props> = ({ contact, amount, onCancel, o
           </svg>
         </div>
 
-        {/* Texto de confirmación */}
         <p className="cc-text">
           ¿Estás seguro que desea transferir el monto de{' '}
           <strong>{formatCOP(amount.value)} COP</strong> a{' '}
@@ -33,7 +31,6 @@ const CuentaConfirmacionModal: React.FC<Props> = ({ contact, amount, onCancel, o
           <strong>{contact.id}</strong>?
         </p>
 
-        {/* Botones */}
         <div className="cc-actions">
           <button className="cc-btn cc-btn--cancel" onClick={onCancel}>
             Cancelar

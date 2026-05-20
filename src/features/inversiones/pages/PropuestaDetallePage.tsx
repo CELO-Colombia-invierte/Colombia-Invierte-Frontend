@@ -47,7 +47,6 @@ const PropuestaDetallePage: React.FC = () => {
     load();
   }, [propuestaId]);
 
-  // Real-time vote updates
   const handleVoteUpdate = useCallback((event: { proposalId: string; votes_yes: number; votes_no: number; total_members: number; status: string }) => {
     if (propuesta && event.proposalId === propuesta.id) {
       setPropuesta((prev) => prev ? {

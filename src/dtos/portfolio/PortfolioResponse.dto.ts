@@ -1,8 +1,3 @@
-/**
- * DTOs para el módulo de portfolio
- * Representan exactamente la estructura que retorna el backend
- */
-
 export interface BalancesDto {
   COP: number;
   USD: number;

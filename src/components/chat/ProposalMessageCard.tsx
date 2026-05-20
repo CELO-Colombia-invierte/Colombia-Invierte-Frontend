@@ -46,7 +46,6 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
     }
   }, [proposalId]);
 
-  // Real-time vote updates
   const handleVoteUpdate = useCallback((event: { proposalId: string; votes_yes: number; votes_no: number; total_members: number; status: string }) => {
     if (proposal && event.proposalId === proposal.id) {
       setProposal((prev) => prev ? {
@@ -63,7 +62,7 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
 
   const handleVote = async (answer: 'YES' | 'NO') => {
     if (!proposal || voting || proposal.status !== 'PENDING') return;
-    if (proposal.user_vote === answer) return; // same vote, no-op
+    if (proposal.user_vote === answer) return;
     setVoting(true);
     try {
       const updated = await propuestasService.vote(proposal.id, answer);
@@ -75,7 +74,6 @@ export const ProposalMessageCard: React.FC<ProposalMessageCardProps> = ({
         status: updated.status,
       } : prev);
     } catch {
-      // ignore
     } finally {
       setVoting(false);
     }

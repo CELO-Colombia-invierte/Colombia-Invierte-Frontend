@@ -16,7 +16,6 @@ const GRADIENTS = [
   { from: '#a855f7', to: '#c084fc', shadow: 'rgba(168, 85, 247, 0.35)' },
 ];
 
-/* Ícono natillera de Figma — 8 puntos en anillo */
 const NatilleraIcon = () => (
   <svg viewBox="19 15 42 42" width="40" height="40" fill="none">
     <rect x="37.8848" y="19"      width="5.23077" height="5.23077" rx="2.61538" fill="white"/>
@@ -30,7 +29,6 @@ const NatilleraIcon = () => (
   </svg>
 );
 
-/* Ícono tokenización de Figma — edificio/cuadrícula */
 const TokenizacionIcon = () => (
   <svg viewBox="22 18 36 36" width="36" height="36" fill="none">
     <path d="M48.5 35H45V27C45 26.7348 44.8946 26.4804 44.7071 26.2929C44.5196 26.1054 44.2652 26 44 26H35C34.7348 26 34.4804 26.1054 34.2929 26.2929C34.1054 26.4804 34 26.7348 34 27V35H30.5C30.2348 35 29.9804 35.1054 29.7929 35.2929C29.6054 35.4804 29.5 35.7348 29.5 36V45C29.5 45.2652 29.6054 45.5196 29.7929 45.7071C29.9804 45.8946 30.2348 46 30.5 46H48.5C48.7652 46 49.0196 45.8946 49.2071 45.7071C49.3946 45.5196 49.5 45.2652 49.5 45V36C49.5 35.7348 49.3946 35.4804 49.2071 35.2929C49.0196 35.1054 48.7652 35 48.5 35ZM38.5 44H31.5V37H38.5V44ZM36 35V28H43V35H36ZM47.5 44H40.5V37H47.5V44Z" fill="white"/>

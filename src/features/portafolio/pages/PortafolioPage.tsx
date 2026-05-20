@@ -2,11 +2,13 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { IonContent, IonPage, IonIcon, IonSpinner, useIonViewWillEnter } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { walletOutline, businessOutline } from 'ionicons/icons';
+import { walletOutline, businessOutline, giftOutline } from 'ionicons/icons';
 import { useAuth } from '@/hooks/use-auth';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { projectsService } from '@/services/projects/projects.service';
+import { blockchainService } from '@/services/blockchain.service';
+import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import { computeNatilleraContribution, fetchQuotaPaidEvents } from '@/services/natillera-contribution';
 import { Position } from '@/models/Portfolio.model';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
@@ -35,6 +37,10 @@ const PortafolioPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('mi-portafolio');
   const [enrichedMap, setEnrichedMap] = useState<Record<string, { baseAmount: number; pctChange: number }>>({});
+  const [pendingRewards, setPendingRewards] = useState<{ total: bigint; projects: string[] }>({
+    total: 0n,
+    projects: [],
+  });
 
   const fetchPublicProjects = useCallback(async () => {
     try {
@@ -112,6 +118,41 @@ const PortafolioPage: React.FC = () => {
       fetchPublicProjects();
     }
   }, [activeTab, fetchPublicProjects]);
+
+  useEffect(() => {
+    if (!account?.address) {
+      setPendingRewards({ total: 0n, projects: [] });
+      return;
+    }
+    const tokenPositions = positions.filter((p) => p.projectType === 'TOKENIZATION');
+    if (tokenPositions.length === 0) {
+      setPendingRewards({ total: 0n, projects: [] });
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const results = await Promise.all(
+        tokenPositions.map(async (pos) => {
+          try {
+            const project = await projectsService.findOne(pos.projectId);
+            if (!project.revenue_address) return { id: pos.projectId, amount: 0n };
+            const amount = await blockchainService.getPendingRewards(
+              project.revenue_address,
+              account.address,
+            );
+            return { id: pos.projectId, amount };
+          } catch {
+            return { id: pos.projectId, amount: 0n };
+          }
+        }),
+      );
+      if (cancelled) return;
+      const withRewards = results.filter((r) => r.amount > 0n);
+      const total = withRewards.reduce((acc, r) => acc + r.amount, 0n);
+      setPendingRewards({ total, projects: withRewards.map((r) => r.id) });
+    })();
+    return () => { cancelled = true; };
+  }, [positionsKey, account?.address]);
 
   const gradients = {
     natillera: [
@@ -198,6 +239,19 @@ const PortafolioPage: React.FC = () => {
             <HomeHeader userName={user?.getDisplayName() || ''} userAvatar={user?.getAvatarUrl()} onProfileClick={handleProfileClick} />
             <DateHeader title="" />
             <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+            {activeTab === 'mi-portafolio' && pendingRewards.total > 0n && (
+              <button
+                className="pending-rewards-banner"
+                onClick={() => history.push(`/inversiones/${pendingRewards.projects[0]}`)}
+              >
+                <IonIcon icon={giftOutline} />
+                <span>
+                  Tienes <strong>{blockchainService.formatUnits(pendingRewards.total, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)} USDC</strong>
+                  {' '}en rendimientos por cobrar en {pendingRewards.projects.length}{' '}
+                  {pendingRewards.projects.length === 1 ? 'proyecto' : 'proyectos'}
+                </span>
+              </button>
+            )}
             {activeTab === 'mi-portafolio' && (
               <PortfolioGrid
                 projects={projects}

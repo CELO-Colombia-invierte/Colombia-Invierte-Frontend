@@ -100,7 +100,7 @@ export const DeployProjectCard: React.FC<DeployProjectCardProps> = ({
     }
 
     setStatus('connecting');
-    pendingDeploy.current = true; // Set BEFORE awaiting so the useEffect catches it
+    pendingDeploy.current = true;
     try {
       await connect({
         client: thirdwebClient,

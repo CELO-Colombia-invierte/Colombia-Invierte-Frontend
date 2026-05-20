@@ -63,15 +63,15 @@ export const DocumentosTab: React.FC<DocumentosTabProps> = ({
 
   const getFileColor = (mimeType: string) => {
     if (mimeType.startsWith('image/')) {
-      return '#3B82F6'; // Azul para imágenes
+      return '#3B82F6';
     }
     if (mimeType.includes('pdf')) {
-      return '#EF4444'; // Rojo para PDFs
+      return '#EF4444';
     }
     if (mimeType.includes('spreadsheet') || mimeType.includes('csv')) {
-      return '#F59E0B'; // Naranja para hojas de cálculo
+      return '#F59E0B';
     }
-    return '#6B7280'; // Gris para otros
+    return '#6B7280';
   };
 
   const handleDownload = async (doc: ProjectDocument) => {
@@ -80,7 +80,6 @@ export const DocumentosTab: React.FC<DocumentosTabProps> = ({
         throw new Error('URL del documento no disponible');
       }
 
-      // Abrir el archivo en una nueva pestaña
       window.open(doc.asset.url, '_blank');
 
       await present({

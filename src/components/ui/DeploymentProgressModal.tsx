@@ -10,7 +10,6 @@ interface DeploymentProgressModalProps {
   title: string;
   subtitle: string;
   steps: DeploymentStep[];
-  /** 1-based index of the in-progress step. 0 = hidden / not started; > steps.length = all done. */
   currentStep: number;
 }
 

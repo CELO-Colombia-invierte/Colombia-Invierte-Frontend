@@ -200,7 +200,7 @@ class AuthService {
 
   async logout(): Promise<void> {
     const token = this.getToken();
-    this.clearAuth(); // Limpia storage y notifica a todos los suscriptores
+    this.clearAuth();
 
     if (!token) return;
 

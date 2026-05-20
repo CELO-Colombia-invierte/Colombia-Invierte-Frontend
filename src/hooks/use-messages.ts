@@ -36,7 +36,6 @@ export const useMessages = (conversationId: string): UseMessagesReturn => {
     async (text: string, currentUser: User): Promise<Message | null> => {
       if (!conversationId) return null;
 
-      // Crear mensaje optimista
       const optimisticMessage = MessageMapper.createOptimistic(
         text,
         conversationId,
@@ -51,7 +50,6 @@ export const useMessages = (conversationId: string): UseMessagesReturn => {
           text
         );
 
-        // Reemplazar mensaje optimista con el real
         setMessages((prev) =>
           MessageMapper.replaceOptimistic(
             prev,
@@ -62,7 +60,6 @@ export const useMessages = (conversationId: string): UseMessagesReturn => {
 
         return sentMessage;
       } catch (err) {
-        // Marcar mensaje como fallido
         const failedMessage = MessageMapper.markOptimisticAsFailed(
           optimisticMessage,
           err instanceof Error ? err.message : 'Failed to send message'

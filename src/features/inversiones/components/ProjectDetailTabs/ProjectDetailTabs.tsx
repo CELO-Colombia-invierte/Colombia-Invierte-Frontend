@@ -20,6 +20,8 @@ interface ProjectDetailTabsProps {
   isMember?: boolean;
   hasV2?: boolean;
   hasActivePropuesta?: boolean;
+  hasPendingRewards?: boolean;
+  isNatillera?: boolean;
 }
 
 export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
@@ -29,6 +31,8 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
   isMember = false,
   hasV2 = false,
   hasActivePropuesta = false,
+  hasPendingRewards = false,
+  isNatillera = false,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -67,10 +71,10 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
     { id: 'documentos', label: 'Documentos', visible: true },
     { id: 'participantes', label: 'Participantes', visible: isOwner || isMember },
     { id: 'solicitudes', label: 'Solicitudes', visible: isOwner },
-    { id: 'historial', label: 'Historial', visible: false },
+    { id: 'historial', label: 'Historial', visible: true },
     { id: 'gobernanza', label: 'Gobernanza', visible: hasV2 },
     { id: 'disputas', label: 'Disputas', visible: hasV2 },
-    { id: 'hitos', label: 'Hitos', visible: hasV2 },
+    { id: 'hitos', label: 'Hitos', visible: hasV2 && !isNatillera },
     { id: 'propuestas', label: 'Propuestas', visible: isOwner || isMember },
   ];
 
@@ -95,6 +99,9 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
           >
             {tab.label}
             {tab.id === 'propuestas' && hasActivePropuesta && (
+              <span className="tab-active-dot" />
+            )}
+            {tab.id === 'finanzas' && hasPendingRewards && (
               <span className="tab-active-dot" />
             )}
           </button>

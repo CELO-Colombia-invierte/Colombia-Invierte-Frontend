@@ -1,13 +1,7 @@
 import { Project } from '@/models/Project.model';
 import { ProjectDto } from '@/dtos/projects';
 
-/**
- * ProjectMapper - Transforma entre DTOs del API y Models del dominio
- */
 export class ProjectMapper {
-  /**
-   * Convierte ProjectDto del API a Project Model
-   */
   static fromDto(dto: ProjectDto): Project {
     return new Project({
       id: dto.id,
@@ -36,9 +30,6 @@ export class ProjectMapper {
     });
   }
 
-  /**
-   * Convierte un array de ProjectDto a Project Models
-   */
   static fromDtoArray(dtos: ProjectDto[]): Project[] {
     return dtos.map(dto => this.fromDto(dto));
   }

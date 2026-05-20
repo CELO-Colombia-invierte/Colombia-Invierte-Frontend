@@ -5,7 +5,6 @@ interface IconProps {
   className?: string;
 }
 
-/** Moneda / Valor de cuota — dorado */
 export const CoinIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
     <circle cx="16" cy="16" r="14" fill="#F59E0B" />
@@ -14,7 +13,6 @@ export const CoinIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   </svg>
 );
 
-/** Rendimiento / Crecimiento — verde */
 export const GrowthIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
     <circle cx="16" cy="16" r="14" fill="#D1FAE5" />
@@ -23,7 +21,6 @@ export const GrowthIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   </svg>
 );
 
-/** Duración / Meses — naranja */
 export const DurationIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
     <circle cx="16" cy="16" r="14" fill="#FEE2E2" />
@@ -32,7 +29,6 @@ export const DurationIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   </svg>
 );
 
-/** Calendario / Fecha — azul */
 export const CalendarIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
     <circle cx="16" cy="16" r="14" fill="#DBEAFE" />
@@ -45,7 +41,6 @@ export const CalendarIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   </svg>
 );
 
-/** Token / Moneda cripto — púrpura */
 export const TokenIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
     <circle cx="16" cy="16" r="14" fill="#EDE9FE" />
@@ -55,7 +50,6 @@ export const TokenIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   </svg>
 );
 
-/** Gráfico / Estadísticas — azul oscuro */
 export const ChartIcon: React.FC<IconProps> = ({ size = 32, className }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
     <circle cx="16" cy="16" r="14" fill="#E0E7FF" />

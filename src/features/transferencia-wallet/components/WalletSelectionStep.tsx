@@ -95,7 +95,6 @@ const WalletSelectionStep: React.FC<Props> = ({ onContinue }) => {
     <div className="ws-container">
       <div className="ws-body">
 
-        {/* ── Red ── */}
         <div className="ws-section">
           <p className="ws-label">Escoge la red</p>
           <button className="ws-dropdown-trigger" onClick={toggleNetwork}>
@@ -120,7 +119,6 @@ const WalletSelectionStep: React.FC<Props> = ({ onContinue }) => {
           )}
         </div>
 
-        {/* ── Monedas ── */}
         <div className="ws-section">
           <p className="ws-label">Lista de monedas</p>
 

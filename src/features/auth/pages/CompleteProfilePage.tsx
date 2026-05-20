@@ -211,7 +211,6 @@ export const CompleteProfilePage: React.FC = () => {
   return (
     <IonPage>
       <IonContent className="complete-profile-page">
-        {/* Fondo bandera de Colombia — igual al SplashScreen */}
         <div className="complete-profile-flag-bg" aria-hidden="true">
           <div className="cp-band cp-band-yellow" />
           <div className="cp-band cp-band-blue" />

@@ -9,7 +9,7 @@ import ConfirmacionModal from '../components/ConfirmacionModal';
 import EstadoTransaccionModal from '../components/EstadoTransaccionModal';
 import './BankTransferPage.css';
 
-const MOCK_BALANCE = 1_095_867; // COP — reemplazar con dato real del back
+const MOCK_BALANCE = 1_095_867;
 
 export type TransferStep = 'bank' | 'destinatario' | 'amount' | 'status';
 
@@ -95,8 +95,8 @@ const BankTransferPage: React.FC = () => {
     history.replace('/comprobante', {
       transactionNumber: Math.floor(Math.random() * 900000000 + 100000000).toString(),
       dateTime: new Date().toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'medium' }),
-      originName:         'Usuario',   // reemplazar con nombre real del perfil
-      originAccount:      '0000000',   // reemplazar con cuenta real del usuario
+      originName:         'Usuario',
+      originAccount:      '0000000',
       destinationAccount: destinatario!.accountNumber,
       bank:               selectedBank!.name,
       detail:             amount!.detail || 'Retiro desde Colombia invierte',
@@ -120,7 +120,6 @@ const BankTransferPage: React.FC = () => {
           />
         );
       case 'status':
-        // MontoStep queda de fondo mientras el overlay cubre la pantalla
         return (
           <MontoStep
             bank={selectedBank!}
@@ -144,7 +143,6 @@ const BankTransferPage: React.FC = () => {
           {renderStep()}
         </div>
 
-        {/* Modal de confirmacion */}
         {showConfirmModal && amount && destinatario && selectedBank && (
           <ConfirmacionModal
             bank={selectedBank}
@@ -155,7 +153,6 @@ const BankTransferPage: React.FC = () => {
           />
         )}
 
-        {/* Modal de estado de transaccion */}
         {step === 'status' && (
           <EstadoTransaccionModal
             status="success"

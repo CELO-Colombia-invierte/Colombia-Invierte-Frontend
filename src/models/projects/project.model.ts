@@ -15,15 +15,6 @@ export enum Currency {
   OUSD = 'OUSD',
 }
 
-// User ya está exportado en User.model.ts
-// export interface User {
-//   id: string;
-//   username: string;
-//   display_name: string;
-//   email?: string;
-// }
-
-// Importar User del modelo principal
 import { User } from '../User.model';
 
 export interface NatilleraDetails {

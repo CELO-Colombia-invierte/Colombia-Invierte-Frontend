@@ -24,14 +24,12 @@ const WalletEstadoModal: React.FC<Props> = ({ onViewTx, onDone }) => {
     <div className="we-overlay">
       <div className="we-card">
 
-        {/* Icono principal — checkmark azul */}
         <div className="we-main-icon">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <polyline points="6,16 13,23 26,10" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
 
-        {/* Timeline */}
         <div className="we-section">
           <p className="we-section-title">Estado</p>
           <div className="we-timeline">
@@ -52,7 +50,6 @@ const WalletEstadoModal: React.FC<Props> = ({ onViewTx, onDone }) => {
           </div>
         </div>
 
-        {/* Botones */}
         <div className="we-actions">
           <button className="we-btn we-btn--tx" onClick={onViewTx}>
             Ver transacción en la red

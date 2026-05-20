@@ -67,7 +67,6 @@ const ComprobantePage: React.FC = () => {
     <IonPage>
       <IonContent className="cp-content">
 
-        {/* Header */}
         <div className="cp-header">
           <button className="cp-back-btn" onClick={() => history.replace('/home')}>
             <IonIcon icon={arrowBackOutline} />
@@ -77,10 +76,8 @@ const ComprobantePage: React.FC = () => {
 
         <div className="cp-body">
 
-          {/* Tarjeta del comprobante */}
           <div className="cp-card">
 
-            {/* Icono QR */}
             <div className="cp-qr-section">
               <QRIcon />
               <p className="cp-qr-label">Comprobante electrónico</p>
@@ -88,7 +85,6 @@ const ComprobantePage: React.FC = () => {
 
             <div className="cp-divider" />
 
-            {/* Filas de detalle */}
             <div className="cp-rows">
               {rows.map((row) => (
                 <div key={row.label} className="cp-row">
@@ -98,7 +94,6 @@ const ComprobantePage: React.FC = () => {
               ))}
             </div>
 
-            {/* Resumen destacado */}
             <div className="cp-summary">
               <div className="cp-summary-row">
                 <span className="cp-summary-label">Envió a:</span>
@@ -111,7 +106,6 @@ const ComprobantePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Botones */}
           <div className="cp-actions">
             <button className="cp-btn cp-btn--share" onClick={() => {}}>
               Compartir

@@ -95,7 +95,6 @@ const PaymentPage: React.FC = () => {
       setMonthlyContribution(state.quota);
       setCurrentMonthId(state.currentMonth);
     } catch {
-      // silenciar
     } finally {
       setContractLoaded(true);
     }
@@ -113,7 +112,6 @@ const PaymentPage: React.FC = () => {
         setTokenMismatch(normalizedContract !== normalizedExpected);
       }
     } catch {
-      // silenciar
     } finally {
       setContractLoaded(true);
     }
@@ -359,7 +357,6 @@ const PaymentPage: React.FC = () => {
             </div>
           )}
 
-          {/* Tarjeta - próximamente */}
           <div className="payment-method-section payment-method-section--disabled">
             <div className="payment-method-header">
               <div className="payment-method-radio">
