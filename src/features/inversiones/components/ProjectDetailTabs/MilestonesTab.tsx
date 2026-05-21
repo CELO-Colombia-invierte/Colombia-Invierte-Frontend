@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { IonIcon, IonButton, IonSpinner } from '@ionic/react';
-import { checkmarkCircleOutline, timeOutline, rocketOutline, cashOutline, openOutline, addOutline } from 'ionicons/icons';
+import {
+  checkmarkCircleOutline,
+  timeOutline,
+  rocketOutline,
+  cashOutline,
+  openOutline,
+  addOutline,
+  thumbsUpOutline,
+  thumbsDownOutline,
+  playOutline,
+} from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { apiService } from '@/services/api/api.service';
 import { governanceService, GovernanceAction } from '@/services/governance.service';
@@ -485,36 +495,42 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                     const noBusy = actionLoading === `vote-${milestone.id}-false`;
                     return (
                       <div className="milestone-vote-section">
-                        <div className="milestone-vote-tally">
-                          <span className="milestone-vote-yes">👍 {proposal.votes_for ?? '0'}</span>
-                          <span className="milestone-vote-no">👎 {proposal.votes_against ?? '0'}</span>
+                        <div className="gov-card__votes">
+                          <span className="gov-vote gov-vote--yes">
+                            <IonIcon icon={thumbsUpOutline} />
+                            {proposal.votes_for ?? '0'}
+                          </span>
+                          <span className="gov-vote gov-vote--no">
+                            <IonIcon icon={thumbsDownOutline} />
+                            {proposal.votes_against ?? '0'}
+                          </span>
                         </div>
                         <div className="milestone-vote-row">
-                          <IonButton
-                            expand="block"
-                            color="success"
+                          <button
+                            className="gov-btn gov-btn--yes"
                             onClick={() => handleVote(milestone, proposal.proposal_chain_id, true)}
                             disabled={yesBusy || !account}
                           >
+                            <IonIcon icon={thumbsUpOutline} />
                             {yesBusy ? 'Votando…' : 'Votar Sí'}
-                          </IonButton>
-                          <IonButton
-                            expand="block"
-                            color="medium"
+                          </button>
+                          <button
+                            className="gov-btn gov-btn--no"
                             onClick={() => handleVote(milestone, proposal.proposal_chain_id, false)}
                             disabled={noBusy || !account}
                           >
+                            <IonIcon icon={thumbsDownOutline} />
                             {noBusy ? 'Votando…' : 'Votar No'}
-                          </IonButton>
+                          </button>
                         </div>
-                        <IonButton
-                          expand="block"
-                          fill="outline"
+                        <button
+                          className="gov-btn gov-btn--exec milestone-vote-exec"
                           onClick={() => handleExecuteProposal(milestone, proposal.proposal_chain_id)}
                           disabled={execBusy || !account}
                         >
+                          <IonIcon icon={playOutline} />
                           {execBusy ? 'Ejecutando…' : 'Ejecutar (si terminó la votación)'}
-                        </IonButton>
+                        </button>
                       </div>
                     );
                   }

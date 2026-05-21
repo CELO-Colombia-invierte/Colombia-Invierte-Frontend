@@ -2004,6 +2004,16 @@
   flex: 1;
 }
 
+.milestone-vote-row .gov-btn {
+  flex: 1;
+  justify-content: center;
+}
+
+.milestone-vote-exec {
+  width: 100%;
+  justify-content: center;
+}
+
 .gov-action-badge {
   display: inline-flex;
   align-items: center;
