@@ -136,52 +136,86 @@ export const InvestPanel: React.FC<InvestPanelProps> = ({
               USDC), por lo que no se aceptan más inversiones en este proyecto.
             </p>
           )}
-          {!dust && (
-            <>
-              <div className="invest-input-row">
-                <input
-                  type="number"
-                  className="invest-input"
-                  placeholder="Monto en USDC"
-                  value={investAmount}
-                  onChange={(e) => {
-                    setInvestAmount(e.target.value);
-                    setInvestError(null);
-                  }}
-                  min="0"
-                  step="any"
-                />
-                {investAmount && state.tokenPrice > 0n && (() => {
-                  try {
-                    const amt = blockchainService.parseUnits(
-                      investAmount,
-                      BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
-                    );
-                    const tokens = amt / state.tokenPrice;
-                    const exceeds = amt > remaining;
-                    return (
-                      <span
-                        className="invest-tokens-preview"
-                        style={exceeds ? { color: '#c0392b' } : undefined}
-                      >
-                        {exceeds ? '⚠ excede cupo' : `≈ ${Number(tokens).toLocaleString('es-CO')} tokens`}
-                      </span>
-                    );
-                  } catch {
-                    return null;
-                  }
-                })()}
-              </div>
-              {investError && <p className="invest-error">{investError}</p>}
-              <button
-                className="invest-btn"
-                onClick={() => onInvest(project.revenue_address!)}
-                disabled={investing || !investAmount || parseFloat(investAmount) <= 0}
-              >
-                {investing ? 'Procesando...' : 'Invertir'}
-              </button>
-            </>
-          )}
+          {!dust && (() => {
+            const tokenPrice = state.tokenPrice;
+            const maxTokens = tokenPrice > 0n ? maxAllowed / tokenPrice : 0n;
+            let currentTokens = 0n;
+            if (investAmount && tokenPrice > 0n) {
+              try {
+                currentTokens =
+                  blockchainService.parseUnits(
+                    investAmount,
+                    BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
+                  ) / tokenPrice;
+              } catch {
+                currentTokens = 0n;
+              }
+            }
+            const setTokens = (n: bigint) => {
+              setInvestError(null);
+              if (n <= 0n) {
+                setInvestAmount('');
+                return;
+              }
+              const clamped = maxTokens > 0n && n > maxTokens ? maxTokens : n;
+              setInvestAmount(fmtExact(clamped * tokenPrice));
+            };
+            return (
+              <>
+                <div className="invest-input-row">
+                  <button
+                    type="button"
+                    className="invest-step-btn"
+                    onClick={() => setTokens(currentTokens - 1n)}
+                    disabled={currentTokens <= 0n}
+                    aria-label="Quitar un token"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    className="invest-input"
+                    placeholder="Nº de tokens"
+                    value={currentTokens > 0n ? currentTokens.toString() : ''}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === '') {
+                        setTokens(0n);
+                        return;
+                      }
+                      const n = Math.floor(Number(raw));
+                      if (!Number.isFinite(n) || n < 0) return;
+                      setTokens(BigInt(n));
+                    }}
+                    min="1"
+                    step="1"
+                  />
+                  <button
+                    type="button"
+                    className="invest-step-btn"
+                    onClick={() => setTokens(currentTokens + 1n)}
+                    disabled={maxTokens > 0n && currentTokens >= maxTokens}
+                    aria-label="Agregar un token"
+                  >
+                    +
+                  </button>
+                </div>
+                <p className="invest-equiv">
+                  {currentTokens > 0n
+                    ? `= ${investAmount} USDC · ${fmtExact(tokenPrice)} USDC por token`
+                    : `${fmtExact(tokenPrice)} USDC por token · máximo ${maxTokens.toString()} token(s)`}
+                </p>
+                {investError && <p className="invest-error">{investError}</p>}
+                <button
+                  className="invest-btn"
+                  onClick={() => onInvest(project.revenue_address!)}
+                  disabled={investing || currentTokens <= 0n}
+                >
+                  {investing ? 'Procesando...' : 'Invertir'}
+                </button>
+              </>
+            );
+          })()}
           {investTxHash && (
             <a
               className="invest-tx-link"
