@@ -10,24 +10,50 @@ interface RevenueStatsGridProps {
   projectFunds: bigint | null;
 }
 
-export const RevenueStatsGrid: React.FC<RevenueStatsGridProps> = ({ state, derived, projectFunds }) => (
-  <div className="chain-state-grid">
-    <StatCard label="Total recaudado" value={`${formatUsdc(state.totalRaised)} USDC`} />
-    <StatCard label="Objetivo" value={`${formatUsdc(state.fundingTarget)} USDC`} />
-    <StatCard
-      label="Estado"
-      badge={state.saleFinalized ? 'Finalizada' : 'Activa'}
-      badgeClass={state.saleFinalized ? 'badge-done' : 'badge-active'}
-    />
-    {state.saleFinalized && projectFunds !== null && (
-      <>
-        <StatCard label="Comisión al treasury" value={`${formatUsdc(derived.treasuryFee)} USDC`} />
-        <StatCard label="Saldo total del vault" value={`${formatUsdc(derived.vaultNow)} USDC`} />
-        <StatCard label="Ya retirado del vault" value={`${formatUsdc(derived.alreadyWithdrawn)} USDC`} />
-        <StatCard label="Comprometido en hitos pendientes" value={`${formatUsdc(derived.committed)} USDC`} />
-        <StatCard label="Disponible para hitos" value={`${formatUsdc(derived.disponibleHitos)} USDC`} />
-        <StatCard label="Rendimientos en pool" value={`${formatUsdc(derived.rendimientosPool)} USDC`} />
-      </>
-    )}
-  </div>
-);
+export const RevenueStatsGrid: React.FC<RevenueStatsGridProps> = ({ state, derived, projectFunds }) => {
+  // Sobre-compromiso: los hitos pendientes piden más de lo que queda en el vault.
+  const overcommitted = state.saleFinalized && derived.committed > derived.projectFundsRemaining;
+  const shortfall = overcommitted ? derived.committed - derived.projectFundsRemaining : 0n;
+  return (
+    <>
+      <div className="chain-state-grid">
+        <StatCard label="Total recaudado" value={`${formatUsdc(state.totalRaised)} USDC`} />
+        <StatCard label="Objetivo" value={`${formatUsdc(state.fundingTarget)} USDC`} />
+        <StatCard
+          label="Estado"
+          badge={state.saleFinalized ? 'Finalizada' : 'Activa'}
+          badgeClass={state.saleFinalized ? 'badge-done' : 'badge-active'}
+        />
+        {state.saleFinalized && projectFunds !== null && (
+          <>
+            <StatCard label="Comisión al treasury" value={`${formatUsdc(derived.treasuryFee)} USDC`} />
+            <StatCard label="Saldo total del vault" value={`${formatUsdc(derived.vaultNow)} USDC`} />
+            <StatCard label="Ya retirado del vault" value={`${formatUsdc(derived.alreadyWithdrawn)} USDC`} />
+            <StatCard label="Comprometido en hitos pendientes" value={`${formatUsdc(derived.committed)} USDC`} />
+            <StatCard label="Disponible para hitos" value={`${formatUsdc(derived.disponibleHitos)} USDC`} />
+            <StatCard label="Rendimientos en pool" value={`${formatUsdc(derived.rendimientosPool)} USDC`} />
+          </>
+        )}
+      </div>
+      {overcommitted && (
+        <div
+          style={{
+            marginTop: 10,
+            padding: '10px 12px',
+            background: '#fff8e6',
+            border: '1px solid #f5c451',
+            borderRadius: 8,
+            color: '#7a5300',
+            fontSize: 13,
+          }}
+        >
+          <strong>Hitos sobre-comprometidos.</strong> Los hitos pendientes piden{' '}
+          {formatUsdc(derived.committed)} USDC, pero en el vault solo quedan{' '}
+          {formatUsdc(derived.projectFundsRemaining)} USDC. Faltan{' '}
+          <strong>{formatUsdc(shortfall)} USDC</strong>: esos hitos no se podrán ejecutar
+          a menos que entren más fondos al vault.
+        </div>
+      )}
+    </>
+  );
+};

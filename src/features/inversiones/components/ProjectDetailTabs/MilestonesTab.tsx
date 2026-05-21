@@ -139,7 +139,16 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
   const statusClass: Record<string, string> = { PENDING: 'badge-pending', APPROVED: 'badge-active', EXECUTED: 'badge-done' };
   const statusIcon: Record<string, string> = { PENDING: timeOutline, APPROVED: rocketOutline, EXECUTED: checkmarkCircleOutline };
 
-  const disponible = projectFunds > committed ? projectFunds - committed : 0n;
+  // Suma de hitos ya ejecutados: su USDC ya salió del vault. El contador
+  // on-chain `committed` (totalRequestedByToken) NO los incluye porque se
+  // decrementa al ejecutar, así que hay que restarlos aparte para no
+  // sobre-comprometer el presupuesto (Gap #7 de contrato).
+  const amountToBig = (a: string) => BigInt((a || '0').toString().split('.')[0] || '0');
+  const executedTotal = milestones
+    .filter((m) => m.status === 'EXECUTED')
+    .reduce((sum, m) => sum + amountToBig(m.amount), 0n);
+  const disponible =
+    projectFunds > committed + executedTotal ? projectFunds - committed - executedTotal : 0n;
 
   const canPropose =
     isOwner &&
