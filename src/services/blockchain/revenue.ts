@@ -25,12 +25,9 @@ export async function investInProject(
   account: Account,
   revenueAddress: string,
   amount: bigint,
-  vaultAddress?: string,
+  _vaultAddress?: string,
 ): Promise<string> {
-  if (!vaultAddress) {
-    throw new Error('vaultAddress es requerido para invertir (approve va al vault, no al revenue module).');
-  }
-  await approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress, amount);
+  await approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, revenueAddress, amount);
 
   const contractCall = prepareContractCall({
     contract: contractAt(revenueAddress),
@@ -106,10 +103,10 @@ export async function getInvestment(revenueAddress: string, userAddress: string)
 export async function depositRevenue(
   account: Account,
   revenueAddress: string,
-  vaultAddress: string,
+  _vaultAddress: string,
   amount: bigint,
 ): Promise<string> {
-  await approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, vaultAddress, amount);
+  await approveToken(account, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS, revenueAddress, amount);
   const tx = prepareContractCall({
     contract: contractAt(revenueAddress),
     method: 'function depositRevenue(uint256 amount)',
