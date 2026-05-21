@@ -19,6 +19,7 @@ interface Milestone {
   recipient?: string;
   approved_at: string | null;
   executed_at: string | null;
+  optimistic?: boolean;
 }
 
 interface MilestonesTabProps {
@@ -43,11 +44,18 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
   const [formDescription, setFormDescription] = useState('');
   const [formAmount, setFormAmount] = useState('');
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  // Hitos recien propuestos on-chain que aun no indexa el backend.
+  const [optimistic, setOptimistic] = useState<Milestone[]>([]);
 
   const loadMilestones = async () => {
     try {
       const response = await apiService.get<Milestone[]>(`/projects/${project.id}/milestones`);
-      setMilestones(response.data);
+      const real = response.data ?? [];
+      setMilestones(real);
+      // Cuando el indexer ya registró el hito, quitamos su card optimista.
+      setOptimistic((prev) =>
+        prev.filter((o) => !real.some((r) => r.description.trim() === o.description.trim())),
+      );
     } catch {
     }
   };
@@ -101,6 +109,19 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
     };
     init();
   }, [project.id]);
+
+  // Mientras haya cards optimistas, reconsultamos el backend hasta que el
+  // indexer registre el hito y la card optimista se reemplace por la real.
+  useEffect(() => {
+    if (optimistic.length === 0) return;
+    let attempts = 0;
+    const iv = setInterval(() => {
+      attempts += 1;
+      loadMilestones();
+      if (attempts >= 30) clearInterval(iv);
+    }, 4000);
+    return () => clearInterval(iv);
+  }, [optimistic.length]);
 
 
   const formatDate = (dateString: string) =>
@@ -160,14 +181,31 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
 
     setActionLoading('propose');
     try {
+      const desc = formDescription.trim();
       const txHash = await blockchainService.proposeMilestoneCustom(
         account,
         project.milestones_address,
-        formDescription.trim(),
+        desc,
         account.address,
         amount,
       );
       setTxHashes(prev => ({ ...prev, propose: txHash }));
+      // Card optimista: el hito ya está en cadena; se muestra al instante
+      // y el polling la reemplaza por la real cuando el indexer la registre.
+      setOptimistic(prev => [
+        ...prev,
+        {
+          id: `optimistic-${txHash}`,
+          milestone_chain_id: '',
+          description: desc,
+          status: 'PENDING',
+          amount: amount.toString(),
+          recipient: account.address,
+          approved_at: null,
+          executed_at: null,
+          optimistic: true,
+        },
+      ]);
       setFormDescription('');
       setFormAmount('');
       setShowForm(false);
@@ -361,7 +399,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
         </div>
       )}
 
-      {milestones.length === 0 ? (
+      {milestones.length === 0 && optimistic.length === 0 ? (
         <div className="historial-empty">
           <IonIcon icon={rocketOutline} className="empty-icon" />
           <p className="empty-text">Sin hitos aún</p>
@@ -369,7 +407,31 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
         </div>
       ) : (
         <div className="milestones-list">
-          {milestones.map((milestone, index) => (
+          {[...milestones, ...optimistic].map((milestone, index) => {
+            if (milestone.optimistic) {
+              return (
+                <div key={milestone.id} className="milestone-item milestone-item-optimistic">
+                  <div className="milestone-item-number">{index + 1}</div>
+                  <div className="milestone-item-content">
+                    <div className="milestone-item-header">
+                      <span className="chain-stat-badge badge-pending">
+                        <IonSpinner name="crescent" style={{ width: 14, height: 14 }} />
+                        &nbsp;Confirmando en cadena…
+                      </span>
+                      <span className="milestone-amount">
+                        <IonIcon icon={cashOutline} />
+                        {formatUsdc(milestone.amount)} USDC
+                      </span>
+                    </div>
+                    <p className="milestone-description">{milestone.description}</p>
+                    <span className="milestone-date">
+                      El hito ya quedó registrado en la blockchain. La card se actualizará en unos segundos.
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+            return (
             <div key={milestone.id} className="milestone-item">
               <div className="milestone-item-number">{index + 1}</div>
               <div className="milestone-item-content">
@@ -477,7 +539,8 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

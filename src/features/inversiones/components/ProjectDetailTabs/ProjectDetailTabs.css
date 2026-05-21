@@ -1222,6 +1222,15 @@
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 .gov-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+.gov-card-optimistic {
+  border-color: #93c5fd;
+  background: #f5f9ff;
+  opacity: 0.92;
+}
+.gov-card-optimistic .gov-card__status {
+  display: inline-flex;
+  align-items: center;
+}
 
 .gov-card__head {
   display: flex;
@@ -1508,6 +1517,17 @@
   padding: 16px;
   display: flex;
   gap: 14px;
+}
+
+.milestone-item-optimistic {
+  border-color: #93c5fd;
+  background: #f5f9ff;
+  opacity: 0.92;
+}
+
+.milestone-item-optimistic .chain-stat-badge {
+  display: inline-flex;
+  align-items: center;
 }
 
 .milestone-item-number {

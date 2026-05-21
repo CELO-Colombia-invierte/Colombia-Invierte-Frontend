@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonIcon } from '@ionic/react';
+import { IonIcon, IonSpinner } from '@ionic/react';
 import { warningOutline, checkmarkCircleOutline, timeOutline, addOutline, snowOutline, closeCircleOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { apiService } from '@/services/api/api.service';
@@ -18,6 +18,7 @@ interface Dispute {
   resolution: string | null;
   opened_at: string;
   resolved_at: string | null;
+  optimistic?: boolean;
 }
 
 interface DisputasTabProps {
@@ -34,6 +35,8 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   const [error, setError] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  // Disputas recien abiertas on-chain que aun no indexa el backend.
+  const [optimisticDisputes, setOptimisticDisputes] = useState<Dispute[]>([]);
 
   const loadProposals = async () => {
     try {
@@ -52,15 +55,20 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         (action === GovernanceAction.CloseVault || p.target_id === disputeChainId),
     );
 
-  const loadDisputes = async () => {
-    setLoading(true);
+  const loadDisputes = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const response = await apiService.get<Dispute[]>(`/projects/${project.id}/disputes`);
-      setDisputes(response.data ?? []);
+      const real = response.data ?? [];
+      setDisputes(real);
+      // Cuando el indexer ya registró la disputa, quitamos su card optimista.
+      setOptimisticDisputes((prev) =>
+        prev.filter((o) => !real.some((r) => r.reason.trim() === o.reason.trim())),
+      );
     } catch {
       setDisputes([]);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -68,6 +76,19 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
     loadDisputes();
     loadProposals();
   }, [project.id]);
+
+  // Mientras haya cards optimistas, reconsultamos hasta que el indexer
+  // registre la disputa y la card optimista se reemplace por la real.
+  useEffect(() => {
+    if (optimisticDisputes.length === 0) return;
+    let attempts = 0;
+    const iv = setInterval(() => {
+      attempts += 1;
+      loadDisputes(true);
+      if (attempts >= 30) clearInterval(iv);
+    }, 4000);
+    return () => clearInterval(iv);
+  }, [optimisticDisputes.length]);
 
   const handleOpenDispute = async () => {
     if (!account || !project.disputes_address || !reason.trim()) {
@@ -94,11 +115,28 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
     setBusy(true);
     setError(null);
     try {
+      const r = reason.trim();
       await governanceService.openDispute(account, {
         projectId: project.id,
         disputesAddress: project.disputes_address,
-        reason: reason.trim(),
+        reason: r,
       });
+      // Card optimista: la disputa ya está en cadena; el polling la
+      // reemplaza por la real cuando el indexer la registre.
+      setOptimisticDisputes((prev) => [
+        ...prev,
+        {
+          id: `optimistic-${Date.now()}`,
+          dispute_chain_id: '',
+          opener_address: account.address,
+          reason: r,
+          status: 'OPEN',
+          resolution: null,
+          opened_at: new Date().toISOString(),
+          resolved_at: null,
+          optimistic: true,
+        },
+      ]);
       setReason('');
       setShowCreate(false);
       await loadDisputes();
@@ -135,7 +173,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         description: `Congelar bóveda por disputa #${dispute.dispute_chain_id}: ${dispute.reason.slice(0, 80)}`,
       });
       await governanceService.createProposal(account, params);
-      await Promise.all([loadDisputes(), loadProposals()]);
+      await Promise.all([loadDisputes(true), loadProposals()]);
     } catch (err) {
       setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al proponer congelación');
     } finally {
@@ -159,7 +197,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         description: `Cerrar bóveda por disputa #${dispute.dispute_chain_id}: ${dispute.reason.slice(0, 80)}`,
       });
       await governanceService.createProposal(account, params);
-      await Promise.all([loadDisputes(), loadProposals()]);
+      await Promise.all([loadDisputes(true), loadProposals()]);
     } catch (err) {
       setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al proponer cierre');
     } finally {
@@ -242,7 +280,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         </div>
       )}
 
-      {disputes.length === 0 ? (
+      {disputes.length === 0 && optimisticDisputes.length === 0 ? (
         <div className="historial-empty">
           <IonIcon icon={checkmarkCircleOutline} className="empty-icon" />
           <p className="empty-text">Sin disputas</p>
@@ -250,6 +288,24 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         </div>
       ) : (
         <div className="disputas-list">
+          {optimisticDisputes.map((d) => (
+            <article key={d.id} className="disputa-card disputa-card--open">
+              <header className="disputa-card-header">
+                <div className="disputa-card-id">
+                  <IonIcon icon={warningOutline} />
+                  <span>Disputa nueva</span>
+                </div>
+                <span className="disputa-pill disputa-pill--warn">
+                  <IonSpinner name="crescent" style={{ width: 14, height: 14 }} />
+                  &nbsp;Confirmando…
+                </span>
+              </header>
+              <blockquote className="disputa-card-reason">{d.reason}</blockquote>
+              <p className="disputa-help-note">
+                La disputa ya quedó registrada en la blockchain. La card se actualizará en unos segundos.
+              </p>
+            </article>
+          ))}
           {disputes.map(dispute => {
             const badge = statusBadge(dispute.status);
             const isOpen = dispute.status === 'OPEN';

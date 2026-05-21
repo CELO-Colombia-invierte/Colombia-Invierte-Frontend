@@ -14,13 +14,18 @@ export function useGovernanceData(project: Project, account: Account | undefined
   const [delegatedTo, setDelegatedTo] = useState<string | null>(null);
   const [chainState, setChainState] = useState<Record<string, ProposalChainState>>({});
   const [userVotes, setUserVotes] = useState<Record<string, number>>({});
+  // Propuestas recien creadas on-chain que aun no indexa el backend.
+  const [optimisticProposals, setOptimisticProposals] = useState<Proposal[]>([]);
 
-  const loadProposals = async () => {
-    setLoading(true);
+  const loadProposals = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const response = await apiService.get<Proposal[]>(`/projects/${project.id}/governance/proposals`);
       const list = response.data ?? [];
       setProposals(list);
+      setOptimisticProposals((prev) =>
+        prev.filter((o) => !list.some((r) => r.description.trim() === o.description.trim())),
+      );
 
       if (project.governance_address && list.length > 0) {
         const stateEntries = await Promise.all(
@@ -55,13 +60,41 @@ export function useGovernanceData(project: Project, account: Account | undefined
     } catch {
       setProposals([]);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
+  };
+
+  const addOptimisticProposal = (description: string) => {
+    setOptimisticProposals((prev) => [
+      ...prev,
+      {
+        id: `optimistic-${Date.now()}`,
+        proposal_chain_id: '',
+        description,
+        status: 'ACTIVE',
+        votes_for: '0',
+        votes_against: '0',
+        created_at: new Date().toISOString(),
+      },
+    ]);
   };
 
   useEffect(() => {
     loadProposals();
   }, [project.id]);
+
+  // Mientras haya cards optimistas, reconsultamos hasta que el indexer
+  // registre la propuesta y la card optimista se reemplace por la real.
+  useEffect(() => {
+    if (optimisticProposals.length === 0) return;
+    let attempts = 0;
+    const iv = setInterval(() => {
+      attempts += 1;
+      loadProposals(true);
+      if (attempts >= 30) clearInterval(iv);
+    }, 4000);
+    return () => clearInterval(iv);
+  }, [optimisticProposals.length]);
 
   useEffect(() => {
     if (!project.revenue_address) return;
@@ -116,6 +149,8 @@ export function useGovernanceData(project: Project, account: Account | undefined
 
   return {
     proposals,
+    optimisticProposals,
+    addOptimisticProposal,
     loading,
     projectCreator,
     votingPower,

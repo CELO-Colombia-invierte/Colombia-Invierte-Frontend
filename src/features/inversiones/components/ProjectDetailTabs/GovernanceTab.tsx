@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonIcon } from '@ionic/react';
+import { IonIcon, IonSpinner } from '@ionic/react';
 import { timeOutline, addOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { useBlockchain } from '@/hooks/use-blockchain';
@@ -22,6 +22,8 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
   const { account } = useBlockchain();
   const {
     proposals,
+    optimisticProposals,
+    addOptimisticProposal,
     loading,
     projectCreator,
     votingPower,
@@ -49,7 +51,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
     setError(null);
     try {
       await op();
-      await loadProposals();
+      await loadProposals(true);
     } catch (err) {
       const raw = decodeContractRevertRaw(err);
       const message = (err as Error).message ?? '';
@@ -131,6 +133,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
       amount = BigInt(form.amount);
     }
 
+    const desc = form.description;
     await handleAction(async () => {
       await governanceService.createProposal(account, {
         projectId: project.id,
@@ -142,6 +145,9 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
         token: form.action === GovernanceAction.Disbursement ? BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_ADDRESS : ZERO_ADDRESS,
         description: form.description,
       });
+      // Card optimista: la propuesta ya está en cadena; el polling la
+      // reemplaza por la real cuando el indexer la registre.
+      addOptimisticProposal(desc);
       setShowCreate(false);
       resetForm();
     }, 'create');
@@ -222,7 +228,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
         />
       )}
 
-      {proposals.length === 0 ? (
+      {proposals.length === 0 && optimisticProposals.length === 0 ? (
         <div className="historial-empty">
           <IonIcon icon={timeOutline} className="empty-icon" />
           <p className="empty-text">Sin propuestas aún</p>
@@ -244,6 +250,21 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
               onVote={handleVote}
               onExecute={handleExecute}
             />
+          ))}
+          {optimisticProposals.map((p) => (
+            <div key={p.id} className="gov-card gov-card-optimistic">
+              <div className="gov-card__head">
+                <span className="gov-card__id">Propuesta nueva</span>
+                <span className="gov-card__status gov-status--active">
+                  <IonSpinner name="crescent" style={{ width: 14, height: 14 }} />
+                  &nbsp;Confirmando…
+                </span>
+              </div>
+              {p.description && <p className="gov-card__desc">{p.description}</p>}
+              <span className="gov-card__date">
+                La propuesta ya quedó registrada en la blockchain. La card se actualizará en unos segundos.
+              </span>
+            </div>
           ))}
         </div>
       )}
