@@ -35,6 +35,7 @@ export const TokenizacionV2Section: React.FC<TokenizacionV2SectionProps> = ({
   });
   const isCreator =
     !!account && !!chain.projectCreator && account.address.toLowerCase() === chain.projectCreator.toLowerCase();
+  const vaultFrozen = chain.vaultStatus?.frozen ?? false;
 
   const showPosition =
     !!account &&
@@ -46,7 +47,12 @@ export const TokenizacionV2Section: React.FC<TokenizacionV2SectionProps> = ({
 
   return (
     <>
-      <RevenueStatsGrid state={state} derived={derived} projectFunds={chain.projectFunds} />
+      <RevenueStatsGrid
+        state={state}
+        derived={derived}
+        projectFunds={chain.projectFunds}
+        vaultStatus={chain.vaultStatus}
+      />
 
       {account && chain.pendingRewards !== null && chain.pendingRewards > 0n && (
         <RewardsBanner
@@ -77,6 +83,7 @@ export const TokenizacionV2Section: React.FC<TokenizacionV2SectionProps> = ({
           finalizing={actions.finalizing}
           finalizeError={actions.finalizeError}
           finalizeTxHash={actions.finalizeTxHash}
+          vaultFrozen={vaultFrozen}
           onFinalize={actions.handleFinalizeSale}
         />
       )}
@@ -90,6 +97,7 @@ export const TokenizacionV2Section: React.FC<TokenizacionV2SectionProps> = ({
           depositing={actions.depositing}
           depositError={actions.depositError}
           depositTxHash={actions.depositTxHash}
+          vaultFrozen={vaultFrozen}
           onAmountChange={(value) => {
             actions.setDepositAmount(value);
             actions.setDepositError(null);

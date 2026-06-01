@@ -30,6 +30,9 @@ export function useChainData(project: Project, account: Account | undefined) {
   const [userTokenBalance, setUserTokenBalance] = useState<bigint | null>(null);
   const [projectFunds, setProjectFunds] = useState<bigint | null>(null);
   const [milestonesCommitted, setMilestonesCommitted] = useState<bigint | null>(null);
+  const [vaultStatus, setVaultStatus] = useState<
+    { paused: boolean; state: number; frozen: boolean } | null
+  >(null);
 
   const loadChainState = async () => {
     const hasV2 = project.natillera_address || project.revenue_address;
@@ -37,6 +40,13 @@ export function useChainData(project: Project, account: Account | undefined) {
     if (!hasV2 && !hasV1) return;
     setChainLoading(true);
     try {
+      if (project.vault_address) {
+        try {
+          setVaultStatus(await blockchainService.getVaultStatus(project.vault_address));
+        } catch {
+          setVaultStatus(null);
+        }
+      }
       if (project.natillera_address) {
         const state = await blockchainService.getNatilleraV2State(project.natillera_address);
         setChainState(state);
@@ -143,6 +153,7 @@ export function useChainData(project: Project, account: Account | undefined) {
     userTokenBalance,
     projectFunds,
     milestonesCommitted,
+    vaultStatus,
     loadChainState,
   };
 }

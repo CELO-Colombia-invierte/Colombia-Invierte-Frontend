@@ -10,6 +10,7 @@ import { useGovernanceData } from './GovernanceTab/useGovernanceData';
 import { ProposalForm } from './GovernanceTab/ProposalForm';
 import { ProposalCard } from './GovernanceTab/ProposalCard';
 import type { ProposalFormState } from './GovernanceTab/types';
+import { VaultFrozenBanner } from './VaultFrozenBanner';
 import './ProjectDetailTabs.css';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -31,6 +32,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
     delegatedTo,
     chainState,
     userVotes,
+    vaultFrozen,
     loadProposals,
     loadVotingState,
   } = useGovernanceData(project, account);
@@ -97,6 +99,10 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
     let recipient = form.recipient;
 
     if (form.action === GovernanceAction.Disbursement) {
+      if (vaultFrozen) {
+        setError('La bóveda está congelada por una disputa. No se pueden proponer retiros hasta que se descongele en gobernanza.');
+        return;
+      }
       if (!projectCreator) {
         setError('No se pudo leer el creador del proyecto on-chain. Intenta recargar.');
         return;
@@ -199,6 +205,12 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
       </div>
 
       {error && <p className="invest-error" style={{ marginBottom: 12 }}>{error}</p>}
+
+      {vaultFrozen && (
+        <div style={{ marginBottom: 12 }}>
+          <VaultFrozenBanner message="La bóveda está congelada por una disputa. Las propuestas de retiro están bloqueadas; aún se puede proponer y votar acciones como descongelar la bóveda." />
+        </div>
+      )}
 
       {account && project.type === 'TOKENIZATION' && tokenBalance !== null && tokenBalance > 0n && votingPower === 0n && (
         <div style={{ marginBottom: 12, padding: 12, background: '#fff8e6', border: '1px solid #f5c451', borderRadius: 8 }}>

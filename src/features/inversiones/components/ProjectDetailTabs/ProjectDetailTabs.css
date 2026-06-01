@@ -487,6 +487,11 @@
   color: #92400e;
 }
 
+.badge-frozen {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
 .chain-rewards-section {
   margin-top: 16px;
   background: #f0fdf4;

@@ -2,6 +2,7 @@ import React from 'react';
 import { RevenueModuleState } from '@/services/blockchain.service';
 import { getBlockExplorerTxUrl } from '@/contracts/config';
 import { formatUsdc } from './formatters';
+import { VaultFrozenBanner } from '../VaultFrozenBanner';
 
 interface DepositRevenuePanelProps {
   state: RevenueModuleState;
@@ -11,6 +12,7 @@ interface DepositRevenuePanelProps {
   depositing: boolean;
   depositError: string | null;
   depositTxHash: string | null;
+  vaultFrozen?: boolean;
   onAmountChange: (value: string) => void;
   onDeposit: () => void;
 }
@@ -23,6 +25,7 @@ export const DepositRevenuePanel: React.FC<DepositRevenuePanelProps> = ({
   depositing,
   depositError,
   depositTxHash,
+  vaultFrozen = false,
   onAmountChange,
   onDeposit,
 }) => {
@@ -56,10 +59,13 @@ export const DepositRevenuePanel: React.FC<DepositRevenuePanelProps> = ({
             />
           </div>
           {depositError && <p className="invest-error">{depositError}</p>}
+          {vaultFrozen && (
+            <VaultFrozenBanner message="La bóveda está congelada por una disputa. No se pueden depositar rendimientos hasta que se descongele en gobernanza." />
+          )}
           <button
             className="invest-btn"
             onClick={onDeposit}
-            disabled={depositing || !depositAmount || parseFloat(depositAmount) <= 0}
+            disabled={depositing || vaultFrozen || !depositAmount || parseFloat(depositAmount) <= 0}
           >
             {depositing ? 'Depositando...' : 'Depositar rendimientos'}
           </button>

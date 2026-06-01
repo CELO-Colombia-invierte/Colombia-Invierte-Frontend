@@ -8,22 +8,37 @@ interface RevenueStatsGridProps {
   state: RevenueModuleState;
   derived: RevenueDerived;
   projectFunds: bigint | null;
+  vaultStatus?: { paused: boolean; state: number; frozen: boolean } | null;
 }
 
-export const RevenueStatsGrid: React.FC<RevenueStatsGridProps> = ({ state, derived, projectFunds }) => {
+export const RevenueStatsGrid: React.FC<RevenueStatsGridProps> = ({
+  state,
+  derived,
+  projectFunds,
+  vaultStatus,
+}) => {
   // Sobre-compromiso: los hitos pendientes piden más de lo que queda en el vault.
   const overcommitted = state.saleFinalized && derived.committed > derived.projectFundsRemaining;
   const shortfall = overcommitted ? derived.committed - derived.projectFundsRemaining : 0n;
+
+  // La card "Estado" prioriza el estado de la bóveda (congelada/cerrada) por ser
+  // lo más relevante para el creador; si no, muestra el estado de la venta.
+  let estadoBadge = state.saleFinalized ? 'Finalizada' : 'Activa';
+  let estadoClass = state.saleFinalized ? 'badge-done' : 'badge-active';
+  if (vaultStatus?.state === 2) {
+    estadoBadge = 'Bóveda cerrada';
+    estadoClass = 'badge-pending';
+  } else if (vaultStatus?.paused) {
+    estadoBadge = 'Bóveda congelada';
+    estadoClass = 'badge-frozen';
+  }
+
   return (
     <>
       <div className="chain-state-grid">
         <StatCard label="Total recaudado" value={`${formatUsdc(state.totalRaised)} USDC`} />
         <StatCard label="Objetivo" value={`${formatUsdc(state.fundingTarget)} USDC`} />
-        <StatCard
-          label="Estado"
-          badge={state.saleFinalized ? 'Finalizada' : 'Activa'}
-          badgeClass={state.saleFinalized ? 'badge-done' : 'badge-active'}
-        />
+        <StatCard label="Estado" badge={estadoBadge} badgeClass={estadoClass} />
         {state.saleFinalized && projectFunds !== null && (
           <>
             <StatCard label="Comisión al treasury" value={`${formatUsdc(derived.treasuryFee)} USDC`} />

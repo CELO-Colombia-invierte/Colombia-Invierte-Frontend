@@ -25,6 +25,35 @@ interface DisputasTabProps {
   project: Project;
 }
 
+// Colapsa filas duplicadas de una misma disputa. El bug: el write-through del
+// frontend crea una fila con dispute_chain_id '0' y el indexer crea otra con el
+// id real. Aquí descartamos la fila huérfana '0' si ya existe la real.
+const rankDispute = (d: Dispute) =>
+  d.status === 'RESOLVED' || d.status === 'FROZEN' ? 1 : 0;
+
+const dedupeDisputes = (list: Dispute[]): Dispute[] => {
+  const isReal = (cid: string) => !!cid && cid !== '0';
+  const reasonKey = (d: Dispute) =>
+    `${d.reason.trim()}|${(d.opener_address || '').toLowerCase()}`;
+
+  const byChain = new Map<string, Dispute>();
+  const orphans: Dispute[] = [];
+  for (const d of list) {
+    if (isReal(d.dispute_chain_id)) {
+      const cur = byChain.get(d.dispute_chain_id);
+      if (!cur || rankDispute(d) > rankDispute(cur)) byChain.set(d.dispute_chain_id, d);
+    } else {
+      orphans.push(d);
+    }
+  }
+  const realKeys = new Set(Array.from(byChain.values()).map(reasonKey));
+  const keptOrphans = orphans.filter((d) => !realKeys.has(reasonKey(d)));
+
+  return [...byChain.values(), ...keptOrphans].sort(
+    (a, b) => new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime(),
+  );
+};
+
 export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   const { account } = useBlockchain();
   const [disputes, setDisputes] = useState<Dispute[]>([]);
@@ -59,7 +88,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
     if (!silent) setLoading(true);
     try {
       const response = await apiService.get<Dispute[]>(`/projects/${project.id}/disputes`);
-      const real = response.data ?? [];
+      const real = dedupeDisputes(response.data ?? []);
       setDisputes(real);
       // Cuando el indexer ya registró la disputa, quitamos su card optimista.
       setOptimisticDisputes((prev) =>
@@ -98,7 +127,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
     const myAddress = account.address.toLowerCase();
     try {
       const response = await apiService.get<Dispute[]>(`/projects/${project.id}/disputes`);
-      const fresh = response.data ?? [];
+      const fresh = dedupeDisputes(response.data ?? []);
       const mineOpen = fresh.filter(
         (d) => d.status !== 'RESOLVED' && d.opener_address?.toLowerCase() === myAddress,
       );

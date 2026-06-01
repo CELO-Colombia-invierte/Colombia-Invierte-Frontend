@@ -18,6 +18,7 @@ import type { Proposal } from './GovernanceTab/types';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import { blockchainService, decodeContractRevert } from '@/services/blockchain.service';
 import { useActiveAccount } from 'thirdweb/react';
+import { VaultFrozenBanner } from './VaultFrozenBanner';
 import './ProjectDetailTabs.css';
 
 interface Milestone {
@@ -49,6 +50,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
   const [saleFinalized, setSaleFinalized] = useState<boolean | null>(null);
   const [projectFunds, setProjectFunds] = useState<bigint>(0n);
   const [committed, setCommitted] = useState<bigint>(0n);
+  const [vaultFrozen, setVaultFrozen] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [formDescription, setFormDescription] = useState('');
@@ -93,6 +95,14 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
         setCommitted(c);
       } catch {
         setCommitted(0n);
+      }
+    }
+    if (project.vault_address) {
+      try {
+        const vs = await blockchainService.getVaultStatus(project.vault_address);
+        setVaultFrozen(vs.frozen);
+      } catch {
+        setVaultFrozen(false);
       }
     }
   };
@@ -165,7 +175,8 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
     !!project.milestones_address &&
     !!project.revenue_address &&
     saleFinalized === true &&
-    disponible > 0n;
+    disponible > 0n &&
+    !vaultFrozen;
 
   const handlePropose = async () => {
     setActionError(null);
@@ -348,6 +359,12 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
             <span className="chain-stat-label">Disponible</span>
             <span className="chain-stat-value">{formatUsdc(disponible)} USDC</span>
           </div>
+        </div>
+      )}
+
+      {vaultFrozen && (
+        <div style={{ marginBottom: 12 }}>
+          <VaultFrozenBanner message="La bóveda está congelada por una disputa. No se pueden proponer ni ejecutar hitos hasta que se descongele en gobernanza." />
         </div>
       )}
 
@@ -547,7 +564,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                       color="success"
                       className="milestone-action-btn"
                       onClick={() => handleExecute(milestone)}
-                      disabled={actionLoading === milestone.id}
+                      disabled={actionLoading === milestone.id || vaultFrozen}
                     >
                       {actionLoading === milestone.id ? (
                         <><IonSpinner name="crescent" />&nbsp;Procesando...</>

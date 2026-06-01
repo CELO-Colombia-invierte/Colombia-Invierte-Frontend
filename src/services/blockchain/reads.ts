@@ -25,6 +25,21 @@ export async function getFeeTreasury(feeManagerAddress: string): Promise<string>
   return readContract({ contract: contractAt(feeManagerAddress), method: 'function feeTreasury() view returns (address)' }) as Promise<string>;
 }
 
+export interface VaultStatus {
+  paused: boolean;
+  state: number; // VaultState: 0=Locked, 1=Active, 2=Closed
+  frozen: boolean; // no operativa: congelada por disputa o no activa
+}
+
+export async function getVaultStatus(vaultAddress: string): Promise<VaultStatus> {
+  const [paused, state] = await Promise.all([
+    readContract({ contract: contractAt(vaultAddress), method: 'function paused() view returns (bool)' }) as Promise<boolean>,
+    readContract({ contract: contractAt(vaultAddress), method: 'function state() view returns (uint8)' }) as Promise<bigint | number>,
+  ]);
+  const stateNum = Number(state);
+  return { paused, state: stateNum, frozen: paused || stateNum !== 1 };
+}
+
 export async function getRevenueState(revenueAddress: string): Promise<number> {
   const v = await readContract({ contract: contractAt(revenueAddress), method: 'function state() view returns (uint8)' });
   return Number(v);

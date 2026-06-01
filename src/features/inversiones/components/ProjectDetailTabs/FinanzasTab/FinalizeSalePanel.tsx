@@ -1,10 +1,12 @@
 import React from 'react';
 import { getBlockExplorerTxUrl } from '@/contracts/config';
+import { VaultFrozenBanner } from '../VaultFrozenBanner';
 
 interface FinalizeSalePanelProps {
   finalizing: boolean;
   finalizeError: string | null;
   finalizeTxHash: string | null;
+  vaultFrozen?: boolean;
   onFinalize: () => void;
 }
 
@@ -12,6 +14,7 @@ export const FinalizeSalePanel: React.FC<FinalizeSalePanelProps> = ({
   finalizing,
   finalizeError,
   finalizeTxHash,
+  vaultFrozen = false,
   onFinalize,
 }) => (
   <div className="rev-deposit-panel">
@@ -21,7 +24,10 @@ export const FinalizeSalePanel: React.FC<FinalizeSalePanelProps> = ({
       y se libera por hitos aprobados en gobernanza. No envía fondos a ninguna otra wallet.
     </p>
     {finalizeError && <p className="invest-error">{finalizeError}</p>}
-    <button className="invest-btn" onClick={onFinalize} disabled={finalizing}>
+    {vaultFrozen && (
+      <VaultFrozenBanner message="La bóveda está congelada por una disputa. No se puede finalizar la venta hasta que se descongele en gobernanza." />
+    )}
+    <button className="invest-btn" onClick={onFinalize} disabled={finalizing || vaultFrozen}>
       {finalizing ? 'Finalizando...' : 'Finalizar venta y cobrar comisión'}
     </button>
     {finalizeTxHash && (
