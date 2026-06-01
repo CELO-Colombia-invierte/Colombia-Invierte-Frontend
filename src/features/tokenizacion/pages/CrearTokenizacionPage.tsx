@@ -74,7 +74,7 @@ const CrearTokenizacionPage: React.FC = () => {
   const [tokenFaqs, setTokenFaqs] = useState<TokenFaqDto[]>([{ id: '1', question: '', answer: '' }]);
 
   const handleFieldChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const scrollToTop = () => contentRef.current?.scrollToTop(300);

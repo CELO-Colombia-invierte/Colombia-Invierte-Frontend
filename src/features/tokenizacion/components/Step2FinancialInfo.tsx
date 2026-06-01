@@ -44,6 +44,48 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
     onChange('moneda', newCurrency);
   };
 
+  const toNumber = (value: string) => {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  };
+
+  const formatPrice = (value: number) =>
+    value > 0 ? String(Math.round(value * 100) / 100) : '';
+
+  const formatTokens = (value: number) =>
+    value > 0 ? String(Math.round(value)) : '';
+
+  const handleValorActivoChange = (value: string) => {
+    onChange('valorActivo', value);
+    const valorActivo = toNumber(value);
+    if (valorActivo <= 0) return;
+    const totalTokens = toNumber(formData.totalTokens);
+    const precioPorToken = toNumber(formData.precioPorToken);
+    if (totalTokens > 0) {
+      onChange('precioPorToken', formatPrice(valorActivo / totalTokens));
+    } else if (precioPorToken > 0) {
+      onChange('totalTokens', formatTokens(valorActivo / precioPorToken));
+    }
+  };
+
+  const handlePrecioPorTokenChange = (value: string) => {
+    onChange('precioPorToken', value);
+    const valorActivo = toNumber(formData.valorActivo);
+    const precioPorToken = toNumber(value);
+    if (valorActivo > 0 && precioPorToken > 0) {
+      onChange('totalTokens', formatTokens(valorActivo / precioPorToken));
+    }
+  };
+
+  const handleTotalTokensChange = (value: string) => {
+    onChange('totalTokens', value);
+    const valorActivo = toNumber(formData.valorActivo);
+    const totalTokens = toNumber(value);
+    if (valorActivo > 0 && totalTokens > 0) {
+      onChange('precioPorToken', formatPrice(valorActivo / totalTokens));
+    }
+  };
+
   return (
     <div className="step-content">
       <div className="form-group">
@@ -78,7 +120,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
               className="form-input currency-input"
               placeholder="0"
               value={formData.valorActivo}
-              onChange={(e) => onChange('valorActivo', e.target.value)}
+              onChange={(e) => handleValorActivoChange(e.target.value)}
               onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
@@ -115,7 +157,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             className="form-input currency-input"
             placeholder="0"
             value={formData.precioPorToken}
-            onChange={(e) => onChange('precioPorToken', e.target.value)}
+            onChange={(e) => handlePrecioPorTokenChange(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
@@ -133,7 +175,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             className="form-input currency-input"
             placeholder="0"
             value={formData.totalTokens}
-            onChange={(e) => onChange('totalTokens', e.target.value)}
+            onChange={(e) => handleTotalTokensChange(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
