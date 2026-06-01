@@ -9,7 +9,6 @@ import {
   addOutline,
   thumbsUpOutline,
   thumbsDownOutline,
-  playOutline,
 } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { apiService } from '@/services/api/api.service';
@@ -289,21 +288,6 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
     }
   };
 
-  const handleExecuteProposal = async (milestone: Milestone, proposalChainId: string) => {
-    if (!account || !project.governance_address) return;
-    setActionLoading(`exec-prop-${milestone.id}`);
-    setActionError(null);
-    try {
-      const txHash = await governanceService.execute(account, project.governance_address, proposalChainId);
-      setTxHashes((prev) => ({ ...prev, [milestone.id]: txHash }));
-      await Promise.all([loadMilestones(), loadProposals()]);
-    } catch (err) {
-      setActionError(decodeContractRevert(err) ?? (err instanceof Error ? err.message : 'Error al ejecutar propuesta'));
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   const handleExecute = async (milestone: Milestone) => {
     if (!account || !project.milestones_address) return;
     setActionLoading(milestone.id);
@@ -355,7 +339,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
             <span className="chain-stat-label">Comprometido en hitos</span>
             <span className="chain-stat-value">{formatUsdc(committed)} USDC</span>
           </div>
-          <div className="chain-stat-card">
+          <div className="chain-stat-card chain-stat-card--primary">
             <span className="chain-stat-label">Disponible</span>
             <span className="chain-stat-value">{formatUsdc(disponible)} USDC</span>
           </div>
@@ -386,46 +370,45 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
 
       {canPropose && showForm && (
         <div className="milestone-propose-section">
-          <h4 style={{ margin: '0 0 8px' }}>Crear hito</h4>
-          <label style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>Descripción</label>
-          <textarea
-            rows={3}
-            value={formDescription}
-            onChange={e => setFormDescription(e.target.value)}
-            placeholder="Ej. Compra de materiales fase 1"
-            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ddd', marginBottom: 10 }}
-          />
-          <label style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>Monto en USDC</label>
-          <input
-            type="number"
-            value={formAmount}
-            onChange={e => setFormAmount(e.target.value)}
-            placeholder="0.00"
-            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ddd', marginBottom: 10 }}
-          />
-          <p style={{ fontSize: 12, color: '#6b7280', margin: '0 0 12px' }}>
+          <h4 className="milestone-form-title">Crear hito</h4>
+          <div className="milestone-form-field">
+            <label className="milestone-form-label">Descripción</label>
+            <textarea
+              rows={3}
+              value={formDescription}
+              onChange={e => setFormDescription(e.target.value)}
+              placeholder="Ej. Compra de materiales fase 1"
+              className="milestone-form-input"
+            />
+          </div>
+          <div className="milestone-form-field">
+            <label className="milestone-form-label">Monto en USDC</label>
+            <input
+              type="number"
+              value={formAmount}
+              onChange={e => setFormAmount(e.target.value)}
+              placeholder="0.00"
+              className="milestone-form-input"
+            />
+          </div>
+          <p className="milestone-form-hint">
             Los fondos del hito se liberan a tu wallet conectada (creador del proyecto).
           </p>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <IonButton
-              expand="block"
-              className="milestone-action-btn"
+          <div className="milestone-form-actions">
+            <button
+              className="invest-btn"
               onClick={handlePropose}
+              disabled={actionLoading === 'propose' || !formDescription.trim()}
+            >
+              {actionLoading === 'propose' ? 'Proponiendo...' : 'Proponer hito'}
+            </button>
+            <button
+              className="invest-btn invest-btn--secondary"
+              onClick={() => { setShowForm(false); setActionError(null); }}
               disabled={actionLoading === 'propose'}
             >
-              {actionLoading === 'propose' ? (
-                <><IonSpinner name="crescent" />&nbsp;Proponiendo...</>
-              ) : (
-                'Proponer hito'
-              )}
-            </IonButton>
-            <IonButton
-              expand="block"
-              fill="outline"
-              onClick={() => { setShowForm(false); setActionError(null); }}
-            >
               Cancelar
-            </IonButton>
+            </button>
           </div>
           {txHashes['propose'] && (
             <a href={CELOSCAN_TX(txHashes['propose'])} target="_blank" rel="noreferrer" className="milestone-tx-link">
@@ -491,7 +474,6 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                 {milestone.status === 'PENDING' && (() => {
                   const proposal = findApprovalProposal(milestone.milestone_chain_id);
                   const proposeBusy = actionLoading === `propose-approval-${milestone.id}`;
-                  const execBusy = actionLoading === `exec-prop-${milestone.id}`;
                   if (!proposal) {
                     return (
                       <div className="milestone-vote-section">
@@ -540,14 +522,6 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                             {noBusy ? 'Votando…' : 'Votar No'}
                           </button>
                         </div>
-                        <button
-                          className="gov-btn gov-btn--exec milestone-vote-exec"
-                          onClick={() => handleExecuteProposal(milestone, proposal.proposal_chain_id)}
-                          disabled={execBusy || !account}
-                        >
-                          <IonIcon icon={playOutline} />
-                          {execBusy ? 'Ejecutando…' : 'Ejecutar (si terminó la votación)'}
-                        </button>
                       </div>
                     );
                   }

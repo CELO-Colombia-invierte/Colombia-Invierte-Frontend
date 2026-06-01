@@ -437,54 +437,104 @@
 .chain-state-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 .chain-stat-card {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 14px 16px;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #eef1f5;
+  border-radius: 14px;
+  padding: 13px 15px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.chain-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #cbd5e1, #e2e8f0);
 }
 
 .chain-stat-label {
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 600;
 }
 
 .chain-stat-value {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
-  color: #111827;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.chain-stat-card--primary {
+  grid-column: 1 / -1;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(52, 211, 153, 0.35) 0%, rgba(52, 211, 153, 0) 55%),
+    linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+  border: none;
+  padding: 16px 18px 17px;
+  box-shadow: 0 12px 26px -12px rgba(4, 120, 87, 0.6);
+}
+
+.chain-stat-card--primary::before {
+  width: 0;
+}
+
+.chain-stat-card--primary .chain-stat-label {
+  color: rgba(209, 250, 229, 0.9);
+}
+
+.chain-stat-card--primary .chain-stat-value {
+  color: #ffffff;
+  font-size: 27px;
 }
 
 .chain-stat-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
   font-weight: 600;
+  letter-spacing: 0.01em;
   width: fit-content;
+  border: 1px solid transparent;
+}
+
+.chain-stat-badge ion-icon {
+  font-size: 13px;
 }
 
 .badge-active {
-  background: #d1fae5;
-  color: #065f46;
+  background: #dcfce7;
+  color: #15803d;
+  border-color: rgba(21, 128, 61, 0.16);
 }
 
 .badge-done {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: #f1f5f9;
+  color: #475569;
+  border-color: rgba(71, 85, 105, 0.14);
 }
 
 .badge-pending {
   background: #fef3c7;
-  color: #92400e;
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.18);
 }
 
 .badge-frozen {
@@ -665,6 +715,17 @@
 .invest-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Variante secundaria (outline) — para acciones de cancelar/secundarias */
+.invest-btn--secondary {
+  background: #fff;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.invest-btn--secondary:hover:not(:disabled) {
+  background: #eff6ff;
 }
 
 .invest-tx-link {
@@ -1503,31 +1564,67 @@
 }
 
 .milestones-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 20px 0;
+  font-size: 21px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 18px 0;
 }
 
 .milestones-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .milestone-item {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #eef1f5;
+  border-radius: 14px;
+  padding: 16px 16px 16px 19px;
   display: flex;
   gap: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.milestone-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+}
+
+.milestone-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px -16px rgba(15, 23, 42, 0.28);
+  border-color: #e2e8f0;
 }
 
 .milestone-item-optimistic {
-  border-color: #93c5fd;
-  background: #f5f9ff;
-  opacity: 0.92;
+  border-color: #bfdbfe;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+  opacity: 1;
+}
+
+.milestone-item-optimistic::before {
+  background: linear-gradient(180deg, #fbbf24, #f59e0b);
+  animation: milestone-rail-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes milestone-rail-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .milestone-item-optimistic .chain-stat-badge {
@@ -1536,17 +1633,19 @@
 }
 
 .milestone-item-number {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #eff6ff;
-  color: #3b82f6;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #2563eb;
   font-size: 13px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.12);
 }
 
 .milestone-item-content {
@@ -1567,10 +1666,12 @@
 .milestone-amount {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 14px;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .milestone-amount ion-icon {
@@ -1579,15 +1680,17 @@
 }
 
 .milestone-description {
-  font-size: 14px;
-  color: #374151;
+  font-size: 14.5px;
+  color: #1e293b;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-weight: 500;
 }
 
 .milestone-date {
   font-size: 12px;
-  color: #9ca3af;
+  color: #94a3b8;
+  line-height: 1.45;
 }
 
 .milestone-propose-section {
@@ -1608,6 +1711,64 @@
   line-height: 1.5;
 }
 
+/* ── Formulario "Crear hito" ─────────────────────────────────────── */
+.milestone-form-title {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.milestone-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.milestone-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.milestone-form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  color: #111827;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.milestone-form-input::placeholder {
+  color: #9ca3af;
+}
+
+.milestone-form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.milestone-form-hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.milestone-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.milestone-form-actions .invest-btn {
+  flex: 1;
+}
+
 .milestone-execute-section {
   display: flex;
   flex-direction: column;
@@ -1616,10 +1777,17 @@
 }
 
 .milestone-action-btn {
-  --border-radius: 10px;
+  --border-radius: 12px;
+  --box-shadow: 0 10px 22px -10px rgba(37, 99, 235, 0.5);
   font-size: 14px;
-  font-weight: 600;
-  height: 42px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  height: 46px;
+  margin: 2px 0 18px;
+}
+
+.milestone-action-btn[color='success'] {
+  --box-shadow: 0 10px 22px -10px rgba(16, 185, 129, 0.5);
 }
 
 .milestone-tx-link {
