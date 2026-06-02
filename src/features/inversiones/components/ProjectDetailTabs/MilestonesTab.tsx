@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonIcon, IonButton, IonSpinner } from '@ionic/react';
+import { IonIcon, IonButton, IonSpinner, useIonViewWillEnter } from '@ionic/react';
 import {
   checkmarkCircleOutline,
   timeOutline,
@@ -129,6 +129,11 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
     };
     init();
   }, [project.id]);
+
+  useIonViewWillEnter(() => {
+    loadProposals();
+    loadOnChainState();
+  });
 
   // Mientras haya cards optimistas, reconsultamos el backend hasta que el
   // indexer registre el hito y la card optimista se reemplace por la real.
@@ -461,7 +466,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                     </div>
                     <p className="milestone-description">{milestone.description}</p>
                     <span className="milestone-date">
-                      El hito ya quedó registrado en la blockchain. La card se actualizará en unos segundos.
+                      El hito ya está en blockchain. Puede tardar entre 15 y 60 segundos en aparecer según la red.
                     </span>
                   </div>
                 </div>
