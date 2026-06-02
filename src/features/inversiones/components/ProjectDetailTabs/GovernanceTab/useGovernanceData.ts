@@ -15,6 +15,7 @@ export function useGovernanceData(project: Project, account: Account | undefined
   const [chainState, setChainState] = useState<Record<string, ProposalChainState>>({});
   const [userVotes, setUserVotes] = useState<Record<string, number>>({});
   const [vaultFrozen, setVaultFrozen] = useState(false);
+  const [vaultClosed, setVaultClosed] = useState(false);
   // Propuestas recien creadas on-chain que aun no indexa el backend.
   const [optimisticProposals, setOptimisticProposals] = useState<Proposal[]>([]);
 
@@ -109,8 +110,14 @@ export function useGovernanceData(project: Project, account: Account | undefined
     if (!project.vault_address) return;
     blockchainService
       .getVaultStatus(project.vault_address)
-      .then((vs) => setVaultFrozen(vs.frozen))
-      .catch(() => setVaultFrozen(false));
+      .then((vs) => {
+        setVaultFrozen(vs.frozen);
+        setVaultClosed(vs.closed);
+      })
+      .catch(() => {
+        setVaultFrozen(false);
+        setVaultClosed(false);
+      });
   }, [project.vault_address]);
 
   const loadVotingState = async () => {
@@ -168,6 +175,7 @@ export function useGovernanceData(project: Project, account: Account | undefined
     chainState,
     userVotes,
     vaultFrozen,
+    vaultClosed,
     loadProposals,
     loadVotingState,
   };
