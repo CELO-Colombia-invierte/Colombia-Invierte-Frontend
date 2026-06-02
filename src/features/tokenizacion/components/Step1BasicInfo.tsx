@@ -32,6 +32,7 @@ interface Step1BasicInfoProps {
   onChange: (field: string, value: string) => void;
   onTokenRightsChange: (rights: TokenRightDto[]) => void;
   onTokenFaqsChange: (faqs: TokenFaqDto[]) => void;
+  errors?: Record<string, string>;
 }
 
 export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
@@ -41,6 +42,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   onChange,
   onTokenRightsChange,
   onTokenFaqsChange,
+  errors = {},
 }) => {
   const handleAddRight = () => {
     const newRight = { id: Date.now().toString(), title: '' };
@@ -129,12 +131,15 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           </button>
           <input
             type="text"
-            className="form-input"
+            className={`form-input ${errors.nombreProyecto ? 'error' : ''}`}
             placeholder="Escribe el nombre..."
             value={formData.nombreProyecto}
             onChange={(e) => onChange('nombreProyecto', e.target.value)}
           />
         </div>
+        {errors.nombreProyecto && (
+          <span className="form-error">{errors.nombreProyecto}</span>
+        )}
       </div>
 
       <div className="form-group">

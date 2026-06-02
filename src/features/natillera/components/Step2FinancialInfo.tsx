@@ -16,11 +16,13 @@ interface Step2FinancialInfoProps {
     horaPago: string;
   };
   onChange: (field: string, value: string) => void;
+  errors?: Record<string, string>;
 }
 
 export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   formData,
   onChange,
+  errors = {},
 }) => {
   return (
     <div className="step-content">
@@ -34,7 +36,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             <span className="currency-prefix">COP</span>
             <input
               type="number"
-              className="form-input currency-input"
+              className={`form-input currency-input ${errors.valorCuota ? 'error' : ''}`}
               placeholder="0"
               min="1000"
               value={formData.valorCuota}
@@ -43,7 +45,11 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             />
           </div>
         </div>
-        <span className="form-hint">Mínimo: $1,000 COP</span>
+        {errors.valorCuota ? (
+          <span className="form-error">{errors.valorCuota}</span>
+        ) : (
+          <span className="form-hint">Mínimo: $1,000 COP</span>
+        )}
         <FeeBreakdown mode="creation" />
       </div>
 
@@ -56,7 +62,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <span className="input-prefix">%</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input ${errors.rendimiento ? 'error' : ''}`}
             placeholder="0"
             min="0"
             max="100"
@@ -66,7 +72,11 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
-        <span className="form-hint">Rango: 0% - 100%</span>
+        {errors.rendimiento ? (
+          <span className="form-error">{errors.rendimiento}</span>
+        ) : (
+          <span className="form-hint">Rango: 0% - 100%</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -76,7 +86,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         </label>
         <input
           type="number"
-          className="form-input"
+          className={`form-input ${errors.cantidadMeses ? 'error' : ''}`}
           placeholder="0"
           min="1"
           max="120"
@@ -84,7 +94,11 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           onChange={(e) => onChange('cantidadMeses', e.target.value)}
           onWheel={(e) => e.currentTarget.blur()}
         />
-        <span className="form-hint">Rango: 1 - 120 meses</span>
+        {errors.cantidadMeses ? (
+          <span className="form-error">{errors.cantidadMeses}</span>
+        ) : (
+          <span className="form-hint">Rango: 1 - 120 meses</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -94,7 +108,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         </label>
         <input
           type="number"
-          className="form-input"
+          className={`form-input ${errors.maxParticipantes ? 'error' : ''}`}
           placeholder="12"
           min="2"
           max="100"
@@ -102,7 +116,11 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           onChange={(e) => onChange('maxParticipantes', e.target.value)}
           onWheel={(e) => e.currentTarget.blur()}
         />
-        <span className="form-hint">Rango: 2 - 100 participantes</span>
+        {errors.maxParticipantes ? (
+          <span className="form-error">{errors.maxParticipantes}</span>
+        ) : (
+          <span className="form-hint">Rango: 2 - 100 participantes</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -114,11 +132,14 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <IonIcon icon={calendarOutline} className="input-icon" />
           <input
             type="date"
-            className="form-input"
+            className={`form-input ${errors.fechaPago ? 'error' : ''}`}
             value={formData.fechaPago}
             onChange={(e) => onChange('fechaPago', e.target.value)}
           />
         </div>
+        {errors.fechaPago && (
+          <span className="form-error">{errors.fechaPago}</span>
+        )}
       </div>
 
       <div className="form-group">

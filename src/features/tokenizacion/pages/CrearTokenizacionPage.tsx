@@ -64,6 +64,7 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [createdTokenizacion, setCreatedTokenizacion] = useState<Project | null>(null);
   const [formData, setFormData] = useState<TokenizacionFormData>(DEFAULT_FORM);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -75,11 +76,88 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   const scrollToTop = () => contentRef.current?.scrollToTop(300);
 
+  const validateStep = (step: number): Record<string, string> => {
+    const newErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      if (!formData.nombreProyecto.trim()) {
+        newErrors.nombreProyecto = 'El nombre del proyecto es obligatorio';
+      } else if (formData.nombreProyecto.length > 255) {
+        newErrors.nombreProyecto = 'Máximo 255 caracteres';
+      }
+    }
+
+    if (step === 2) {
+      const valorActivo = parseFloat(formData.valorActivo);
+      if (!formData.valorActivo.trim()) {
+        newErrors.valorActivo = 'El valor del activo es obligatorio';
+      } else if (isNaN(valorActivo) || valorActivo < 0.01) {
+        newErrors.valorActivo = 'El valor del activo debe ser mayor a 0';
+      }
+
+      const rendimiento = parseFloat(formData.rendimiento);
+      if (!formData.rendimiento.trim()) {
+        newErrors.rendimiento = 'El rendimiento es obligatorio';
+      } else if (isNaN(rendimiento) || rendimiento < 0 || rendimiento > 100) {
+        newErrors.rendimiento = 'El rendimiento debe estar entre 0% y 100%';
+      }
+
+      const precioPorToken = parseFloat(formData.precioPorToken);
+      if (!formData.precioPorToken.trim()) {
+        newErrors.precioPorToken = 'El precio por token es obligatorio';
+      } else if (isNaN(precioPorToken) || precioPorToken < 0.01) {
+        newErrors.precioPorToken = 'El precio por token debe ser mayor a 0';
+      }
+
+      const totalTokens = parseInt(formData.totalTokens);
+      if (!formData.totalTokens.trim()) {
+        newErrors.totalTokens = 'El total de tokens es obligatorio';
+      } else if (isNaN(totalTokens) || totalTokens < 1) {
+        newErrors.totalTokens = 'Debe haber al menos 1 token';
+      }
+
+      if (!formData.simboloToken.trim()) {
+        newErrors.simboloToken = 'El símbolo del token es obligatorio';
+      } else if (formData.simboloToken.length > 20) {
+        newErrors.simboloToken = 'Máximo 20 caracteres';
+      }
+
+      if (!formData.nombreToken.trim()) {
+        newErrors.nombreToken = 'El nombre del token es obligatorio';
+      } else if (formData.nombreToken.length > 100) {
+        newErrors.nombreToken = 'Máximo 100 caracteres';
+      }
+
+      if (formData.ventaAnticipada === 'true') {
+        if (!formData.fechaVentaAnticipada) {
+          newErrors.fechaVentaAnticipada = 'Indica la fecha de venta anticipada';
+        }
+        if (!formData.fechaVentaPublica) {
+          newErrors.fechaVentaPublica = 'Indica la fecha de venta pública';
+        }
+      }
+    }
+
+    return newErrors;
+  };
+
   const handleNext = () => {
+    const stepErrors = validateStep(currentStep);
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
+      return;
+    }
+    setErrors({});
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
       scrollToTop();
@@ -197,6 +275,7 @@ const CrearTokenizacionPage: React.FC = () => {
                   onChange={handleFieldChange}
                   onTokenRightsChange={setTokenRights}
                   onTokenFaqsChange={setTokenFaqs}
+                  errors={errors}
                 />
               )}
               {currentStep === 2 && (
@@ -217,6 +296,7 @@ const CrearTokenizacionPage: React.FC = () => {
                     horaVentaPublica: formData.horaVentaPublica,
                   }}
                   onChange={handleFieldChange}
+                  errors={errors}
                 />
               )}
               {currentStep === 3 && (

@@ -21,11 +21,13 @@ interface Step2FinancialInfoProps {
     horaVentaPublica: string;
   };
   onChange: (field: string, value: string) => void;
+  errors?: Record<string, string>;
 }
 
 export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   formData,
   onChange,
+  errors = {},
 }) => {
 
 
@@ -117,7 +119,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             <span className="currency-prefix">{currency}</span>
             <input
               type="number"
-              className="form-input currency-input"
+              className={`form-input currency-input ${errors.valorActivo ? 'error' : ''}`}
               placeholder="0"
               value={formData.valorActivo}
               onChange={(e) => handleValorActivoChange(e.target.value)}
@@ -125,6 +127,9 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             />
           </div>
         </div>
+        {errors.valorActivo && (
+          <span className="form-error">{errors.valorActivo}</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -136,13 +141,16 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <span className="input-prefix">%</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input ${errors.rendimiento ? 'error' : ''}`}
             placeholder="0"
             value={formData.rendimiento}
             onChange={(e) => onChange('rendimiento', e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
+        {errors.rendimiento && (
+          <span className="form-error">{errors.rendimiento}</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -154,13 +162,16 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <span className="input-prefix">$</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input ${errors.precioPorToken ? 'error' : ''}`}
             placeholder="0"
             value={formData.precioPorToken}
             onChange={(e) => handlePrecioPorTokenChange(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
+        {errors.precioPorToken && (
+          <span className="form-error">{errors.precioPorToken}</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -172,13 +183,16 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <span className="input-prefix">Tokens</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input ${errors.totalTokens ? 'error' : ''}`}
             placeholder="0"
             value={formData.totalTokens}
             onChange={(e) => handleTotalTokensChange(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
+        {errors.totalTokens && (
+          <span className="form-error">{errors.totalTokens}</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -188,11 +202,14 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         </label>
         <input
           type="text"
-          className="form-input"
+          className={`form-input ${errors.simboloToken ? 'error' : ''}`}
           placeholder="Escribe el símbolo (Ej: CSK, FIK, LLI)"
           value={formData.simboloToken}
           onChange={(e) => onChange('simboloToken', e.target.value)}
         />
+        {errors.simboloToken && (
+          <span className="form-error">{errors.simboloToken}</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -202,11 +219,14 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         </label>
         <input
           type="text"
-          className="form-input"
+          className={`form-input ${errors.nombreToken ? 'error' : ''}`}
           placeholder="Escribe el nombre completo del token"
           value={formData.nombreToken}
           onChange={(e) => onChange('nombreToken', e.target.value)}
         />
+        {errors.nombreToken && (
+          <span className="form-error">{errors.nombreToken}</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -229,12 +249,15 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <IonIcon icon={calendarOutline} className="input-icon" />
           <input
             type="date"
-            className="form-input"
+            className={`form-input ${errors.fechaVentaAnticipada ? 'error' : ''}`}
             disabled={!presaleEnabled}
             value={formData.fechaVentaAnticipada}
             onChange={(e) => onChange('fechaVentaAnticipada', e.target.value)}
           />
         </div>
+        {errors.fechaVentaAnticipada && (
+          <span className="form-error">{errors.fechaVentaAnticipada}</span>
+        )}
         <div className="input-with-icon" style={{ marginTop: '12px' }}>
           <IonIcon icon={timeOutline} className="input-icon" />
           <input
@@ -256,11 +279,14 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           <IonIcon icon={calendarOutline} className="input-icon" />
           <input
             type="date"
-            className="form-input"
+            className={`form-input ${errors.fechaVentaPublica ? 'error' : ''}`}
             value={formData.fechaVentaPublica}
             onChange={(e) => onChange('fechaVentaPublica', e.target.value)}
           />
         </div>
+        {errors.fechaVentaPublica && (
+          <span className="form-error">{errors.fechaVentaPublica}</span>
+        )}
         <div className="input-with-icon" style={{ marginTop: '12px' }}>
           <IonIcon icon={timeOutline} className="input-icon" />
           <input
