@@ -22,13 +22,14 @@ interface Step2FinancialInfoProps {
 export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   formData,
   onChange,
-  errors = {},
+  errors,
 }) => {
   return (
     <div className="step-content">
       <div className="form-group">
         <label className="form-label">
           Valor de la cuota mensual
+          <span className="required-star">*</span>
           <InfoTooltip text="Monto en pesos colombianos (COP) que cada participante debe pagar cada mes. El mínimo permitido es $1,000 COP." />
         </label>
         <div className="currency-input-group">
@@ -36,7 +37,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             <span className="currency-prefix">COP</span>
             <input
               type="number"
-              className={`form-input currency-input ${errors.valorCuota ? 'error' : ''}`}
+              className={`form-input currency-input${errors?.valorCuota ? ' form-input--error' : ''}`}
               placeholder="0"
               min="1000"
               value={formData.valorCuota}
@@ -45,8 +46,8 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             />
           </div>
         </div>
-        {errors.valorCuota ? (
-          <span className="form-error">{errors.valorCuota}</span>
+        {errors?.valorCuota ? (
+          <p className="field-error-msg">{errors.valorCuota}</p>
         ) : (
           <span className="form-hint">Mínimo: $1,000 COP</span>
         )}
@@ -56,13 +57,14 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Rendimiento anual esperado
+          <span className="required-star">*</span>
           <InfoTooltip text="Porcentaje de rentabilidad anual proyectada. Se recomienda un valor realista entre el 5% y el 25% anual, acorde al tipo de grupo de ahorro." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">%</span>
           <input
             type="number"
-            className={`form-input currency-input ${errors.rendimiento ? 'error' : ''}`}
+            className={`form-input currency-input${errors?.rendimiento ? ' form-input--error' : ''}`}
             placeholder="0"
             min="0"
             max="100"
@@ -72,8 +74,8 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
-        {errors.rendimiento ? (
-          <span className="form-error">{errors.rendimiento}</span>
+        {errors?.rendimiento ? (
+          <p className="field-error-msg">{errors.rendimiento}</p>
         ) : (
           <span className="form-hint">Rango: 0% - 100%</span>
         )}
@@ -82,11 +84,12 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Cantidad de meses
+          <span className="required-star">*</span>
           <InfoTooltip text="Duración total del proyecto en meses. Define cuántos ciclos de pago habrá antes de distribuir el fondo acumulado." />
         </label>
         <input
           type="number"
-          className={`form-input ${errors.cantidadMeses ? 'error' : ''}`}
+          className={`form-input${errors?.cantidadMeses ? ' form-input--error' : ''}`}
           placeholder="0"
           min="1"
           max="120"
@@ -94,8 +97,8 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           onChange={(e) => onChange('cantidadMeses', e.target.value)}
           onWheel={(e) => e.currentTarget.blur()}
         />
-        {errors.cantidadMeses ? (
-          <span className="form-error">{errors.cantidadMeses}</span>
+        {errors?.cantidadMeses ? (
+          <p className="field-error-msg">{errors.cantidadMeses}</p>
         ) : (
           <span className="form-hint">Rango: 1 - 120 meses</span>
         )}
@@ -108,7 +111,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         </label>
         <input
           type="number"
-          className={`form-input ${errors.maxParticipantes ? 'error' : ''}`}
+          className={`form-input${errors?.maxParticipantes ? ' form-input--error' : ''}`}
           placeholder="12"
           min="2"
           max="100"
@@ -116,8 +119,8 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           onChange={(e) => onChange('maxParticipantes', e.target.value)}
           onWheel={(e) => e.currentTarget.blur()}
         />
-        {errors.maxParticipantes ? (
-          <span className="form-error">{errors.maxParticipantes}</span>
+        {errors?.maxParticipantes ? (
+          <p className="field-error-msg">{errors.maxParticipantes}</p>
         ) : (
           <span className="form-hint">Rango: 2 - 100 participantes</span>
         )}
@@ -126,20 +129,19 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Fecha máxima de pago mensual
+          <span className="required-star">*</span>
           <InfoTooltip text="Día límite cada mes para que los participantes realicen su pago de cuota sin incurrir en mora." />
         </label>
         <div className="input-with-icon">
           <IonIcon icon={calendarOutline} className="input-icon" />
           <input
             type="date"
-            className={`form-input ${errors.fechaPago ? 'error' : ''}`}
+            className={`form-input${errors?.fechaPago ? ' form-input--error' : ''}`}
             value={formData.fechaPago}
             onChange={(e) => onChange('fechaPago', e.target.value)}
           />
         </div>
-        {errors.fechaPago && (
-          <span className="form-error">{errors.fechaPago}</span>
-        )}
+        {errors?.fechaPago && <p className="field-error-msg">{errors.fechaPago}</p>}
       </div>
 
       <div className="form-group">

@@ -104,61 +104,52 @@ const CrearNatilleraPage: React.FC = () => {
     contentRef.current?.scrollToTop(300);
   };
 
-  const validateStep = (step: number): Record<string, string> => {
+  const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (step === 1) {
       if (!formData.nombreProyecto.trim()) {
-        newErrors.nombreProyecto = 'El nombre del proyecto es obligatorio';
-      } else if (formData.nombreProyecto.length > 255) {
-        newErrors.nombreProyecto = 'Máximo 255 caracteres';
+        newErrors.nombreProyecto = 'Campo requerido';
       }
     }
 
     if (step === 2) {
       const valorCuota = parseFloat(formData.valorCuota);
-      if (!formData.valorCuota.trim()) {
-        newErrors.valorCuota = 'El valor de la cuota es obligatorio';
-      } else if (isNaN(valorCuota) || valorCuota < 1000) {
-        newErrors.valorCuota = 'El valor de la cuota debe ser mínimo $1,000 COP';
+      if (!formData.valorCuota || isNaN(valorCuota) || valorCuota <= 0) {
+        newErrors.valorCuota = 'Campo requerido';
+      } else if (valorCuota < 1000) {
+        newErrors.valorCuota = 'Mínimo $1,000 COP';
       }
-
       const rendimiento = parseFloat(formData.rendimiento);
-      if (!formData.rendimiento.trim()) {
-        newErrors.rendimiento = 'El rendimiento es obligatorio';
-      } else if (isNaN(rendimiento) || rendimiento < 0 || rendimiento > 100) {
-        newErrors.rendimiento = 'El rendimiento debe estar entre 0% y 100%';
+      if (formData.rendimiento === '' || isNaN(rendimiento)) {
+        newErrors.rendimiento = 'Campo requerido';
+      } else if (rendimiento < 0) {
+        newErrors.rendimiento = 'Debe ser 0% o mayor';
+      } else if (rendimiento > 100) {
+        newErrors.rendimiento = 'Máximo 100%';
       }
-
-      const cantidadMeses = parseInt(formData.cantidadMeses);
-      if (!formData.cantidadMeses.trim()) {
-        newErrors.cantidadMeses = 'La cantidad de meses es obligatoria';
-      } else if (isNaN(cantidadMeses) || cantidadMeses < 1 || cantidadMeses > 120) {
-        newErrors.cantidadMeses = 'La cantidad de meses debe estar entre 1 y 120';
+      const meses = parseInt(formData.cantidadMeses);
+      if (!formData.cantidadMeses || isNaN(meses) || meses <= 0) {
+        newErrors.cantidadMeses = 'Campo requerido';
+      } else if (meses < 1) {
+        newErrors.cantidadMeses = 'Mínimo 1 mes';
+      } else if (meses > 120) {
+        newErrors.cantidadMeses = 'Máximo 120 meses';
       }
-
-      if (formData.maxParticipantes.trim()) {
-        const maxParticipantes = parseInt(formData.maxParticipantes);
-        if (isNaN(maxParticipantes) || maxParticipantes < 2 || maxParticipantes > 100) {
-          newErrors.maxParticipantes = 'Debe estar entre 2 y 100 participantes';
-        }
-      }
-
       if (!formData.fechaPago) {
-        newErrors.fechaPago = 'La fecha máxima de pago es obligatoria';
+        newErrors.fechaPago = 'Campo requerido';
       }
     }
 
-    return newErrors;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    const stepErrors = validateStep(currentStep);
-    if (Object.keys(stepErrors).length > 0) {
-      setErrors(stepErrors);
+    if (!validateStep(currentStep)) {
+      scrollToTop();
       return;
     }
-    setErrors({});
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
       scrollToTop();
@@ -167,6 +158,7 @@ const CrearNatilleraPage: React.FC = () => {
 
   const handlePrevious = () => {
     if (currentStep > 1) {
+      setErrors({});
       setCurrentStep(currentStep - 1);
       scrollToTop();
     }
@@ -339,13 +331,10 @@ const CrearNatilleraPage: React.FC = () => {
   };
 
   const handleFieldChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    }
   };
 
   const handleCopyLink = () => {

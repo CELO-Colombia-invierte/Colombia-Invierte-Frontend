@@ -144,24 +144,30 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                   <h4 className="preview-section-title">
                     Descripción de proyecto
                   </h4>
-                  <div
-                    className="preview-section-text"
-                    dangerouslySetInnerHTML={{
-                      __html: description ||
-                        'Esta es una breve descripción que describe este producto con detalle y es atractivo.',
-                    }}
-                  />
+                  {description ? (
+                    <div
+                      className="preview-section-text"
+                      dangerouslySetInnerHTML={{ __html: description }}
+                    />
+                  ) : (
+                    <p className="preview-section-text preview-section-empty">
+                      Sin descripción
+                    </p>
+                  )}
                 </div>
 
                 <div className="preview-section-static">
                   <h4 className="preview-section-title">Aspectos destacados</h4>
-                  <div
-                    className="preview-section-text"
-                    dangerouslySetInnerHTML={{
-                      __html: aspectosDestacados ||
-                        'Esta es una breve descripción que describe este producto con detalle y es atractivo.',
-                    }}
-                  />
+                  {aspectosDestacados ? (
+                    <div
+                      className="preview-section-text"
+                      dangerouslySetInnerHTML={{ __html: aspectosDestacados }}
+                    />
+                  ) : (
+                    <p className="preview-section-text preview-section-empty">
+                      Sin aspectos destacados
+                    </p>
+                  )}
                 </div>
 
                 <div className="preview-section-static">
@@ -175,9 +181,8 @@ export const Step4Preview: React.FC<Step4PreviewProps> = ({
                       ))}
                     </div>
                   ) : (
-                    <p className="preview-section-text">
-                      Esta es una breve descripción que describe este producto
-                      con detalle y es atractivo.
+                    <p className="preview-section-text preview-section-empty">
+                      No se agregaron derechos del token.
                     </p>
                   )}
                 </div>

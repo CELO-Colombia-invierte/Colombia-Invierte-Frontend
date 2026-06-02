@@ -64,9 +64,9 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [createdTokenizacion, setCreatedTokenizacion] = useState<Project | null>(null);
   const [formData, setFormData] = useState<TokenizacionFormData>(DEFAULT_FORM);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<
     { id: string; file?: File; motivo: string }[]
@@ -76,88 +76,58 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
+    if (errors[field]) {
+      setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    }
   };
 
   const scrollToTop = () => contentRef.current?.scrollToTop(300);
 
-  const validateStep = (step: number): Record<string, string> => {
+  const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (step === 1) {
       if (!formData.nombreProyecto.trim()) {
-        newErrors.nombreProyecto = 'El nombre del proyecto es obligatorio';
-      } else if (formData.nombreProyecto.length > 255) {
-        newErrors.nombreProyecto = 'Máximo 255 caracteres';
+        newErrors.nombreProyecto = 'Campo requerido';
       }
     }
 
     if (step === 2) {
       const valorActivo = parseFloat(formData.valorActivo);
-      if (!formData.valorActivo.trim()) {
-        newErrors.valorActivo = 'El valor del activo es obligatorio';
-      } else if (isNaN(valorActivo) || valorActivo < 0.01) {
-        newErrors.valorActivo = 'El valor del activo debe ser mayor a 0';
+      if (!formData.valorActivo || isNaN(valorActivo) || valorActivo <= 0) {
+        newErrors.valorActivo = 'Campo requerido';
       }
-
       const rendimiento = parseFloat(formData.rendimiento);
-      if (!formData.rendimiento.trim()) {
-        newErrors.rendimiento = 'El rendimiento es obligatorio';
-      } else if (isNaN(rendimiento) || rendimiento < 0 || rendimiento > 100) {
-        newErrors.rendimiento = 'El rendimiento debe estar entre 0% y 100%';
+      if (formData.rendimiento === '' || isNaN(rendimiento)) {
+        newErrors.rendimiento = 'Campo requerido';
+      } else if (rendimiento < 0) {
+        newErrors.rendimiento = 'Debe ser 0% o mayor';
       }
-
-      const precioPorToken = parseFloat(formData.precioPorToken);
-      if (!formData.precioPorToken.trim()) {
-        newErrors.precioPorToken = 'El precio por token es obligatorio';
-      } else if (isNaN(precioPorToken) || precioPorToken < 0.01) {
-        newErrors.precioPorToken = 'El precio por token debe ser mayor a 0';
+      const precio = parseFloat(formData.precioPorToken);
+      if (!formData.precioPorToken || isNaN(precio) || precio <= 0) {
+        newErrors.precioPorToken = 'Campo requerido';
       }
-
-      const totalTokens = parseInt(formData.totalTokens);
-      if (!formData.totalTokens.trim()) {
-        newErrors.totalTokens = 'El total de tokens es obligatorio';
-      } else if (isNaN(totalTokens) || totalTokens < 1) {
-        newErrors.totalTokens = 'Debe haber al menos 1 token';
+      const total = parseInt(formData.totalTokens);
+      if (!formData.totalTokens || isNaN(total) || total <= 0) {
+        newErrors.totalTokens = 'Campo requerido';
       }
-
       if (!formData.simboloToken.trim()) {
-        newErrors.simboloToken = 'El símbolo del token es obligatorio';
-      } else if (formData.simboloToken.length > 20) {
-        newErrors.simboloToken = 'Máximo 20 caracteres';
+        newErrors.simboloToken = 'Campo requerido';
       }
-
       if (!formData.nombreToken.trim()) {
-        newErrors.nombreToken = 'El nombre del token es obligatorio';
-      } else if (formData.nombreToken.length > 100) {
-        newErrors.nombreToken = 'Máximo 100 caracteres';
-      }
-
-      if (formData.ventaAnticipada === 'true') {
-        if (!formData.fechaVentaAnticipada) {
-          newErrors.fechaVentaAnticipada = 'Indica la fecha de venta anticipada';
-        }
-        if (!formData.fechaVentaPublica) {
-          newErrors.fechaVentaPublica = 'Indica la fecha de venta pública';
-        }
+        newErrors.nombreToken = 'Campo requerido';
       }
     }
 
-    return newErrors;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    const stepErrors = validateStep(currentStep);
-    if (Object.keys(stepErrors).length > 0) {
-      setErrors(stepErrors);
+    if (!validateStep(currentStep)) {
+      scrollToTop();
       return;
     }
-    setErrors({});
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
       scrollToTop();
@@ -165,6 +135,7 @@ const CrearTokenizacionPage: React.FC = () => {
   };
   const handlePrevious = () => {
     if (currentStep > 1) {
+      setErrors({});
       setCurrentStep(currentStep - 1);
       scrollToTop();
     }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
-import { timeOutline, addOutline } from 'ionicons/icons';
+import { timeOutline, addOutline, lockClosedOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService, decodeContractRevert, decodeContractRevertRaw } from '@/services/blockchain.service';
@@ -33,6 +33,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
     chainState,
     userVotes,
     vaultFrozen,
+    vaultClosed,
     loadProposals,
     loadVotingState,
   } = useGovernanceData(project, account);
@@ -206,7 +207,13 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
 
       {error && <p className="invest-error" style={{ marginBottom: 12 }}>{error}</p>}
 
-      {vaultFrozen && (
+      {vaultClosed && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '10px 12px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, color: '#991b1b', fontSize: 13 }}>
+          <IonIcon icon={lockClosedOutline} style={{ fontSize: 18, flexShrink: 0 }} />
+          <span>Esta bóveda fue cerrada. Los fondos restantes fueron devueltos proporcionalmente a los inversores. No se pueden crear nuevas propuestas de retiro.</span>
+        </div>
+      )}
+      {!vaultClosed && vaultFrozen && (
         <div style={{ marginBottom: 12 }}>
           <VaultFrozenBanner message="La bóveda está congelada por una disputa. Las propuestas de retiro están bloqueadas; aún se puede proponer y votar acciones como descongelar la bóveda." />
         </div>

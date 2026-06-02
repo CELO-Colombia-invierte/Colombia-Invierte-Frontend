@@ -28,7 +28,8 @@ export async function getFeeTreasury(feeManagerAddress: string): Promise<string>
 export interface VaultStatus {
   paused: boolean;
   state: number; // VaultState: 0=Locked, 1=Active, 2=Closed
-  frozen: boolean; // no operativa: congelada por disputa o no activa
+  frozen: boolean; // congelada por disputa (paused)
+  closed: boolean; // cerrada definitivamente (state === 2)
 }
 
 export async function getVaultStatus(vaultAddress: string): Promise<VaultStatus> {
@@ -37,7 +38,7 @@ export async function getVaultStatus(vaultAddress: string): Promise<VaultStatus>
     readContract({ contract: contractAt(vaultAddress), method: 'function state() view returns (uint8)' }) as Promise<bigint | number>,
   ]);
   const stateNum = Number(state);
-  return { paused, state: stateNum, frozen: paused || stateNum !== 1 };
+  return { paused, state: stateNum, frozen: paused, closed: stateNum === 2 };
 }
 
 export async function getRevenueState(revenueAddress: string): Promise<number> {

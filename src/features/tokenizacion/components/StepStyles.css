@@ -258,7 +258,6 @@
   padding-left: 60px;
 }
 
-/* Para inputs con prefijos largos como "Tokens" */
 .input-with-prefix .input-prefix {
   min-width: 52px;
   text-align: left;
@@ -266,7 +265,7 @@
 
 .input-with-prefix:has(.input-prefix:contains('Tokens')) .form-input,
 .input-with-prefix .form-input[type='number']:nth-of-type(4) {
-  padding-left: 76px; /* Más espacio para "Tokens" */
+  padding-left: 76px;
 }
 
 .input-with-icon {
@@ -629,7 +628,6 @@
   text-decoration: underline;
 }
 
-/* Toggle Switch Styles */
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -675,7 +673,6 @@
   transform: translateX(24px);
 }
 
-/* Input específico para Tokens - más padding */
 .input-with-tokens .input-prefix {
   min-width: 70px;
   padding: 0 12px;
@@ -685,7 +682,6 @@
   padding-left: 90px !important;
 }
 
-/* Static Preview Sections (Always Visible) */
 .preview-section-static {
   margin-bottom: 24px;
 }
@@ -713,7 +709,6 @@
   font-size: 15px;
 }
 
-/* FAQs Accordion (Only FAQs are collapsible) */
 .faqs-accordion-list {
   display: flex;
   flex-direction: column;
@@ -795,7 +790,6 @@
   }
 }
 
-/* Remove Image/Document Button Styles */
 .image-preview-container {
   position: relative;
   margin-top: 16px;
@@ -836,7 +830,6 @@
   border-radius: 8px;
 }
 
-/* Invite Input Group */
 .invite-input-group {
   display: flex;
   gap: 8px;
@@ -897,18 +890,24 @@
   color: #c53030;
 }
 
-.form-input.error,
-.form-select.error {
-  border-color: #e53e3e;
+.form-input--error {
+  border-color: #ef4444 !important;
+  background-color: #fff5f5;
 }
 
-.form-input.error:focus,
-.form-select.error:focus {
-  border-color: #e53e3e;
-}
-
-.form-error {
+.field-error-msg {
   font-size: 12px;
-  color: #e53e3e;
-  margin-top: 4px;
+  color: #ef4444;
+  margin-top: -2px;
+}
+
+.required-star {
+  color: #ef4444;
+  margin-left: 1px;
+  font-weight: 700;
+}
+
+.preview-section-empty {
+  color: #a0aec0;
+  font-style: italic;
 }
