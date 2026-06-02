@@ -13,11 +13,13 @@ interface Step1BasicInfoProps {
     privacidad: string;
   };
   onChange: (field: string, value: string) => void;
+  errors?: Record<string, string>;
 }
 
 export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   formData,
   onChange,
+  errors,
 }) => {
   return (
     <div className="step-content">
@@ -58,6 +60,7 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Nombre de proyecto
+          <span className="required-star">*</span>
           <IonIcon icon={informationCircleOutline} className="info-icon" />
         </label>
         <div className="input-with-emoji">
@@ -66,12 +69,13 @@ export const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           </button>
           <input
             type="text"
-            className="form-input"
+            className={`form-input${errors?.nombreProyecto ? ' form-input--error' : ''}`}
             placeholder="Escribe el nombre..."
             value={formData.nombreProyecto}
             onChange={(e) => onChange('nombreProyecto', e.target.value)}
           />
         </div>
+        {errors?.nombreProyecto && <p className="field-error-msg">{errors.nombreProyecto}</p>}
       </div>
 
       <div className="form-group">

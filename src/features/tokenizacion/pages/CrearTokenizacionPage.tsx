@@ -40,7 +40,7 @@ const DEFAULT_FORM: TokenizacionFormData = {
   aspectosDestacados: '',
   valorActivo: '',
   moneda: 'COP',
-  rendimiento: '0',
+  rendimiento: '',
   precioPorToken: '',
   monedaToken: 'COP',
   totalTokens: '',
