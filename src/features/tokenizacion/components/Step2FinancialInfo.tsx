@@ -21,11 +21,13 @@ interface Step2FinancialInfoProps {
     horaVentaPublica: string;
   };
   onChange: (field: string, value: string) => void;
+  errors?: Record<string, string>;
 }
 
 export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   formData,
   onChange,
+  errors,
 }) => {
 
 
@@ -91,6 +93,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Valor de activo
+          <span className="required-star">*</span>
           <InfoTooltip text="Valor total del activo real que se está tokenizando (en COP o USD). Es el precio de mercado del activo completo." />
         </label>
         <div className="currency-input-group">
@@ -117,7 +120,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             <span className="currency-prefix">{currency}</span>
             <input
               type="number"
-              className="form-input currency-input"
+              className={`form-input currency-input${errors?.valorActivo ? ' form-input--error' : ''}`}
               placeholder="0"
               value={formData.valorActivo}
               onChange={(e) => handleValorActivoChange(e.target.value)}
@@ -125,88 +128,99 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             />
           </div>
         </div>
+        {errors?.valorActivo && <p className="field-error-msg">{errors.valorActivo}</p>}
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Rendimiento anual proyectado
+          <span className="required-star">*</span>
           <InfoTooltip text="Es una proyección que tú como creador prometes a los inversores. El contrato NO la enforce automáticamente: tendrás que depositar los rendimientos manualmente vía 'Depositar rendimientos' para que los tokenholders los reclamen. Si no depositas, ellos pueden abrir una disputa." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">%</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input${errors?.rendimiento ? ' form-input--error' : ''}`}
             placeholder="0"
             value={formData.rendimiento}
             onChange={(e) => onChange('rendimiento', e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
+        {errors?.rendimiento && <p className="field-error-msg">{errors.rendimiento}</p>}
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Precio por token
+          <span className="required-star">*</span>
           <InfoTooltip text="Costo unitario de cada token. Usualmente resulta de dividir el valor total del activo entre el total de tokens disponibles." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">$</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input${errors?.precioPorToken ? ' form-input--error' : ''}`}
             placeholder="0"
             value={formData.precioPorToken}
             onChange={(e) => handlePrecioPorTokenChange(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
+        {errors?.precioPorToken && <p className="field-error-msg">{errors.precioPorToken}</p>}
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Total de tokens disponibles
+          <span className="required-star">*</span>
           <InfoTooltip text="Cantidad total de tokens en que se divide el activo. Determina la fracción de propiedad que representa cada token." />
         </label>
         <div className="input-with-prefix input-with-tokens">
           <span className="input-prefix">Tokens</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input${errors?.totalTokens ? ' form-input--error' : ''}`}
             placeholder="0"
             value={formData.totalTokens}
             onChange={(e) => handleTotalTokensChange(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
+        {errors?.totalTokens && <p className="field-error-msg">{errors.totalTokens}</p>}
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Símbolo del token
+          <span className="required-star">*</span>
           <InfoTooltip text="Identificador corto y único del token (2 a 5 caracteres). Ejemplo: CSK para CasaToken, FIK para FincaToken." />
         </label>
         <input
           type="text"
-          className="form-input"
+          className={`form-input${errors?.simboloToken ? ' form-input--error' : ''}`}
           placeholder="Escribe el símbolo (Ej: CSK, FIK, LLI)"
           value={formData.simboloToken}
           onChange={(e) => onChange('simboloToken', e.target.value)}
         />
+        {errors?.simboloToken && <p className="field-error-msg">{errors.simboloToken}</p>}
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Nombre del token
+          <span className="required-star">*</span>
           <InfoTooltip text="Nombre completo y descriptivo del token. Aparecerá en la blockchain y en todos los registros de la plataforma." />
         </label>
         <input
           type="text"
-          className="form-input"
+          className={`form-input${errors?.nombreToken ? ' form-input--error' : ''}`}
           placeholder="Escribe el nombre completo del token"
           value={formData.nombreToken}
           onChange={(e) => onChange('nombreToken', e.target.value)}
         />
+        {errors?.nombreToken && <p className="field-error-msg">{errors.nombreToken}</p>}
       </div>
 
       <div className="form-group">
