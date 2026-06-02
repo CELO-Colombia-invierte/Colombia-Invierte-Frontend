@@ -913,3 +913,8 @@
   margin-left: 1px;
   font-weight: 700;
 }
+
+.preview-section-empty {
+  color: #a0aec0;
+  font-style: italic;
+}
