@@ -66,6 +66,7 @@ const CrearTokenizacionPage: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [createdTokenizacion, setCreatedTokenizacion] = useState<Project | null>(null);
   const [formData, setFormData] = useState<TokenizacionFormData>(DEFAULT_FORM);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<
     { id: string; file?: File; motivo: string }[]
@@ -75,11 +76,58 @@ const CrearTokenizacionPage: React.FC = () => {
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    }
   };
 
   const scrollToTop = () => contentRef.current?.scrollToTop(300);
 
+  const validateStep = (step: number): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      if (!formData.nombreProyecto.trim()) {
+        newErrors.nombreProyecto = 'Campo requerido';
+      }
+    }
+
+    if (step === 2) {
+      const valorActivo = parseFloat(formData.valorActivo);
+      if (!formData.valorActivo || isNaN(valorActivo) || valorActivo <= 0) {
+        newErrors.valorActivo = 'Campo requerido';
+      }
+      const rendimiento = parseFloat(formData.rendimiento);
+      if (formData.rendimiento === '' || isNaN(rendimiento)) {
+        newErrors.rendimiento = 'Campo requerido';
+      } else if (rendimiento < 0) {
+        newErrors.rendimiento = 'Debe ser 0% o mayor';
+      }
+      const precio = parseFloat(formData.precioPorToken);
+      if (!formData.precioPorToken || isNaN(precio) || precio <= 0) {
+        newErrors.precioPorToken = 'Campo requerido';
+      }
+      const total = parseInt(formData.totalTokens);
+      if (!formData.totalTokens || isNaN(total) || total <= 0) {
+        newErrors.totalTokens = 'Campo requerido';
+      }
+      if (!formData.simboloToken.trim()) {
+        newErrors.simboloToken = 'Campo requerido';
+      }
+      if (!formData.nombreToken.trim()) {
+        newErrors.nombreToken = 'Campo requerido';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = () => {
+    if (!validateStep(currentStep)) {
+      scrollToTop();
+      return;
+    }
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
       scrollToTop();
@@ -87,6 +135,7 @@ const CrearTokenizacionPage: React.FC = () => {
   };
   const handlePrevious = () => {
     if (currentStep > 1) {
+      setErrors({});
       setCurrentStep(currentStep - 1);
       scrollToTop();
     }
@@ -197,6 +246,7 @@ const CrearTokenizacionPage: React.FC = () => {
                   onChange={handleFieldChange}
                   onTokenRightsChange={setTokenRights}
                   onTokenFaqsChange={setTokenFaqs}
+                  errors={errors}
                 />
               )}
               {currentStep === 2 && (
@@ -217,6 +267,7 @@ const CrearTokenizacionPage: React.FC = () => {
                     horaVentaPublica: formData.horaVentaPublica,
                   }}
                   onChange={handleFieldChange}
+                  errors={errors}
                 />
               )}
               {currentStep === 3 && (

@@ -16,17 +16,20 @@ interface Step2FinancialInfoProps {
     horaPago: string;
   };
   onChange: (field: string, value: string) => void;
+  errors?: Record<string, string>;
 }
 
 export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
   formData,
   onChange,
+  errors,
 }) => {
   return (
     <div className="step-content">
       <div className="form-group">
         <label className="form-label">
           Valor de la cuota mensual
+          <span className="required-star">*</span>
           <InfoTooltip text="Monto en pesos colombianos (COP) que cada participante debe pagar cada mes. El mínimo permitido es $1,000 COP." />
         </label>
         <div className="currency-input-group">
@@ -34,7 +37,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             <span className="currency-prefix">COP</span>
             <input
               type="number"
-              className="form-input currency-input"
+              className={`form-input currency-input${errors?.valorCuota ? ' form-input--error' : ''}`}
               placeholder="0"
               min="1000"
               value={formData.valorCuota}
@@ -43,20 +46,25 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             />
           </div>
         </div>
-        <span className="form-hint">Mínimo: $1,000 COP</span>
+        {errors?.valorCuota ? (
+          <p className="field-error-msg">{errors.valorCuota}</p>
+        ) : (
+          <span className="form-hint">Mínimo: $1,000 COP</span>
+        )}
         <FeeBreakdown mode="creation" />
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Rendimiento anual esperado
+          <span className="required-star">*</span>
           <InfoTooltip text="Porcentaje de rentabilidad anual proyectada. Se recomienda un valor realista entre el 5% y el 25% anual, acorde al tipo de grupo de ahorro." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">%</span>
           <input
             type="number"
-            className="form-input currency-input"
+            className={`form-input currency-input${errors?.rendimiento ? ' form-input--error' : ''}`}
             placeholder="0"
             min="0"
             max="100"
@@ -66,17 +74,22 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
-        <span className="form-hint">Rango: 0% - 100%</span>
+        {errors?.rendimiento ? (
+          <p className="field-error-msg">{errors.rendimiento}</p>
+        ) : (
+          <span className="form-hint">Rango: 0% - 100%</span>
+        )}
       </div>
 
       <div className="form-group">
         <label className="form-label">
           Cantidad de meses
+          <span className="required-star">*</span>
           <InfoTooltip text="Duración total del proyecto en meses. Define cuántos ciclos de pago habrá antes de distribuir el fondo acumulado." />
         </label>
         <input
           type="number"
-          className="form-input"
+          className={`form-input${errors?.cantidadMeses ? ' form-input--error' : ''}`}
           placeholder="0"
           min="1"
           max="120"
@@ -84,7 +97,11 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
           onChange={(e) => onChange('cantidadMeses', e.target.value)}
           onWheel={(e) => e.currentTarget.blur()}
         />
-        <span className="form-hint">Rango: 1 - 120 meses</span>
+        {errors?.cantidadMeses ? (
+          <p className="field-error-msg">{errors.cantidadMeses}</p>
+        ) : (
+          <span className="form-hint">Rango: 1 - 120 meses</span>
+        )}
       </div>
 
       <div className="form-group">
@@ -108,17 +125,19 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
       <div className="form-group">
         <label className="form-label">
           Fecha máxima de pago mensual
+          <span className="required-star">*</span>
           <InfoTooltip text="Día límite cada mes para que los participantes realicen su pago de cuota sin incurrir en mora." />
         </label>
         <div className="input-with-icon">
           <IonIcon icon={calendarOutline} className="input-icon" />
           <input
             type="date"
-            className="form-input"
+            className={`form-input${errors?.fechaPago ? ' form-input--error' : ''}`}
             value={formData.fechaPago}
             onChange={(e) => onChange('fechaPago', e.target.value)}
           />
         </div>
+        {errors?.fechaPago && <p className="field-error-msg">{errors.fechaPago}</p>}
       </div>
 
       <div className="form-group">
