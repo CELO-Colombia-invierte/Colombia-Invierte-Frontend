@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
 import { warningOutline, checkmarkCircleOutline, timeOutline, addOutline, snowOutline, closeCircleOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
@@ -31,8 +31,13 @@ interface DisputasTabProps {
 const rankDispute = (d: Dispute) =>
   d.status === 'RESOLVED' || d.status === 'FROZEN' ? 1 : 0;
 
+// Una disputa solo tiene id on-chain real cuando el indexer la reconcilió. Antes
+// de eso el write-through la guarda con '0', y proponer contra ese '0' genera
+// propuestas con target_id incorrecto (apuntan a la disputa equivocada).
+const isRealChainId = (cid: string) => !!cid && cid !== '0';
+
 const dedupeDisputes = (list: Dispute[]): Dispute[] => {
-  const isReal = (cid: string) => !!cid && cid !== '0';
+  const isReal = isRealChainId;
   const reasonKey = (d: Dispute) =>
     `${d.reason.trim()}|${(d.opener_address || '').toLowerCase()}`;
 
@@ -66,6 +71,10 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   // Disputas recien abiertas on-chain que aun no indexa el backend.
   const [optimisticDisputes, setOptimisticDisputes] = useState<Dispute[]>([]);
+  // Lock síncrono de reentrancia: los updates de estado de React son async, así
+  // que setActionBusy/busy no bloquean un doble clic en el mismo frame. Este ref
+  // sí, evitando disparar dos transacciones propose()/dispute() on-chain.
+  const actionLock = useRef(false);
 
   const loadProposals = async () => {
     try {
@@ -124,77 +133,90 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
       setError('Conecta wallet, escribe la razón y verifica que el proyecto sea V2.');
       return;
     }
+    if (actionLock.current) return;
+    actionLock.current = true;
     const myAddress = account.address.toLowerCase();
     try {
-      const response = await apiService.get<Dispute[]>(`/projects/${project.id}/disputes`);
-      const fresh = dedupeDisputes(response.data ?? []);
-      const mineOpen = fresh.filter(
-        (d) => d.status !== 'RESOLVED' && d.opener_address?.toLowerCase() === myAddress,
-      );
-      setDisputes(fresh);
-      if (mineOpen.length > 0) {
-        const ids = mineOpen.map((d) => `#${d.dispute_chain_id}`).join(', ');
-        setError(`Ya tienes una disputa abierta (${ids}). Espera a que la gobernanza actúe antes de abrir otra.`);
+      try {
+        const response = await apiService.get<Dispute[]>(`/projects/${project.id}/disputes`);
+        const fresh = dedupeDisputes(response.data ?? []);
+        const mineOpen = fresh.filter(
+          (d) => d.status !== 'RESOLVED' && d.opener_address?.toLowerCase() === myAddress,
+        );
+        setDisputes(fresh);
+        if (mineOpen.length > 0) {
+          const ids = mineOpen.map((d) => `#${d.dispute_chain_id}`).join(', ');
+          setError(`Ya tienes una disputa abierta (${ids}). Espera a que la gobernanza actúe antes de abrir otra.`);
+          return;
+        }
+      } catch {
+        setError('No se pudo verificar tus disputas existentes. Intenta de nuevo.');
         return;
       }
-    } catch {
-      setError('No se pudo verificar tus disputas existentes. Intenta de nuevo.');
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    try {
-      const r = reason.trim();
-      await governanceService.openDispute(account, {
-        projectId: project.id,
-        disputesAddress: project.disputes_address,
-        reason: r,
-      });
-      // Card optimista: la disputa ya está en cadena; el polling la
-      // reemplaza por la real cuando el indexer la registre.
-      setOptimisticDisputes((prev) => [
-        ...prev,
-        {
-          id: `optimistic-${Date.now()}`,
-          dispute_chain_id: '',
-          opener_address: account.address,
+      setBusy(true);
+      setError(null);
+      try {
+        const r = reason.trim();
+        await governanceService.openDispute(account, {
+          projectId: project.id,
+          disputesAddress: project.disputes_address,
           reason: r,
-          status: 'OPEN',
-          resolution: null,
-          opened_at: new Date().toISOString(),
-          resolved_at: null,
-          optimistic: true,
-        },
-      ]);
-      setReason('');
-      setShowCreate(false);
-      await loadDisputes();
-    } catch (err) {
-      setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al abrir disputa');
+        });
+        // Card optimista: la disputa ya está en cadena; el polling la
+        // reemplaza por la real cuando el indexer la registre.
+        setOptimisticDisputes((prev) => [
+          ...prev,
+          {
+            id: `optimistic-${Date.now()}`,
+            dispute_chain_id: '',
+            opener_address: account.address,
+            reason: r,
+            status: 'OPEN',
+            resolution: null,
+            opened_at: new Date().toISOString(),
+            resolved_at: null,
+            optimistic: true,
+          },
+        ]);
+        setReason('');
+        setShowCreate(false);
+        await loadDisputes();
+      } catch (err) {
+        setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al abrir disputa');
+      } finally {
+        setBusy(false);
+      }
     } finally {
-      setBusy(false);
+      actionLock.current = false;
     }
   };
 
   const handleProposeFreeze = async (dispute: Dispute) => {
     if (!account || !project.governance_address) return;
+    if (!isRealChainId(dispute.dispute_chain_id)) {
+      setError('La disputa todavía se está confirmando en la blockchain. Espera unos segundos e intenta de nuevo.');
+      return;
+    }
     if (hasOpenProposal(GovernanceAction.FreezeFromDispute, dispute.dispute_chain_id)) {
       setError('Ya existe una propuesta activa para congelar la bóveda por esta disputa. Ve a Gobernanza para votarla.');
       return;
     }
-    if (project.disputes_address) {
-      const exists = await blockchainService.checkDisputeExists(
-        project.disputes_address,
-        dispute.dispute_chain_id,
-      );
-      if (!exists) {
-        setError('Esta disputa no existe on-chain o ya fue resuelta. Abre una disputa nueva para poder proponer congelación.');
-        return;
-      }
-    }
+    if (actionLock.current) return;
+    actionLock.current = true;
+    // Marcamos ocupado antes de cualquier await para que el botón se deshabilite ya.
     setActionBusy(`freeze-${dispute.id}`);
     setError(null);
     try {
+      if (project.disputes_address) {
+        const exists = await blockchainService.checkDisputeExists(
+          project.disputes_address,
+          dispute.dispute_chain_id,
+        );
+        if (!exists) {
+          setError('Esta disputa no existe on-chain o ya fue resuelta. Abre una disputa nueva para poder proponer congelación.');
+          return;
+        }
+      }
       const params = governanceService.buildFreezeProposal({
         projectId: project.id,
         governanceAddress: project.governance_address,
@@ -207,16 +229,23 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
       setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al proponer congelación');
     } finally {
       setActionBusy(null);
+      actionLock.current = false;
     }
   };
 
   const handleProposeClose = async (dispute: Dispute) => {
     if (!account || !project.governance_address) return;
+    if (!isRealChainId(dispute.dispute_chain_id)) {
+      setError('La disputa todavía se está confirmando en la blockchain. Espera unos segundos e intenta de nuevo.');
+      return;
+    }
     if (hasOpenProposal(GovernanceAction.CloseVault, dispute.dispute_chain_id)) {
       setError('Ya existe una propuesta activa para cerrar la bóveda. Ve a Gobernanza para votarla.');
       return;
     }
     if (!window.confirm('Esta propuesta intentará cerrar la bóveda del proyecto y devolver lo que quede a los inversores proporcionalmente. ¿Continuar?')) return;
+    if (actionLock.current) return;
+    actionLock.current = true;
     setActionBusy(`close-${dispute.id}`);
     setError(null);
     try {
@@ -231,6 +260,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
       setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al proponer cierre');
     } finally {
       setActionBusy(null);
+      actionLock.current = false;
     }
   };
 
@@ -385,6 +415,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                 {canAct && (
                   <div className="disputa-card-actions">
                     {project.governance_address && (isOpen || isFrozen) && (() => {
+                      const reconciling = !isRealChainId(dispute.dispute_chain_id);
                       const freezePending = hasOpenProposal(GovernanceAction.FreezeFromDispute, dispute.dispute_chain_id);
                       const closePending = hasOpenProposal(GovernanceAction.CloseVault, dispute.dispute_chain_id);
                       return (
@@ -395,8 +426,8 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                               <button
                                 className="disputa-btn disputa-btn--info"
                                 onClick={() => handleProposeFreeze(dispute)}
-                                disabled={actionBusy === `freeze-${dispute.id}` || freezePending}
-                                title={freezePending ? 'Ya existe una propuesta activa de congelación' : ''}
+                                disabled={actionBusy === `freeze-${dispute.id}` || freezePending || reconciling}
+                                title={reconciling ? 'La disputa aún se confirma en la blockchain' : freezePending ? 'Ya existe una propuesta activa de congelación' : ''}
                               >
                                 <IonIcon icon={snowOutline} />
                                 {actionBusy === `freeze-${dispute.id}`
@@ -409,8 +440,8 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                             <button
                               className="disputa-btn disputa-btn--danger"
                               onClick={() => handleProposeClose(dispute)}
-                              disabled={actionBusy === `close-${dispute.id}` || closePending}
-                              title={closePending ? 'Ya existe una propuesta activa de cierre' : ''}
+                              disabled={actionBusy === `close-${dispute.id}` || closePending || reconciling}
+                              title={reconciling ? 'La disputa aún se confirma en la blockchain' : closePending ? 'Ya existe una propuesta activa de cierre' : ''}
                             >
                               <IonIcon icon={closeCircleOutline} />
                               {actionBusy === `close-${dispute.id}`
@@ -420,7 +451,11 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                                 : 'Cerrar proyecto'}
                             </button>
                           </div>
-                          {(freezePending || closePending) && (
+                          {reconciling ? (
+                            <p className="disputa-help-note">
+                              La disputa se está confirmando en la blockchain. Las acciones de gobernanza se habilitarán en unos segundos.
+                            </p>
+                          ) : (freezePending || closePending) && (
                             <p className="disputa-help-note">
                               {freezePending && closePending
                                 ? 'Ya hay propuestas activas de congelar y cerrar. '
