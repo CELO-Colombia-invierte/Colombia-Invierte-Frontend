@@ -130,7 +130,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
 
   const handleOpenDispute = async () => {
     if (!account || !project.disputes_address || !reason.trim()) {
-      setError('Conecta wallet, escribe la razón y verifica que el proyecto sea V2.');
+      setError('Entra a tu cuenta, escribe el motivo y verifica que el proyecto esté activo.');
       return;
     }
     if (actionLock.current) return;
@@ -146,11 +146,11 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         setDisputes(fresh);
         if (mineOpen.length > 0) {
           const ids = mineOpen.map((d) => `#${d.dispute_chain_id}`).join(', ');
-          setError(`Ya tienes una disputa abierta (${ids}). Espera a que la gobernanza actúe antes de abrir otra.`);
+          setError(`Ya tienes un reclamo abierto (${ids}). Espera a que el grupo decida antes de abrir otro.`);
           return;
         }
       } catch {
-        setError('No se pudo verificar tus disputas existentes. Intenta de nuevo.');
+        setError('No se pudo verificar tus reclamos. Intenta de nuevo.');
         return;
       }
       setBusy(true);
@@ -194,11 +194,11 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   const handleProposeFreeze = async (dispute: Dispute) => {
     if (!account || !project.governance_address) return;
     if (!isRealChainId(dispute.dispute_chain_id)) {
-      setError('La disputa todavía se está confirmando en la blockchain. Espera unos segundos e intenta de nuevo.');
+      setError('Tu reclamo se está procesando. Espera unos segundos e intenta de nuevo.');
       return;
     }
     if (hasOpenProposal(GovernanceAction.FreezeFromDispute, dispute.dispute_chain_id)) {
-      setError('Ya existe una propuesta activa para congelar la bóveda por esta disputa. Ve a Gobernanza para votarla.');
+      setError('Ya hay una votación activa para pausar el fondo por este reclamo. Ve a Decisiones para votar.');
       return;
     }
     if (actionLock.current) return;
@@ -213,7 +213,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
           dispute.dispute_chain_id,
         );
         if (!exists) {
-          setError('Esta disputa no existe on-chain o ya fue resuelta. Abre una disputa nueva para poder proponer congelación.');
+          setError('Este reclamo ya no está activo o fue resuelto. Abre un reclamo nuevo para poder pausar el fondo.');
           return;
         }
       }
@@ -221,12 +221,12 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
         projectId: project.id,
         governanceAddress: project.governance_address,
         disputeChainId: dispute.dispute_chain_id,
-        description: `Congelar bóveda por disputa #${dispute.dispute_chain_id}: ${dispute.reason.slice(0, 80)}`,
+        description: `Pausar el fondo por reclamo #${dispute.dispute_chain_id}: ${dispute.reason.slice(0, 80)}`,
       });
       await governanceService.createProposal(account, params);
       await Promise.all([loadDisputes(true), loadProposals()]);
     } catch (err) {
-      setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al proponer congelación');
+      setError(decodeContractRevert(err) ?? (err as Error).message ?? 'No se pudo crear la votación para pausar el fondo');
     } finally {
       setActionBusy(null);
       actionLock.current = false;
@@ -236,14 +236,14 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   const handleProposeClose = async (dispute: Dispute) => {
     if (!account || !project.governance_address) return;
     if (!isRealChainId(dispute.dispute_chain_id)) {
-      setError('La disputa todavía se está confirmando en la blockchain. Espera unos segundos e intenta de nuevo.');
+      setError('Tu reclamo se está procesando. Espera unos segundos e intenta de nuevo.');
       return;
     }
     if (hasOpenProposal(GovernanceAction.CloseVault, dispute.dispute_chain_id)) {
-      setError('Ya existe una propuesta activa para cerrar la bóveda. Ve a Gobernanza para votarla.');
+      setError('Ya hay una votación activa para cerrar el proyecto. Ve a Decisiones para votar.');
       return;
     }
-    if (!window.confirm('Esta propuesta intentará cerrar la bóveda del proyecto y devolver lo que quede a los inversores proporcionalmente. ¿Continuar?')) return;
+    if (!window.confirm('Esto creará una votación para cerrar el proyecto y devolver el dinero que quede a los inversores. ¿Continuar?')) return;
     if (actionLock.current) return;
     actionLock.current = true;
     setActionBusy(`close-${dispute.id}`);
@@ -252,12 +252,39 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
       const params = governanceService.buildCloseVaultProposal({
         projectId: project.id,
         governanceAddress: project.governance_address,
-        description: `Cerrar bóveda por disputa #${dispute.dispute_chain_id}: ${dispute.reason.slice(0, 80)}`,
+        description: `Cerrar el proyecto por reclamo #${dispute.dispute_chain_id}: ${dispute.reason.slice(0, 80)}`,
       });
       await governanceService.createProposal(account, params);
       await Promise.all([loadDisputes(true), loadProposals()]);
     } catch (err) {
-      setError(decodeContractRevert(err) ?? (err as Error).message ?? 'Error al proponer cierre');
+      setError(decodeContractRevert(err) ?? (err as Error).message ?? 'No se pudo crear la votación para cerrar el proyecto');
+    } finally {
+      setActionBusy(null);
+      actionLock.current = false;
+    }
+  };
+
+  const handleResolve = async (dispute: Dispute) => {
+    if (!account || !project.disputes_address) return;
+    if (!isRealChainId(dispute.dispute_chain_id)) {
+      setError('Tu reclamo se está procesando. Espera unos segundos e intenta de nuevo.');
+      return;
+    }
+    if (!window.confirm('Se marcará este reclamo como resuelto. Podrás abrir uno nuevo después. ¿Continuar?')) return;
+    if (actionLock.current) return;
+    actionLock.current = true;
+    setActionBusy(`resolve-${dispute.id}`);
+    setError(null);
+    try {
+      await governanceService.resolveDispute(account, {
+        projectId: project.id,
+        disputesAddress: project.disputes_address,
+        disputeChainId: dispute.dispute_chain_id,
+        accepted: true,
+      });
+      await Promise.all([loadDisputes(true), loadProposals()]);
+    } catch (err) {
+      setError(decodeContractRevert(err) ?? (err as Error).message ?? 'No se pudo resolver el reclamo');
     } finally {
       setActionBusy(null);
       actionLock.current = false;
@@ -271,8 +298,8 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
     address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '—';
 
   const statusBadge = (s: Dispute['status']) => {
-    if (s === 'OPEN') return { cls: 'disputa-pill disputa-pill--warn', label: 'Abierta', icon: warningOutline };
-    if (s === 'FROZEN') return { cls: 'disputa-pill disputa-pill--frozen', label: 'Bóveda congelada', icon: snowOutline };
+    if (s === 'OPEN') return { cls: 'disputa-pill disputa-pill--warn', label: 'Abierto', icon: warningOutline };
+    if (s === 'FROZEN') return { cls: 'disputa-pill disputa-pill--frozen', label: 'Fondo en pausa', icon: snowOutline };
     return { cls: 'disputa-pill disputa-pill--done', label: 'Resuelta', icon: checkmarkCircleOutline };
   };
 
@@ -285,8 +312,8 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   if (loading) {
     return (
       <div className="historial-tab">
-        <h2 className="disputas-title">Disputas</h2>
-        <p className="chain-state-loading">Cargando disputas...</p>
+        <h2 className="disputas-title">Reclamos</h2>
+        <p className="chain-state-loading">Cargando reclamos...</p>
       </div>
     );
   }
@@ -294,7 +321,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
   return (
     <div className="historial-tab">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h2 className="disputas-title" style={{ margin: 0 }}>Disputas</h2>
+        <h2 className="disputas-title" style={{ margin: 0 }}>Reclamos</h2>
         {account && project.disputes_address && (() => {
           const myAddress = account.address.toLowerCase();
           const hasMyOpen = disputes.some(
@@ -306,9 +333,9 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
               style={{ width: 'auto', padding: '8px 14px', fontSize: 13, opacity: hasMyOpen && !showCreate ? 0.5 : 1 }}
               onClick={() => { setShowCreate((s) => !s); setError(null); }}
               disabled={hasMyOpen && !showCreate}
-              title={hasMyOpen ? 'Ya tienes una disputa abierta en este proyecto' : ''}
+              title={hasMyOpen ? 'Ya tienes un reclamo abierto en este proyecto' : ''}
             >
-              <IonIcon icon={addOutline} /> {showCreate ? 'Cancelar' : 'Abrir disputa'}
+              <IonIcon icon={addOutline} /> {showCreate ? 'Cancelar' : 'Abrir reclamo'}
             </button>
           );
         })()}
@@ -318,12 +345,12 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
 
       {showCreate && (
         <div className="disputa-item" style={{ marginBottom: 16 }}>
-          <h4 style={{ margin: '0 0 8px' }}>Nueva disputa</h4>
+          <h4 style={{ margin: '0 0 8px' }}>Nuevo reclamo</h4>
           <p style={{ fontSize: 12, color: '#666', margin: '0 0 12px' }}>
-            Solo los stakeholders del proyecto pueden abrir una disputa. Una vez abierta podrás congelar la bóveda o proponer su cierre desde la tarjeta de la disputa.
+            Solo los participantes del proyecto pueden abrir un reclamo. Una vez abierto podrás pausar el fondo o pedir cerrar el proyecto desde la tarjeta del reclamo.
           </p>
           <textarea
-            placeholder="Describe brevemente qué pasó y por qué abres la disputa"
+            placeholder="Describe brevemente qué pasó y por qué abres el reclamo"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
@@ -334,7 +361,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
             onClick={handleOpenDispute}
             disabled={busy || !reason.trim()}
           >
-            {busy ? 'Abriendo...' : 'Abrir disputa'}
+            {busy ? 'Abriendo...' : 'Abrir reclamo'}
           </button>
         </div>
       )}
@@ -342,8 +369,8 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
       {disputes.length === 0 && optimisticDisputes.length === 0 ? (
         <div className="historial-empty">
           <IonIcon icon={checkmarkCircleOutline} className="empty-icon" />
-          <p className="empty-text">Sin disputas</p>
-          <p className="empty-subtext">No hay disputas abiertas en este proyecto</p>
+          <p className="empty-text">Sin reclamos</p>
+          <p className="empty-subtext">No hay reclamos abiertos en este proyecto</p>
         </div>
       ) : (
         <div className="disputas-list">
@@ -352,16 +379,16 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
               <header className="disputa-card-header">
                 <div className="disputa-card-id">
                   <IonIcon icon={warningOutline} />
-                  <span>Disputa nueva</span>
+                  <span>Reclamo nuevo</span>
                 </div>
                 <span className="disputa-pill disputa-pill--warn">
                   <IonSpinner name="crescent" style={{ width: 14, height: 14 }} />
-                  &nbsp;Confirmando…
+                  &nbsp;Procesando…
                 </span>
               </header>
               <blockquote className="disputa-card-reason">{d.reason}</blockquote>
               <p className="disputa-help-note">
-                La disputa ya quedó registrada en la blockchain. La card se actualizará en unos segundos.
+                Tu reclamo ya quedó registrado. Se actualizará en unos segundos.
               </p>
             </article>
           ))}
@@ -375,7 +402,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                 <header className="disputa-card-header">
                   <div className="disputa-card-id">
                     <IonIcon icon={warningOutline} />
-                    <span>Disputa #{shortChainId(dispute.dispute_chain_id)}</span>
+                    <span>Reclamo #{shortChainId(dispute.dispute_chain_id)}</span>
                   </div>
                   <span className={badge.cls}>
                     <IonIcon icon={badge.icon} />
@@ -384,7 +411,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                 </header>
 
                 <div className="disputa-card-opener">
-                  <span className="disputa-card-opener-label">Abierta por</span>
+                  <span className="disputa-card-opener-label">Abierto por</span>
                   <code className="disputa-card-address">{formatAddress(dispute.opener_address)}</code>
                 </div>
 
@@ -406,7 +433,7 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                     </span>
                     {dispute.resolved_at && (
                       <span className="disputa-card-date">
-                        <IonIcon icon={checkmarkCircleOutline} /> Resuelta {formatDate(dispute.resolved_at)}
+                        <IonIcon icon={checkmarkCircleOutline} /> Resuelto {formatDate(dispute.resolved_at)}
                       </span>
                     )}
                   </div>
@@ -420,55 +447,74 @@ export const DisputasTab: React.FC<DisputasTabProps> = ({ project }) => {
                       const closePending = hasOpenProposal(GovernanceAction.CloseVault, dispute.dispute_chain_id);
                       return (
                         <section className="disputa-action-group">
-                          <h5 className="disputa-action-group-title">Gobernanza</h5>
+                          <h5 className="disputa-action-group-title">Decisiones del grupo</h5>
                           <div className="disputa-action-row">
                             {isOpen && (
                               <button
                                 className="disputa-btn disputa-btn--info"
                                 onClick={() => handleProposeFreeze(dispute)}
                                 disabled={actionBusy === `freeze-${dispute.id}` || freezePending || reconciling}
-                                title={reconciling ? 'La disputa aún se confirma en la blockchain' : freezePending ? 'Ya existe una propuesta activa de congelación' : ''}
+                                title={reconciling ? 'Tu reclamo se está procesando' : freezePending ? 'Ya hay una votación activa para pausar el fondo' : ''}
                               >
                                 <IonIcon icon={snowOutline} />
                                 {actionBusy === `freeze-${dispute.id}`
-                                  ? 'Proponiendo…'
+                                  ? 'Creando votación…'
                                   : freezePending
-                                  ? 'Propuesta de congelación activa'
-                                  : 'Congelar bóveda'}
+                                  ? 'Votación de pausa activa'
+                                  : 'Pausar el fondo'}
                               </button>
                             )}
                             <button
                               className="disputa-btn disputa-btn--danger"
                               onClick={() => handleProposeClose(dispute)}
                               disabled={actionBusy === `close-${dispute.id}` || closePending || reconciling}
-                              title={reconciling ? 'La disputa aún se confirma en la blockchain' : closePending ? 'Ya existe una propuesta activa de cierre' : ''}
+                              title={reconciling ? 'Tu reclamo se está procesando' : closePending ? 'Ya hay una votación activa para cerrar el proyecto' : ''}
                             >
                               <IonIcon icon={closeCircleOutline} />
                               {actionBusy === `close-${dispute.id}`
-                                ? 'Proponiendo…'
+                                ? 'Creando votación…'
                                 : closePending
-                                ? 'Propuesta de cierre activa'
-                                : 'Cerrar proyecto'}
+                                ? 'Votación de cierre activa'
+                                : 'Cerrar el proyecto'}
                             </button>
                           </div>
                           {reconciling ? (
                             <p className="disputa-help-note">
-                              La disputa se está confirmando en la blockchain. Las acciones de gobernanza se habilitarán en unos segundos.
+                              Tu reclamo se está procesando. Las acciones se habilitarán en unos segundos.
                             </p>
                           ) : (freezePending || closePending) && (
                             <p className="disputa-help-note">
                               {freezePending && closePending
-                                ? 'Ya hay propuestas activas de congelar y cerrar. '
+                                ? 'Ya hay votaciones activas para pausar y cerrar. '
                                 : freezePending
-                                ? 'Ya hay una propuesta activa de congelación. '
-                                : 'Ya hay una propuesta activa de cierre. '}
-                              Anda al tab <strong>Gobernanza</strong> para votar.
+                                ? 'Ya hay una votación activa para pausar el fondo. '
+                                : 'Ya hay una votación activa para cerrar el proyecto. '}
+                              Ve a la pestaña <strong>Decisiones</strong> para votar.
                             </p>
                           )}
                         </section>
                       );
                     })()}
 
+                    {project.disputes_address && (isOpen || isFrozen) && (
+                      <section className="disputa-action-group">
+                        <h5 className="disputa-action-group-title">Resolución</h5>
+                        <div className="disputa-action-row">
+                          <button
+                            className="disputa-btn disputa-btn--success"
+                            onClick={() => handleResolve(dispute)}
+                            disabled={actionBusy === `resolve-${dispute.id}` || !isRealChainId(dispute.dispute_chain_id)}
+                            title={!isRealChainId(dispute.dispute_chain_id) ? 'Tu reclamo se está procesando' : ''}
+                          >
+                            <IonIcon icon={checkmarkCircleOutline} />
+                            {actionBusy === `resolve-${dispute.id}` ? 'Resolviendo…' : 'Marcar reclamo como resuelto'}
+                          </button>
+                        </div>
+                        <p className="disputa-help-note">
+                          Marca el reclamo como resuelto para cerrarlo y poder abrir otro.
+                        </p>
+                      </section>
+                    )}
                   </div>
                 )}
               </article>

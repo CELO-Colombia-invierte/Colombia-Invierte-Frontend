@@ -66,7 +66,7 @@ export const RecibirModal: React.FC<RecibirModalProps> = ({ isOpen, onClose }) =
             onClick={() => { onClose(); history.push('/recibir/wallet'); }}
           >
             <span className="recibir-option-icon"><IconWallet /></span>
-            <span>Recibir en mi wallet</span>
+            <span>Recibir en mi cuenta</span>
           </button>
         </div>
       </div>

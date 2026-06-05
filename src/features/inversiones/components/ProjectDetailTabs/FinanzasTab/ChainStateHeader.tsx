@@ -14,7 +14,7 @@ export const ChainStateHeader: React.FC<ChainStateHeaderProps> = ({ project, cha
   const explorerAddress = project.vault_address || project.contract_address;
   return (
     <div className="chain-state-header">
-      <h3 className="chain-state-title">Estado en blockchain</h3>
+      <h3 className="chain-state-title">Estado del proyecto</h3>
       <div className="chain-state-header-right">
         {explorerAddress && (
           <a
@@ -24,7 +24,7 @@ export const ChainStateHeader: React.FC<ChainStateHeaderProps> = ({ project, cha
             className="chain-explorer-link"
           >
             <IonIcon icon={linkOutline} />
-            Celoscan
+            Ver detalles
           </a>
         )}
         <button className="chain-refresh-btn" onClick={onRefresh} disabled={chainLoading}>

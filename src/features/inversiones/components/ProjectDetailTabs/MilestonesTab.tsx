@@ -16,6 +16,7 @@ import { governanceService, GovernanceAction } from '@/services/governance.servi
 import type { Proposal } from './GovernanceTab/types';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import { blockchainService, decodeContractRevert } from '@/services/blockchain.service';
+import { copToUsdcRaw, formatUsdcRawAsCop } from '@/utils/money';
 import { useActiveAccount } from 'thirdweb/react';
 import { VaultFrozenBanner } from './VaultFrozenBanner';
 import './ProjectDetailTabs.css';
@@ -151,12 +152,12 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-  const formatUsdc = (amount: bigint | string) => {
+  const formatMoney = (amount: bigint | string) => {
     const asBig =
       typeof amount === 'bigint'
         ? amount
         : BigInt((amount || '0').toString().split('.')[0] || '0');
-    return blockchainService.formatUnits(asBig, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+    return formatUsdcRawAsCop(asBig);
   };
 
   const statusLabel: Record<string, string> = { PENDING: 'Pendiente', APPROVED: 'Aprobado', EXECUTED: 'Ejecutado' };
@@ -185,11 +186,11 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
   const handlePropose = async () => {
     setActionError(null);
     if (!account) {
-      setActionError('Conecta tu wallet para proponer un hito.');
+      setActionError('Entra a tu cuenta para proponer una etapa.');
       return;
     }
     if (!project.milestones_address) {
-      setActionError('Este proyecto no tiene MilestonesModule desplegado.');
+      setActionError('Este proyecto aún no tiene las etapas habilitadas.');
       return;
     }
 
@@ -199,7 +200,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
     }
     let amount: bigint;
     try {
-      amount = blockchainService.parseUnits(formAmount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+      amount = copToUsdcRaw(Number(formAmount));
     } catch {
       setActionError('Monto inválido.');
       return;
@@ -209,7 +210,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
       return;
     }
     if (amount > disponible) {
-      setActionError(`El monto excede el disponible (${formatUsdc(disponible)} USDC).`);
+      setActionError(`El monto excede el disponible (${formatMoney(disponible)}).`);
       return;
     }
 
@@ -245,7 +246,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
       setShowForm(false);
       await Promise.all([loadMilestones(), loadOnChainState()]);
     } catch (err) {
-      setActionError(decodeContractRevert(err) ?? (err instanceof Error ? err.message : 'Error al proponer hito'));
+      setActionError(decodeContractRevert(err) ?? (err instanceof Error ? err.message : 'No se pudo proponer la etapa'));
     } finally {
       setActionLoading(null);
     }
@@ -253,12 +254,12 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
 
   const handleProposeApproval = async (milestone: Milestone) => {
     if (!account || !project.governance_address) {
-      setActionError('Conecta tu wallet o el proyecto no tiene gobernanza.');
+      setActionError('Entra a tu cuenta o el proyecto aún no permite decisiones del grupo.');
       return;
     }
     const existing = findApprovalProposal(milestone.milestone_chain_id);
     if (existing && existing.status === 'ACTIVE') {
-      setActionError('Ya existe una propuesta activa de aprobación para este hito.');
+      setActionError('Ya hay una votación activa para aprobar esta etapa.');
       return;
     }
     setActionLoading(`propose-approval-${milestone.id}`);
@@ -268,7 +269,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
         projectId: project.id,
         governanceAddress: project.governance_address,
         milestoneChainId: milestone.milestone_chain_id,
-        description: `Aprobar y ejecutar hito #${milestone.milestone_chain_id}: ${milestone.description.slice(0, 80)}`,
+        description: `Aprobar y pagar etapa #${milestone.milestone_chain_id}: ${milestone.description.slice(0, 80)}`,
       });
       await governanceService.createProposal(account, params);
       await Promise.all([loadMilestones(), loadProposals()]);
@@ -309,7 +310,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
       } catch {}
       await loadMilestones();
     } catch (err) {
-      setActionError(decodeContractRevert(err) ?? (err instanceof Error ? err.message : 'Error al ejecutar hito'));
+      setActionError(decodeContractRevert(err) ?? (err instanceof Error ? err.message : 'No se pudo pagar la etapa'));
     } finally {
       setActionLoading(null);
     }
@@ -318,19 +319,19 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
   if (loading) {
     return (
       <div className="milestones-tab">
-        <h2 className="milestones-title">Hitos</h2>
-        <p className="chain-state-loading">Cargando hitos...</p>
+        <h2 className="milestones-title">Etapas</h2>
+        <p className="chain-state-loading">Cargando etapas...</p>
       </div>
     );
   }
 
   return (
     <div className="milestones-tab">
-      <h2 className="milestones-title">Hitos del proyecto</h2>
+      <h2 className="milestones-title">Etapas del proyecto</h2>
 
       {saleFinalized === false && (
         <div className="chain-error-banner" style={{ marginBottom: 12 }}>
-          <p>Los hitos se habilitan una vez que finalices la venta desde la pestaña Finanzas.</p>
+          <p>Las etapas se habilitan una vez que cierres la etapa de inversión desde la pestaña Finanzas.</p>
         </div>
       )}
 
@@ -338,22 +339,22 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
         <div className="chain-state-grid" style={{ marginBottom: 12 }}>
           <div className="chain-stat-card">
             <span className="chain-stat-label">Recaudado neto</span>
-            <span className="chain-stat-value">{formatUsdc(projectFunds)} USDC</span>
+            <span className="chain-stat-value">{formatMoney(projectFunds)}</span>
           </div>
           <div className="chain-stat-card">
-            <span className="chain-stat-label">Comprometido en hitos</span>
-            <span className="chain-stat-value">{formatUsdc(committed)} USDC</span>
+            <span className="chain-stat-label">Comprometido en etapas</span>
+            <span className="chain-stat-value">{formatMoney(committed)}</span>
           </div>
           <div className="chain-stat-card chain-stat-card--primary">
             <span className="chain-stat-label">Disponible</span>
-            <span className="chain-stat-value">{formatUsdc(disponible)} USDC</span>
+            <span className="chain-stat-value">{formatMoney(disponible)}</span>
           </div>
         </div>
       )}
 
       {vaultFrozen && (
         <div style={{ marginBottom: 12 }}>
-          <VaultFrozenBanner message="La bóveda está congelada por una disputa. No se pueden proponer ni ejecutar hitos hasta que se descongele en gobernanza." />
+          <VaultFrozenBanner message="El fondo del proyecto está en pausa por un reclamo. No se pueden proponer ni pagar etapas hasta que el grupo lo reactive." />
         </div>
       )}
 
@@ -369,13 +370,13 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
           className="milestone-action-btn"
           onClick={() => { setShowForm(true); setActionError(null); }}
         >
-          <IonIcon icon={addOutline} slot="start" /> Nuevo hito
+          <IonIcon icon={addOutline} slot="start" /> Nueva etapa
         </IonButton>
       )}
 
       {canPropose && showForm && (
         <div className="milestone-propose-section">
-          <h4 className="milestone-form-title">Crear hito</h4>
+          <h4 className="milestone-form-title">Crear etapa</h4>
           <div className="milestone-form-field">
             <label className="milestone-form-label">Descripción</label>
             <textarea
@@ -387,17 +388,17 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
             />
           </div>
           <div className="milestone-form-field">
-            <label className="milestone-form-label">Monto en USDC</label>
+            <label className="milestone-form-label">Monto en pesos (COP)</label>
             <input
               type="number"
               value={formAmount}
               onChange={e => setFormAmount(e.target.value)}
-              placeholder="0.00"
+              placeholder="0"
               className="milestone-form-input"
             />
           </div>
           <p className="milestone-form-hint">
-            Los fondos del hito se liberan a tu wallet conectada (creador del proyecto).
+            El dinero de la etapa se envía a tu cuenta (responsable del proyecto).
           </p>
           <div className="milestone-form-actions">
             <button
@@ -405,7 +406,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
               onClick={handlePropose}
               disabled={actionLoading === 'propose' || !formDescription.trim()}
             >
-              {actionLoading === 'propose' ? 'Proponiendo...' : 'Proponer hito'}
+              {actionLoading === 'propose' ? 'Proponiendo...' : 'Proponer etapa'}
             </button>
             <button
               className="invest-btn invest-btn--secondary"
@@ -417,7 +418,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
           </div>
           {txHashes['propose'] && (
             <a href={CELOSCAN_TX(txHashes['propose'])} target="_blank" rel="noreferrer" className="milestone-tx-link">
-              <IonIcon icon={openOutline} /> Ver transacción
+              <IonIcon icon={openOutline} /> Ver comprobante
             </a>
           )}
         </div>
@@ -426,8 +427,8 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
       {milestones.length === 0 && optimistic.length === 0 ? (
         <div className="historial-empty">
           <IonIcon icon={rocketOutline} className="empty-icon" />
-          <p className="empty-text">Sin hitos aún</p>
-          <p className="empty-subtext">Los hitos del proyecto aparecerán aquí</p>
+          <p className="empty-text">Sin etapas aún</p>
+          <p className="empty-subtext">Las etapas del proyecto aparecerán aquí</p>
         </div>
       ) : (
         <div className="milestones-list">
@@ -440,16 +441,16 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                     <div className="milestone-item-header">
                       <span className="chain-stat-badge badge-pending">
                         <IonSpinner name="crescent" style={{ width: 14, height: 14 }} />
-                        &nbsp;Confirmando en cadena…
+                        &nbsp;Procesando…
                       </span>
                       <span className="milestone-amount">
                         <IonIcon icon={cashOutline} />
-                        {formatUsdc(milestone.amount)} USDC
+                        {formatMoney(milestone.amount)}
                       </span>
                     </div>
                     <p className="milestone-description">{milestone.description}</p>
                     <span className="milestone-date">
-                      El hito ya está en blockchain. Puede tardar entre 15 y 60 segundos en aparecer según la red.
+                      Tu etapa ya quedó registrada. Puede tardar entre 15 y 60 segundos en aparecer.
                     </span>
                   </div>
                 </div>
@@ -466,7 +467,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                   </span>
                   <span className="milestone-amount">
                     <IonIcon icon={cashOutline} />
-                    {formatUsdc(milestone.amount)} USDC
+                    {formatMoney(milestone.amount)}
                   </span>
                 </div>
                 <p className="milestone-description">{milestone.description}</p>
@@ -482,7 +483,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                   if (!proposal) {
                     return (
                       <div className="milestone-vote-section">
-                        <p className="milestone-vote-hint">Para liberar estos fondos cualquier inversor con tokens puede iniciar la aprobación en gobernanza.</p>
+                        <p className="milestone-vote-hint">Para entregar este dinero, cualquier inversor del proyecto puede iniciar la aprobación con una votación del grupo.</p>
                         <IonButton
                           expand="block"
                           className="milestone-action-btn"
@@ -532,7 +533,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                   }
                   return (
                     <p className="milestone-vote-hint">
-                      Propuesta {proposal.status === 'EXECUTED' ? 'ejecutada' : 'rechazada'} en gobernanza.
+                      Votación {proposal.status === 'EXECUTED' ? 'aprobada' : 'rechazada'} por el grupo.
                     </p>
                   );
                 })()}
@@ -553,7 +554,7 @@ export const MilestonesTab: React.FC<MilestonesTabProps> = ({ project, isOwner =
                     </IonButton>
                     {txHashes[milestone.id] && (
                       <a href={CELOSCAN_TX(txHashes[milestone.id])} target="_blank" rel="noreferrer" className="milestone-tx-link">
-                        <IonIcon icon={openOutline} /> Ver transacción
+                        <IonIcon icon={openOutline} /> Ver comprobante
                       </a>
                     )}
                   </div>

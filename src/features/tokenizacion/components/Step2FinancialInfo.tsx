@@ -135,7 +135,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         <label className="form-label">
           Rendimiento anual proyectado
           <span className="required-star">*</span>
-          <InfoTooltip text="Es una proyección que tú como creador prometes a los inversores. El contrato NO la enforce automáticamente: tendrás que depositar los rendimientos manualmente vía 'Depositar rendimientos' para que los tokenholders los reclamen. Si no depositas, ellos pueden abrir una disputa." />
+          <InfoTooltip text="Es la ganancia que tú, como responsable, prometes a los inversores. No se entrega sola: deberás depositar los rendimientos con la opción 'Depositar rendimientos' para que los inversores los cobren. Si no lo haces, ellos pueden abrir un reclamo." />
         </label>
         <div className="input-with-prefix">
           <span className="input-prefix">%</span>
@@ -211,7 +211,7 @@ export const Step2FinancialInfo: React.FC<Step2FinancialInfoProps> = ({
         <label className="form-label">
           Nombre del token
           <span className="required-star">*</span>
-          <InfoTooltip text="Nombre completo y descriptivo del token. Aparecerá en la blockchain y en todos los registros de la plataforma." />
+          <InfoTooltip text="Nombre completo y descriptivo del token. Aparecerá en todos los registros de la plataforma." />
         </label>
         <input
           type="text"

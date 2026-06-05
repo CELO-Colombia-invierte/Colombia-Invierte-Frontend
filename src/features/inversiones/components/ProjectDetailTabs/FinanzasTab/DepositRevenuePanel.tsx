@@ -1,7 +1,7 @@
 import React from 'react';
 import { RevenueModuleState } from '@/services/blockchain.service';
 import { getBlockExplorerTxUrl } from '@/contracts/config';
-import { formatUsdc } from './formatters';
+import { formatUsdcRawAsCop } from '@/utils/money';
 import { VaultFrozenBanner } from '../VaultFrozenBanner';
 
 interface DepositRevenuePanelProps {
@@ -41,17 +41,17 @@ export const DepositRevenuePanel: React.FC<DepositRevenuePanelProps> = ({
       ) : (
         <>
           <p className="rev-deposit-help">
-            El monto que deposites se reparte proporcionalmente entre los token holders. Quedan{' '}
+            El monto que deposites se reparte entre todos los inversores, según su participación. Hay{' '}
             {tokenSupply ? tokenSupply.toString() : '?'} tokens emitidos.
           </p>
           {userUsdcBalance !== null && (
-            <p className="invest-balance">Tu saldo USDC: {formatUsdc(userUsdcBalance)} USDC</p>
+            <p className="invest-balance">Tu saldo: {formatUsdcRawAsCop(userUsdcBalance)}</p>
           )}
           <div className="invest-input-row">
             <input
               type="number"
               className="invest-input"
-              placeholder="Monto a depositar (USDC)"
+              placeholder="Monto a depositar (pesos COP)"
               value={depositAmount}
               onChange={(e) => onAmountChange(e.target.value)}
               min="0"
@@ -60,7 +60,7 @@ export const DepositRevenuePanel: React.FC<DepositRevenuePanelProps> = ({
           </div>
           {depositError && <p className="invest-error">{depositError}</p>}
           {vaultFrozen && (
-            <VaultFrozenBanner message="La bóveda está congelada por una disputa. No se pueden depositar rendimientos hasta que se descongele en gobernanza." />
+            <VaultFrozenBanner message="El fondo del proyecto está en pausa por un reclamo. No se pueden depositar rendimientos hasta que el grupo lo reactive." />
           )}
           <button
             className="invest-btn"
@@ -76,7 +76,7 @@ export const DepositRevenuePanel: React.FC<DepositRevenuePanelProps> = ({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Ver transacción en Celoscan
+              Ver comprobante
             </a>
           )}
         </>

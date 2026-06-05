@@ -72,9 +72,9 @@ export const ProjectDetailTabs: React.FC<ProjectDetailTabsProps> = ({
     { id: 'participantes', label: 'Participantes', visible: isOwner || isMember },
     { id: 'solicitudes', label: 'Solicitudes', visible: isOwner },
     { id: 'historial', label: 'Historial', visible: true },
-    { id: 'gobernanza', label: 'Gobernanza', visible: hasV2 },
-    { id: 'disputas', label: 'Disputas', visible: hasV2 },
-    { id: 'hitos', label: 'Hitos', visible: hasV2 && !isNatillera },
+    { id: 'gobernanza', label: 'Decisiones', visible: hasV2 },
+    { id: 'disputas', label: 'Reclamos', visible: hasV2 },
+    { id: 'hitos', label: 'Etapas', visible: hasV2 && !isNatillera },
     { id: 'propuestas', label: 'Propuestas', visible: isOwner || isMember },
   ];
 

@@ -10,7 +10,7 @@ interface TokenizacionV1StatsProps {
 
 export const TokenizacionV1Stats: React.FC<TokenizacionV1StatsProps> = ({ state, projectTokenDecimals }) => (
   <div className="chain-state-grid">
-    <StatCard label="Fondos recaudados" value={`${formatUsdc(state.fundsCollected)} USDC`} />
+    <StatCard label="Fondos recaudados" value={`${formatUsdc(state.fundsCollected)}`} />
     <StatCard label="Tokens vendidos" value={formatTokens(state.tokensSold, projectTokenDecimals)} />
     <StatCard
       label="Estado venta"

@@ -63,7 +63,7 @@ const WalletTransferPage: React.FC = () => {
           <button className="wtp-back-btn" onClick={handleBack}>
             <IonIcon icon={arrowBackOutline} />
           </button>
-          <h1 className="wtp-title">Transferir a wallet</h1>
+          <h1 className="wtp-title">Transferir a una dirección</h1>
         </div>
         <div className="wtp-body">
           {step === 'selection' && (

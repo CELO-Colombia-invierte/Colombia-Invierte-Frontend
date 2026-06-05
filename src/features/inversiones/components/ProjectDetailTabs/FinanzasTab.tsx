@@ -58,7 +58,7 @@ export const FinanzasTab: React.FC<FinanzasTabProps> = ({
           <ChainStateHeader project={project} chainLoading={chainLoading} onRefresh={chain.loadChainState} />
 
           {chainLoading && !chainState && (
-            <p className="chain-state-loading">Cargando datos on-chain...</p>
+            <p className="chain-state-loading">Cargando datos...</p>
           )}
 
           {chainState && project.type === 'NATILLERA' && isV2 && (

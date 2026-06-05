@@ -89,7 +89,7 @@ const JoinNatilleraPage: React.FC = () => {
             await joinNatilleraOnChain(project.natillera_address);
           } catch (err: any) {
             console.error('[JOIN] on-chain join failed:', err);
-            const msg = err?.message || 'La unión on-chain falló. Intenta de nuevo.';
+            const msg = err?.message || 'No se pudo unir a la natillera. Intenta de nuevo.';
             await present({ message: msg, duration: 5000, color: 'danger' });
             return;
           }

@@ -68,7 +68,7 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
         icon: arrowDownCircleOutline,
         iconColor: '#16a34a',
         label: 'Inversión recibida',
-        amount: d.amount ? `+${formatUsdc(d.amount)} USDC` : null,
+        amount: d.amount ? `+${formatUsdc(d.amount)}` : null,
         direction: 'in',
         who: d.investor ?? d.user ?? null,
       };
@@ -76,7 +76,7 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
       return {
         icon: checkmarkDoneCircleOutline,
         iconColor: '#4F6BFF',
-        label: 'Venta finalizada (30% al treasury)',
+        label: 'Etapa de inversión cerrada (30% comisión de la plataforma)',
         amount: null,
         direction: 'neutral',
         who: null,
@@ -88,8 +88,8 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
       return {
         icon: arrowUpCircleOutline,
         iconColor: '#dc2626',
-        label: isFee ? 'Comisión cobrada por el treasury' : 'Salida del vault',
-        amount: d.amount ? `−${formatUsdc(d.amount)} USDC` : null,
+        label: isFee ? 'Comisión cobrada por la plataforma' : 'Salida del fondo',
+        amount: d.amount ? `−${formatUsdc(d.amount)}` : null,
         direction: 'out',
         who: d.receiver ?? d.to ?? null,
       };
@@ -98,8 +98,8 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
       return {
         icon: flagOutline,
         iconColor: '#dc2626',
-        label: 'Hito ejecutado',
-        amount: d.amount ? `−${formatUsdc(d.amount)} USDC` : null,
+        label: 'Etapa pagada',
+        amount: d.amount ? `−${formatUsdc(d.amount)}` : null,
         direction: 'out',
         who: d.recipient ?? null,
       };
@@ -108,7 +108,7 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
         icon: cashOutline,
         iconColor: '#16a34a',
         label: 'Rendimientos depositados',
-        amount: d.amount ? `+${formatUsdc(d.amount)} USDC` : null,
+        amount: d.amount ? `+${formatUsdc(d.amount)}` : null,
         direction: 'in',
         who: null,
       };
@@ -117,7 +117,7 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
         icon: arrowUpCircleOutline,
         iconColor: '#dc2626',
         label: 'Rendimientos cobrados',
-        amount: d.amount ? `−${formatUsdc(d.amount)} USDC` : null,
+        amount: d.amount ? `−${formatUsdc(d.amount)}` : null,
         direction: 'out',
         who: d.user ?? null,
       };
@@ -126,7 +126,7 @@ const describeTokenizationEvent = (e: BlockchainEvent): Display | null => {
         icon: closeCircleOutline,
         iconColor: '#dc2626',
         label: 'Reembolso',
-        amount: d.amount ? `−${formatUsdc(d.amount)} USDC` : null,
+        amount: d.amount ? `−${formatUsdc(d.amount)}` : null,
         direction: 'out',
         who: d.user ?? null,
       };
@@ -143,7 +143,7 @@ const describeNatilleraEvent = (e: BlockchainEvent): Display | null => {
         icon: arrowDownCircleOutline,
         iconColor: '#16a34a',
         label: `Cuota pagada · Mes ${Number(d.monthId ?? 0) + 1}`,
-        amount: d.amount ? `+${formatUsdc(d.amount)} USDC` : null,
+        amount: d.amount ? `+${formatUsdc(d.amount)}` : null,
         direction: 'in',
         who: d.member ?? null,
       };
@@ -161,7 +161,7 @@ const describeNatilleraEvent = (e: BlockchainEvent): Display | null => {
         icon: arrowUpCircleOutline,
         iconColor: '#dc2626',
         label: 'Retiro de pozo',
-        amount: d.amount ? `−${formatUsdc(d.amount)} USDC` : null,
+        amount: d.amount ? `−${formatUsdc(d.amount)}` : null,
         direction: 'out',
         who: d.member ?? null,
       };

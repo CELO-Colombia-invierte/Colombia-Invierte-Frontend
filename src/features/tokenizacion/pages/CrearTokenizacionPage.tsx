@@ -158,7 +158,7 @@ const CrearTokenizacionPage: React.FC = () => {
       await present({ message: 'Tokenización creada exitosamente', duration: 2000, color: 'success' });
     } else if (result.error) {
       await present({
-        message: result.error.isGasError ? 'Sin saldo para gas. Contacta al soporte.' : result.error.message,
+        message: result.error.isGasError ? 'No pudimos crear el proyecto ahora. Intenta de nuevo en unos minutos o escribe a soporte.' : result.error.message,
         duration: 6000,
         color: 'danger',
       });
@@ -357,13 +357,13 @@ const CrearTokenizacionPage: React.FC = () => {
       <DeploymentProgressModal
         visible={deployStep > 0}
         title="Creando tu Tokenización"
-        subtitle="Configurando y desplegando la Tokenización, ya casi terminamos"
+        subtitle="Estamos creando tu proyecto, ya casi terminamos"
         currentStep={deployStep}
         steps={[
-          { label: 'Organizando las reglas de tu Tokenización...' },
-          { label: 'Configurando el contrato inteligente...' },
+          { label: 'Organizando las reglas de tu proyecto...' },
+          { label: 'Creando tu proyecto... (puede tardar ~1 minuto)' },
           { label: 'Asignando permisos de administrador' },
-          { label: 'Preparando tu nueva Tokenización...' },
+          { label: 'Preparando tu nuevo proyecto...' },
         ]}
       />
     </IonPage>

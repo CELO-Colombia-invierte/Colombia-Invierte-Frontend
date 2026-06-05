@@ -16,15 +16,15 @@ export enum GovernanceAction {
 }
 
 export const ACTION_LABELS: Record<GovernanceAction, string> = {
-  [GovernanceAction.ActivateVault]: 'Activar bóveda',
-  [GovernanceAction.CloseVault]: 'Cerrar bóveda',
-  [GovernanceAction.FreezeFromDispute]: 'Congelar por disputa',
-  [GovernanceAction.UnfreezeVault]: 'Descongelar bóveda',
-  [GovernanceAction.ApproveAndExecuteMilestone]: 'Aprobar y ejecutar hito',
-  [GovernanceAction.CancelMilestone]: 'Cancelar hito',
-  [GovernanceAction.Disbursement]: 'Retiro de fondos',
-  [GovernanceAction.UpdateVotingPeriod]: 'Actualizar período de votación',
-  [GovernanceAction.UpdateQuorum]: 'Actualizar quórum',
+  [GovernanceAction.ActivateVault]: 'Activar el fondo',
+  [GovernanceAction.CloseVault]: 'Cerrar el proyecto',
+  [GovernanceAction.FreezeFromDispute]: 'Pausar el fondo',
+  [GovernanceAction.UnfreezeVault]: 'Reactivar el fondo',
+  [GovernanceAction.ApproveAndExecuteMilestone]: 'Aprobar y pagar etapa',
+  [GovernanceAction.CancelMilestone]: 'Cancelar etapa',
+  [GovernanceAction.Disbursement]: 'Retiro de dinero',
+  [GovernanceAction.UpdateVotingPeriod]: 'Cambiar tiempo para votar',
+  [GovernanceAction.UpdateQuorum]: 'Cambiar votos necesarios',
 };
 
 export interface CreateProposalParams {

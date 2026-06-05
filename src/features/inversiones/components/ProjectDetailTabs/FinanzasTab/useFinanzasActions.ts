@@ -8,6 +8,7 @@ import {
 } from '@/services/blockchain.service';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import { projectsService } from '@/services/projects/projects.service';
+import { formatUsdcRawAsCop, copToUsdcRaw } from '@/utils/money';
 
 interface UseFinanzasActionsParams {
   project: Project;
@@ -50,7 +51,7 @@ export function useFinanzasActions({
     try {
       amount = blockchainService.parseUnits(investAmount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
     } catch {
-      setInvestError(`Monto inválido: "${investAmount}". Usa solo números y punto decimal (ej: 3 o 3.5).`);
+      setInvestError('Monto inválido. Usa solo números.');
       return;
     }
     if (amount <= 0n) {
@@ -61,40 +62,37 @@ export function useFinanzasActions({
       const s = chainState as RevenueModuleState;
       const remaining = s.fundingTarget > s.totalRaised ? s.fundingTarget - s.totalRaised : 0n;
       if (remaining === 0n) {
-        setInvestError('La tokenización ya alcanzó su objetivo de financiación.');
+        setInvestError('Este proyecto ya alcanzó su meta de inversión.');
         return;
       }
       if (amount > remaining) {
-        const remainingFmt = blockchainService.formatUnitsExact(remaining, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
-        setInvestError(`El monto excede el cupo restante. Máximo disponible: ${remainingFmt} USDC`);
+        setInvestError(`El monto supera el cupo restante. Máximo disponible: ${formatUsdcRawAsCop(remaining)}`);
         return;
       }
       if (s.tokenPrice > 0n) {
         const remainder = amount % s.tokenPrice;
         if (remainder !== 0n) {
           const snapped = amount - remainder;
-          const priceFmt = blockchainService.formatUnitsExact(s.tokenPrice, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+          const priceCop = formatUsdcRawAsCop(s.tokenPrice);
           if (snapped <= 0n) {
-            setInvestError(`El monto debe ser múltiplo del precio por token (${priceFmt} USDC). Mínimo a invertir: ${priceFmt} USDC.`);
+            setInvestError(`El monto debe ser un múltiplo del precio por token (${priceCop}). Mínimo a invertir: ${priceCop}.`);
             return;
           }
-          const suggestedDown = blockchainService.formatUnitsExact(snapped, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
-          const suggestedUp = blockchainService.formatUnitsExact(snapped + s.tokenPrice, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
           setInvestError(
-            `El monto debe ser múltiplo del precio por token (${priceFmt} USDC). Usa ${suggestedDown} o ${suggestedUp} USDC.`,
+            `El monto debe ser un múltiplo del precio por token (${priceCop}). Usa ${formatUsdcRawAsCop(snapped)} o ${formatUsdcRawAsCop(snapped + s.tokenPrice)}.`,
           );
           return;
         }
       }
     }
     if (userUsdcBalance !== null && amount > userUsdcBalance) {
-      setInvestError('Saldo USDC insuficiente.');
+      setInvestError('Saldo insuficiente.');
       return;
     }
     setInvesting(true);
     try {
       if (!project.vault_address) {
-        setInvestError('El proyecto no tiene vault_address. Intenta recargar.');
+        setInvestError('Faltan datos del proyecto. Intenta recargar.');
         setInvesting(false);
         return;
       }
@@ -105,7 +103,7 @@ export function useFinanzasActions({
     } catch (err: any) {
       const msg: string = err?.message ?? '';
       const isGas = msg.includes('insufficient funds') || msg.includes('gas');
-      setInvestError(isGas ? 'Sin CELO para gas. Usa faucet.celo.org/alfajores' : msg || 'Error al invertir');
+      setInvestError(isGas ? 'No se pudo completar la inversión. Intenta de nuevo en unos minutos.' : decodeContractRevert(err) ?? 'No se pudo completar la inversión.');
     } finally {
       setInvesting(false);
     }
@@ -113,16 +111,16 @@ export function useFinanzasActions({
 
   const handleDepositRevenue = async () => {
     if (!account || !project.revenue_address || !project.vault_address) {
-      setDepositError('Faltan datos del proyecto on-chain.');
+      setDepositError('Faltan datos del proyecto. Intenta recargar.');
       return;
     }
     setDepositError(null);
     setDepositTxHash(null);
     let amount: bigint;
     try {
-      amount = blockchainService.parseUnits(depositAmount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+      amount = copToUsdcRaw(Number(depositAmount));
     } catch {
-      setDepositError(`Monto inválido: "${depositAmount}". Usa solo números y punto decimal.`);
+      setDepositError('Monto inválido. Usa solo números.');
       return;
     }
     if (amount <= 0n) {
@@ -130,7 +128,7 @@ export function useFinanzasActions({
       return;
     }
     if (userUsdcBalance !== null && amount > userUsdcBalance) {
-      setDepositError('Saldo USDC insuficiente para depositar este monto.');
+      setDepositError('Saldo insuficiente para depositar este monto.');
       return;
     }
     setDepositing(true);
@@ -165,7 +163,7 @@ export function useFinanzasActions({
       ]);
       if (onChainCreator.toLowerCase() !== account.address.toLowerCase()) {
         setFinalizeError(
-          `Tu wallet (${account.address.slice(0, 6)}…${account.address.slice(-4)}) no es el creator on-chain de este proyecto (${onChainCreator.slice(0, 6)}…${onChainCreator.slice(-4)}). Conecta la wallet correcta.`,
+          'Esta acción solo la puede hacer el responsable del proyecto. Entra con la cuenta correcta.',
         );
         return;
       }
@@ -178,16 +176,16 @@ export function useFinanzasActions({
         const human =
           remaining > 0
             ? `Faltan ${Math.ceil(remaining / 60)} minuto(s) (cierra el ${endDate.toLocaleString('es-CO')})`
-            : 'La venta ya cerró por tiempo. Recarga la página — el contrato debería pasar a Successful automáticamente.';
+            : 'La etapa de inversión ya cerró por tiempo. Recarga la página en unos segundos.';
         setFinalizeError(
-          `La venta aún no se puede finalizar: cupo restante es menor que el precio de un token y no se alcanzó fundingTarget exacto. ${human}`,
+          `Aún no se puede cerrar la etapa de inversión: queda cupo por debajo del precio de un token y no se alcanzó la meta exacta. ${human}`,
         );
         return;
       }
       const treasury = await blockchainService.getFeeTreasury(feeMgr);
       if (/^0x0+$/.test(treasury)) {
         setFinalizeError(
-          `El FeeManager (${feeMgr}) no tiene treasury configurado. El contrato revertirá. Contacta al equipo de blockchain.`,
+          'No se pudo cerrar la etapa de inversión por un problema de configuración. Escribe a soporte.',
         );
         return;
       }
@@ -200,12 +198,11 @@ export function useFinanzasActions({
     } catch (err) {
       const friendly = decodeContractRevert(err);
       if (friendly && /no autorizado/i.test(friendly)) {
-        const creator = await blockchainService.getProjectCreator(project.revenue_address!);
         setFinalizeError(
-          `Unauthorized() del contrato. msg.sender on-chain no es el projectCreator. projectCreator=${creator}. account UI=${account.address}. Si difieren, hay account abstraction o cambiaste de wallet.`,
+          'Esta acción solo la puede hacer el responsable del proyecto. Entra con la cuenta correcta.',
         );
       } else {
-        setFinalizeError(friendly ?? (err as Error).message ?? 'Error al finalizar la venta');
+        setFinalizeError(friendly ?? 'No se pudo cerrar la etapa de inversión.');
       }
     } finally {
       setFinalizing(false);

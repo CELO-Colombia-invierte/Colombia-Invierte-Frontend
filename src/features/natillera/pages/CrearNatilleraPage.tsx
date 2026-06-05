@@ -215,7 +215,7 @@ const CrearNatilleraPage: React.FC = () => {
         }
 
         if (newBalance < MIN_GAS) {
-          throw new Error('El backend envió gas pero no impactó en la blockchain a tiempo.');
+          throw new Error('La preparación de la cuenta tardó demasiado. Intenta de nuevo.');
         }
 
       } catch (fundErr) {
@@ -225,7 +225,7 @@ const CrearNatilleraPage: React.FC = () => {
         if (celoBalance < MIN_GAS) {
           setDeployStep(0);
           await present({
-            message: 'Sin saldo para gas. Reinicia la app o contacta al soporte.',
+            message: 'No pudimos crear la natillera ahora. Intenta de nuevo en unos minutos o escribe a soporte.',
             duration: 6000,
             color: 'danger',
           });
@@ -322,8 +322,8 @@ const CrearNatilleraPage: React.FC = () => {
         msg.includes('gas');
       await present({
         message: isGasError
-          ? 'Sin saldo para gas. Contacta al soporte.'
-          : msg || 'Error al crear la natillera',
+          ? 'No pudimos crear la natillera ahora. Intenta de nuevo en unos minutos o escribe a soporte.'
+          : msg || 'No se pudo crear la natillera',
         duration: 6000,
         color: 'danger',
       });

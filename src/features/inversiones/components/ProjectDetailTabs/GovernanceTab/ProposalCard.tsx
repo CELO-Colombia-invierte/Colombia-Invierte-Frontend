@@ -16,9 +16,8 @@ import {
   settingsOutline,
   lockClosedOutline,
 } from 'ionicons/icons';
-import { blockchainService } from '@/services/blockchain.service';
 import { GovernanceAction, ACTION_LABELS } from '@/services/governance.service';
-import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { formatUsdcRawAsCop } from '@/utils/money';
 import type { Proposal, ProposalChainState } from './types';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -33,15 +32,15 @@ const STATUS_ICON: Record<string, string> = {
 };
 
 const ACTION_VISUALS: Record<number, { icon: string; cls: string; short: string }> = {
-  [GovernanceAction.ActivateVault]: { icon: sunnyOutline, cls: 'gov-action--vault', short: 'Activar bóveda' },
-  [GovernanceAction.CloseVault]: { icon: lockClosedOutline, cls: 'gov-action--danger', short: 'Cerrar bóveda' },
-  [GovernanceAction.FreezeFromDispute]: { icon: snowOutline, cls: 'gov-action--dispute', short: 'Congelar (disputa)' },
-  [GovernanceAction.UnfreezeVault]: { icon: flameOutline, cls: 'gov-action--vault', short: 'Descongelar' },
-  [GovernanceAction.ApproveAndExecuteMilestone]: { icon: rocketOutline, cls: 'gov-action--milestone', short: 'Hito' },
-  [GovernanceAction.CancelMilestone]: { icon: banOutline, cls: 'gov-action--milestone', short: 'Cancelar hito' },
+  [GovernanceAction.ActivateVault]: { icon: sunnyOutline, cls: 'gov-action--vault', short: 'Activar fondo' },
+  [GovernanceAction.CloseVault]: { icon: lockClosedOutline, cls: 'gov-action--danger', short: 'Cerrar proyecto' },
+  [GovernanceAction.FreezeFromDispute]: { icon: snowOutline, cls: 'gov-action--dispute', short: 'Pausar fondo' },
+  [GovernanceAction.UnfreezeVault]: { icon: flameOutline, cls: 'gov-action--vault', short: 'Reactivar fondo' },
+  [GovernanceAction.ApproveAndExecuteMilestone]: { icon: rocketOutline, cls: 'gov-action--milestone', short: 'Etapa' },
+  [GovernanceAction.CancelMilestone]: { icon: banOutline, cls: 'gov-action--milestone', short: 'Cancelar etapa' },
   [GovernanceAction.Disbursement]: { icon: cashOutline, cls: 'gov-action--treasury', short: 'Retiro' },
-  [GovernanceAction.UpdateVotingPeriod]: { icon: settingsOutline, cls: 'gov-action--config', short: 'Config votación' },
-  [GovernanceAction.UpdateQuorum]: { icon: settingsOutline, cls: 'gov-action--config', short: 'Config quórum' },
+  [GovernanceAction.UpdateVotingPeriod]: { icon: settingsOutline, cls: 'gov-action--config', short: 'Tiempo para votar' },
+  [GovernanceAction.UpdateQuorum]: { icon: settingsOutline, cls: 'gov-action--config', short: 'Votos necesarios' },
 };
 
 const formatDate = (s: string) =>
@@ -99,7 +98,7 @@ export const ProposalCard: React.FC<Props> = ({
   return (
     <div className="gov-card">
       <div className="gov-card__head">
-        <span className="gov-card__id">Propuesta #{p.proposal_chain_id}</span>
+        <span className="gov-card__id">Votación #{p.proposal_chain_id}</span>
         <span className={`gov-card__status gov-status--${displayStatus.toLowerCase()}`}>
           <IonIcon icon={STATUS_ICON[displayStatus] ?? timeOutline} />
           {STATUS_LABEL[displayStatus] ?? displayStatus}
@@ -118,15 +117,7 @@ export const ProposalCard: React.FC<Props> = ({
             <span className="gov-card__meta-chip">
               Monto:{' '}
               <strong>
-                {blockchainService.formatUnitsExact(BigInt(p.amount), BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)} USDC
-              </strong>
-            </span>
-          )}
-          {isDisbursement && p.recipient && p.recipient !== '0x0000000000000000000000000000000000000000' && (
-            <span className="gov-card__meta-chip">
-              Para:{' '}
-              <strong>
-                {p.recipient.slice(0, 6)}…{p.recipient.slice(-4)}
+                {formatUsdcRawAsCop(BigInt(p.amount))}
               </strong>
             </span>
           )}
@@ -138,11 +129,11 @@ export const ProposalCard: React.FC<Props> = ({
       <div className="gov-card__votes">
         <span className="gov-vote gov-vote--yes">
           <IonIcon icon={thumbsUpOutline} />
-          {Number(yesVotes).toLocaleString('es-CO')} {projectType === 'TOKENIZATION' ? 'tokens a favor' : 'a favor'}
+          {Number(yesVotes).toLocaleString('es-CO')} {projectType === 'TOKENIZATION' ? 'votos a favor' : 'a favor'}
         </span>
         <span className="gov-vote gov-vote--no">
           <IonIcon icon={thumbsDownOutline} />
-          {Number(noVotes).toLocaleString('es-CO')} {projectType === 'TOKENIZATION' ? 'tokens en contra' : 'en contra'}
+          {Number(noVotes).toLocaleString('es-CO')} {projectType === 'TOKENIZATION' ? 'votos en contra' : 'en contra'}
         </span>
       </div>
 

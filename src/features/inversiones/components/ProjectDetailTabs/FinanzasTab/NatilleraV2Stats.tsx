@@ -11,13 +11,13 @@ interface NatilleraV2StatsProps {
 export const NatilleraV2Stats: React.FC<NatilleraV2StatsProps> = ({ state, vaultBalance }) => (
   <div className="chain-state-grid">
     {vaultBalance !== null && (
-      <StatCard label="Total recaudado" value={`${formatUsdc(vaultBalance)} USDC`} />
+      <StatCard label="Total recaudado" value={`${formatUsdc(vaultBalance)}`} />
     )}
     <StatCard
       label="Mes actual"
       value={`${Number(state.currentMonth) + 1} / ${Number(state.duration)}`}
     />
-    <StatCard label="Cuota mensual" value={`${formatUsdc(state.quota)} USDC`} />
+    <StatCard label="Cuota mensual" value={`${formatUsdc(state.quota)}`} />
     <StatCard
       label="Estado"
       badge={state.isMatured ? 'Madurada' : 'Activa'}

@@ -14,7 +14,7 @@ export const RewardsBanner: React.FC<RewardsBannerProps> = ({ pendingRewards, cl
     <div className="chain-rewards-info">
       <IonIcon icon={giftOutline} />
       <span>
-        Rendimientos disponibles: <strong>{formatUsdc(pendingRewards)} USDC</strong>
+        Rendimientos disponibles: <strong>{formatUsdc(pendingRewards)}</strong>
       </span>
     </div>
     <button className="chain-rewards-btn" onClick={onClaim} disabled={claiming}>

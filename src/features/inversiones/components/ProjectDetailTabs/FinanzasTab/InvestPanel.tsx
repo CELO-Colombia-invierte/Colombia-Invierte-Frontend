@@ -6,8 +6,8 @@ import { thirdwebClient } from '@/app/App';
 import { CHAIN, BLOCKCHAIN_CONFIG, getBlockExplorerTxUrl } from '@/contracts/config';
 import { blockchainService, RevenueModuleState } from '@/services/blockchain.service';
 import { Project } from '@/models/projects';
-import { formatUsdc } from './formatters';
 import { RevenueDerived } from './tokenizationMath';
+import { formatUsdcRawAsCop, formatUsdcAsCop } from '@/utils/money';
 
 interface InvestPanelProps {
   account: Account | undefined;
@@ -28,6 +28,8 @@ interface InvestPanelProps {
 
 const fmtExact = (value: bigint) =>
   blockchainService.formatUnitsExact(value, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+
+const fmtCop = (value: bigint) => formatUsdcRawAsCop(value);
 
 const maxBtnStyle: React.CSSProperties = {
   marginLeft: 8,
@@ -62,7 +64,7 @@ export const InvestPanel: React.FC<InvestPanelProps> = ({
       <h4 className="invest-title">Invertir en este proyecto</h4>
       {!account ? (
         <>
-          <p className="invest-balance">Conecta tu wallet para invertir</p>
+          <p className="invest-balance">Entra a tu cuenta para invertir</p>
           <ConnectButton
             client={thirdwebClient}
             chain={CHAIN}
@@ -86,23 +88,23 @@ export const InvestPanel: React.FC<InvestPanelProps> = ({
         <>
           {userInvestment !== null && userInvestment > 0n && (
             <p className="invest-current">
-              Tu inversión actual: <strong>{formatUsdc(userInvestment)} USDC</strong>
+              Tu inversión actual: <strong>{fmtCop(userInvestment)}</strong>
             </p>
           )}
           {userUsdcBalance !== null && (
             <p className="invest-balance">
-              Balance disponible: {formatUsdc(userUsdcBalance)} USDC
+              Saldo disponible: {fmtCop(userUsdcBalance)}
               <button type="button" className="invest-max-btn" onClick={onTopupUsdc} style={maxBtnStyle}>
-                Recargar USDC
+                Agregar dinero
               </button>
             </p>
           )}
           <p className="invest-balance">
             Cupo invertible:{' '}
-            <strong>{fmtExact(maxAllowed > 0n ? maxAllowed : remaining)} USDC</strong>
+            <strong>{fmtCop(maxAllowed > 0n ? maxAllowed : remaining)}</strong>
             {maxAllowed > 0n && maxAllowed < remaining && (
               <span style={{ marginLeft: 6, fontSize: 12, color: '#7a5300' }}>
-                (sobran {fmtExact(remaining - maxAllowed)} USDC menores al precio de un token)
+                (sobran {fmtCop(remaining - maxAllowed)} menores al precio de un token)
               </span>
             )}
             {maxAllowed > 0n && !dust && (
@@ -131,9 +133,9 @@ export const InvestPanel: React.FC<InvestPanelProps> = ({
                 marginTop: 8,
               }}
             >
-              La tokenización ya está prácticamente completa. El cupo restante ({fmtExact(remaining)}{' '}
-              USDC) es menor que el precio de un token ({fmtExact(state.tokenPrice)}{' '}
-              USDC), por lo que no se aceptan más inversiones en este proyecto.
+              El proyecto ya está prácticamente completo. El cupo restante ({fmtCop(remaining)}) es menor
+              que el precio de un token ({fmtCop(state.tokenPrice)}), por lo que no se aceptan más
+              inversiones en este proyecto.
             </p>
           )}
           {!dust && (() => {
@@ -202,8 +204,8 @@ export const InvestPanel: React.FC<InvestPanelProps> = ({
                 </div>
                 <p className="invest-equiv">
                   {currentTokens > 0n
-                    ? `= ${investAmount} USDC · ${fmtExact(tokenPrice)} USDC por token`
-                    : `${fmtExact(tokenPrice)} USDC por token · máximo ${maxTokens.toString()} token(s)`}
+                    ? `= ${formatUsdcAsCop(Number(investAmount) || 0)} · ${fmtCop(tokenPrice)} por token`
+                    : `${fmtCop(tokenPrice)} por token · máximo ${maxTokens.toString()} token(s)`}
                 </p>
                 {investError && <p className="invest-error">{investError}</p>}
                 <button
@@ -223,7 +225,7 @@ export const InvestPanel: React.FC<InvestPanelProps> = ({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Ver transacción en Celoscan
+              Ver comprobante
             </a>
           )}
         </>

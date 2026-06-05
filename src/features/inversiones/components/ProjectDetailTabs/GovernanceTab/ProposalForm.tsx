@@ -30,12 +30,12 @@ export const ProposalForm: React.FC<Props> = ({ form, setForm, projectCreator, b
 
   const targetIdLabel =
     form.action === GovernanceAction.FreezeFromDispute
-      ? 'ID de la disputa'
-      : 'ID del hito';
+      ? 'Número del reclamo'
+      : 'Número de la etapa';
 
   return (
     <div className="governance-item" style={{ marginBottom: 16 }}>
-      <h4 style={{ margin: '0 0 12px' }}>Crear propuesta on-chain</h4>
+      <h4 style={{ margin: '0 0 12px' }}>Crear una votación</h4>
 
       <label style={labelStyle}>Tipo de acción</label>
       <select
@@ -56,10 +56,10 @@ export const ProposalForm: React.FC<Props> = ({ form, setForm, projectCreator, b
 
       {showAmount && (
         <>
-          <label style={labelStyle}>Monto en USDC</label>
+          <label style={labelStyle}>Monto en pesos (COP)</label>
           <input
             type="number"
-            placeholder="0.00"
+            placeholder="0"
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
             style={inputStyle}
@@ -69,10 +69,7 @@ export const ProposalForm: React.FC<Props> = ({ form, setForm, projectCreator, b
 
       {form.action === GovernanceAction.Disbursement && projectCreator && (
         <p style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>
-          Los fondos se enviarán al host del proyecto:{' '}
-          <code>
-            {projectCreator.slice(0, 6)}…{projectCreator.slice(-4)}
-          </code>
+          El dinero se enviará al responsable del proyecto.
         </p>
       )}
 
@@ -92,7 +89,7 @@ export const ProposalForm: React.FC<Props> = ({ form, setForm, projectCreator, b
       {showRawNumber && (
         <>
           <label style={labelStyle}>
-            {form.action === GovernanceAction.UpdateQuorum ? 'Nuevo % de quórum (1–100)' : 'Nuevo período en segundos'}
+            {form.action === GovernanceAction.UpdateQuorum ? 'Votos necesarios (%) (1–100)' : 'Tiempo para votar (días)'}
           </label>
           <input
             type="number"
@@ -113,7 +110,7 @@ export const ProposalForm: React.FC<Props> = ({ form, setForm, projectCreator, b
       />
 
       <button className="invest-btn" onClick={onSubmit} disabled={busy === 'create' || !form.description}>
-        {busy === 'create' ? 'Enviando...' : 'Crear propuesta'}
+        {busy === 'create' ? 'Enviando...' : 'Crear votación'}
       </button>
     </div>
   );

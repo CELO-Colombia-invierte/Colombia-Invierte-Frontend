@@ -49,7 +49,7 @@ const PropuestaPreviewPage: React.FC = () => {
         const recipient = propuesta.responsible_user?.wallet_address;
         console.log('[PROPOSE] recipient wallet:', recipient);
         if (!recipient) {
-          throw new Error('El encargado no tiene wallet registrada. No se puede firmar on-chain.');
+          throw new Error('El encargado no tiene una cuenta registrada. No se puede continuar.');
         }
         const usdcAmount = formData.withdrawal_amount / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE;
         const amountBigInt = toUnits(
@@ -66,7 +66,7 @@ const PropuestaPreviewPage: React.FC = () => {
         });
 
         await present({
-          message: 'Firma la propuesta en tu wallet para registrarla on-chain',
+          message: 'Confirma la solicitud para registrarla',
           duration: 2500,
         });
         console.log('[PROPOSE] calling proposeOnChain...');

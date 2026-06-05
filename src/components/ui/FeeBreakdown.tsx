@@ -32,8 +32,8 @@ const FeeBreakdown: React.FC<Props> = ({ mode, amountCOP, amountUSDC }) => {
 
       <div className="fee-breakdown__rows">
         <div className="fee-breakdown__row">
-          <span className="fee-breakdown__label">Red Celo (gas)</span>
-          <span className="fee-breakdown__value">~$0.005 USDC (~${fmt(networkFeeCOP)} COP)</span>
+          <span className="fee-breakdown__label">Costo de procesamiento</span>
+          <span className="fee-breakdown__value">~$ {fmt(networkFeeCOP)}</span>
         </div>
 
         {mode === 'withdrawal' && (
@@ -41,9 +41,9 @@ const FeeBreakdown: React.FC<Props> = ({ mode, amountCOP, amountUSDC }) => {
             <span className="fee-breakdown__label">Comisión plataforma (3%)</span>
             <span className="fee-breakdown__value">
               {hasCOP && platformFeeCOP !== null
-                ? `~$${fmt(platformFeeCOP)} COP (~$${(platformFeeCOP / BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE).toFixed(2)} USDC)`
+                ? `~$ ${fmt(platformFeeCOP)}`
                 : hasUSDC && platformFeeUSDC !== null
-                ? `~$${platformFeeUSDC.toFixed(4)} USDC`
+                ? `~$ ${fmt(platformFeeUSDC * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE)}`
                 : '3% del monto retirado'}
             </span>
           </div>
@@ -54,9 +54,9 @@ const FeeBreakdown: React.FC<Props> = ({ mode, amountCOP, amountUSDC }) => {
             <span className="fee-breakdown__label">Recibirás aprox.</span>
             <span className="fee-breakdown__value fee-breakdown__value--net">
               {hasCOP && platformFeeCOP !== null
-                ? `$${fmt(amountCOP! - platformFeeCOP)} COP`
+                ? `$ ${fmt(amountCOP! - platformFeeCOP)}`
                 : hasUSDC && platformFeeUSDC !== null
-                ? `$${(amountUSDC! - platformFeeUSDC).toFixed(4)} USDC`
+                ? `$ ${fmt((amountUSDC! - platformFeeUSDC) * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE)}`
                 : ''}
             </span>
           </div>

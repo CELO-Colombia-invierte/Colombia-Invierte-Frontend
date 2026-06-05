@@ -71,7 +71,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
 
           <button className="transfer-option-btn" onClick={() => { onClose(); history.push('/transferir-wallet'); }}>
             <span className="transfer-option-icon"><IconWallet /></span>
-            <span>Transferir a una wallet</span>
+            <span>Transferir a una dirección</span>
           </button>
 
           <button className="transfer-option-btn" onClick={() => { onClose(); history.push('/transferir-banco'); }}>

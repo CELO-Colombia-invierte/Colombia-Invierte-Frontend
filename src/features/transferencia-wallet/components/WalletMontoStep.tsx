@@ -92,7 +92,7 @@ const WalletMontoStep: React.FC<Props> = ({ coin, onPreview }) => {
         <input
           className="wm-address-input"
           type="text"
-          placeholder="Dirección de wallet"
+          placeholder="Dirección de destino"
           value={walletAddress}
           onChange={e => setWalletAddress(e.target.value)}
         />

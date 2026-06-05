@@ -3,9 +3,10 @@ import { IonIcon, IonSpinner } from '@ionic/react';
 import { timeOutline, addOutline, lockClosedOutline } from 'ionicons/icons';
 import { Project } from '@/models/projects';
 import { useBlockchain } from '@/hooks/use-blockchain';
-import { blockchainService, decodeContractRevert, decodeContractRevertRaw } from '@/services/blockchain.service';
+import { blockchainService, decodeContractRevert } from '@/services/blockchain.service';
 import { governanceService, GovernanceAction } from '@/services/governance.service';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { copToUsdcRaw } from '@/utils/money';
 import { useGovernanceData } from './GovernanceTab/useGovernanceData';
 import { ProposalForm } from './GovernanceTab/ProposalForm';
 import { ProposalCard } from './GovernanceTab/ProposalCard';
@@ -29,7 +30,6 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
     projectCreator,
     votingPower,
     tokenBalance,
-    delegatedTo,
     chainState,
     userVotes,
     vaultFrozen,
@@ -56,13 +56,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
       await op();
       await loadProposals(true);
     } catch (err) {
-      const raw = decodeContractRevertRaw(err);
-      const message = (err as Error).message ?? '';
-      if (raw) {
-        setError(`Revert on-chain: ${raw}`);
-      } else {
-        setError(decodeContractRevert(err) ?? message ?? 'Error al ejecutar');
-      }
+      setError(decodeContractRevert(err) ?? 'No se pudo completar la acción. Intenta de nuevo.');
     } finally {
       setBusy(null);
     }
@@ -101,11 +95,11 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
 
     if (form.action === GovernanceAction.Disbursement) {
       if (vaultFrozen) {
-        setError('La bóveda está congelada por una disputa. No se pueden proponer retiros hasta que se descongele en gobernanza.');
+        setError('El fondo del proyecto está en pausa por un reclamo. No se pueden proponer retiros hasta que el grupo lo reactive.');
         return;
       }
       if (!projectCreator) {
-        setError('No se pudo leer el creador del proyecto on-chain. Intenta recargar.');
+        setError('No se pudo leer el responsable del proyecto. Intenta recargar.');
         return;
       }
       recipient = projectCreator;
@@ -114,7 +108,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
         return;
       }
       try {
-        amount = blockchainService.parseUnits(form.amount, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+        amount = copToUsdcRaw(Number(form.amount));
       } catch {
         setError('Monto inválido');
         return;
@@ -125,7 +119,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
       form.action === GovernanceAction.CancelMilestone
     ) {
       if (!form.targetId) {
-        setError('targetId requerido para esta acción.');
+        setError('Falta seleccionar el elemento para esta acción.');
         return;
       }
       targetId = BigInt(form.targetId);
@@ -137,7 +131,10 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
         setError('El nuevo valor es requerido.');
         return;
       }
-      amount = BigInt(form.amount);
+      amount =
+        form.action === GovernanceAction.UpdateVotingPeriod
+          ? BigInt(Math.round(Number(form.amount) * 86400))
+          : BigInt(form.amount);
     }
 
     const desc = form.description;
@@ -179,8 +176,8 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
   if (loading) {
     return (
       <div className="historial-tab">
-        <h2 className="governance-title">Gobernanza</h2>
-        <p className="chain-state-loading">Cargando propuestas...</p>
+        <h2 className="governance-title">Decisiones del grupo</h2>
+        <p className="chain-state-loading">Cargando decisiones...</p>
       </div>
     );
   }
@@ -189,7 +186,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
     <div className="historial-tab">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <h2 className="governance-title" style={{ margin: 0 }}>
-          Gobernanza
+          Decisiones del grupo
         </h2>
         {account && project.governance_address && (
           <button
@@ -200,7 +197,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
               setError(null);
             }}
           >
-            <IonIcon icon={addOutline} /> {showCreate ? 'Cancelar' : 'Nueva propuesta'}
+            <IonIcon icon={addOutline} /> {showCreate ? 'Cancelar' : 'Nueva votación'}
           </button>
         )}
       </div>
@@ -210,21 +207,20 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
       {vaultClosed && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '10px 12px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, color: '#991b1b', fontSize: 13 }}>
           <IonIcon icon={lockClosedOutline} style={{ fontSize: 18, flexShrink: 0 }} />
-          <span>Esta bóveda fue cerrada. Los fondos restantes fueron devueltos proporcionalmente a los inversores. No se pueden crear nuevas propuestas de retiro.</span>
+          <span>Este proyecto fue cerrado. El dinero restante se devolvió a los inversores. Ya no se pueden crear nuevas votaciones de retiro.</span>
         </div>
       )}
       {!vaultClosed && vaultFrozen && (
         <div style={{ marginBottom: 12 }}>
-          <VaultFrozenBanner message="La bóveda está congelada por una disputa. Las propuestas de retiro están bloqueadas; aún se puede proponer y votar acciones como descongelar la bóveda." />
+          <VaultFrozenBanner message="El fondo del proyecto está en pausa por un reclamo. Los retiros están bloqueados; aún puedes crear y votar acciones como reactivar el fondo." />
         </div>
       )}
 
       {account && project.type === 'TOKENIZATION' && tokenBalance !== null && tokenBalance > 0n && votingPower === 0n && (
         <div style={{ marginBottom: 12, padding: 12, background: '#fff8e6', border: '1px solid #f5c451', borderRadius: 8 }}>
           <p style={{ margin: '0 0 8px', fontSize: 13, color: '#7a5300' }}>
-            Tienes <strong>{tokenBalance.toString()} tokens</strong> pero aún no has delegado tu voz. Para votar en
-            gobernanza necesitas delegarte a ti mismo (es una característica de ERC20Votes).
-            {delegatedTo === ZERO_ADDRESS && ' Delegate actual: ninguno.'}
+            Tienes participación en este proyecto, pero aún no has activado tu voto. Actívalo una vez para poder
+            participar en las decisiones del grupo.
           </p>
           <button
             className="invest-btn"
@@ -232,7 +228,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
             onClick={handleDelegate}
             disabled={busy === 'delegate'}
           >
-            {busy === 'delegate' ? 'Delegando...' : 'Delegarme a mí mismo'}
+            {busy === 'delegate' ? 'Activando...' : 'Activar mi voto'}
           </button>
         </div>
       )}
@@ -250,8 +246,8 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
       {proposals.length === 0 && optimisticProposals.length === 0 ? (
         <div className="historial-empty">
           <IonIcon icon={timeOutline} className="empty-icon" />
-          <p className="empty-text">Sin propuestas aún</p>
-          <p className="empty-subtext">Las propuestas de gobernanza aparecerán aquí</p>
+          <p className="empty-text">Sin decisiones aún</p>
+          <p className="empty-subtext">Las decisiones del grupo aparecerán aquí</p>
         </div>
       ) : (
         <div className="gov-list">
@@ -281,7 +277,7 @@ export const GovernanceTab: React.FC<GovernanceTabProps> = ({ project }) => {
               </div>
               {p.description && <p className="gov-card__desc">{p.description}</p>}
               <span className="gov-card__date">
-                La propuesta ya quedó registrada en la blockchain. La card se actualizará en unos segundos.
+                Tu votación ya quedó registrada. Se actualizará en unos segundos.
               </span>
             </div>
           ))}

@@ -11,6 +11,7 @@ import { Project } from '@/models/projects';
 import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
 import { BLOCKCHAIN_CONFIG, CHAIN, getBlockExplorerTxUrl } from '@/contracts/config';
+import { formatUsdcRawAsCop } from '@/utils/money';
 import './PaymentPage.css';
 
 const wallets = [
@@ -121,7 +122,7 @@ const PaymentPage: React.FC = () => {
     setFundingUsdc(true);
     try {
       await apiService.post('/me/dev/fund-usdc');
-      await present({ message: '10 USDC y 0.01 CELO enviados a tu wallet. Recarga la página en unos segundos.', duration: 4000, color: 'success' });
+      await present({ message: 'Saldo de prueba enviado a tu cuenta. Recarga la página en unos segundos.', duration: 4000, color: 'success' });
       if (account?.address) {
         setTimeout(() => {
           loadUsdtBalance(contractPaymentToken);
@@ -129,7 +130,7 @@ const PaymentPage: React.FC = () => {
         }, 3000);
       }
     } catch (err) {
-      const msg = (err as any)?.message ?? 'Error al enviar USDC';
+      const msg = (err as any)?.message ?? 'No se pudo enviar el saldo de prueba';
       await present({ message: msg, duration: 4000, color: 'danger' });
     } finally {
       setFundingUsdc(false);
@@ -138,12 +139,12 @@ const PaymentPage: React.FC = () => {
 
   const handlePay = async () => {
     if (!account) {
-      await present({ message: 'Wallet no conectada', duration: 2000, color: 'warning' });
+      await present({ message: 'Entra a tu cuenta primero', duration: 2000, color: 'warning' });
       return;
     }
     const isV2 = !!project?.natillera_address;
     if (!isV2 && !project?.contract_address) {
-      await present({ message: 'Proyecto no desplegado en blockchain', duration: 2000, color: 'warning' });
+      await present({ message: 'El proyecto aún no está publicado', duration: 2000, color: 'warning' });
       return;
     }
 
@@ -206,16 +207,13 @@ const PaymentPage: React.FC = () => {
       if (msg.includes('insufficient funds for gas') || msg.includes('error_forwarding_sequencer')) {
         msg = 'Error al procesar la tarifa de red. Por favor intenta nuevamente en unos segundos.';
       } else if (msg.includes('NotMember') || msg.includes('0x291fc442')) {
-        msg = 'Tu wallet no está registrada en este proyecto. Ve a "Resumen" y únete primero.';
+        msg = 'Tu cuenta no está registrada en este proyecto. Ve a "Resumen" y únete primero.';
       } else if (msg.includes('AlreadyPaid') || msg.includes('0xd70a0e30') || msg.includes('AlreadyDeposited')) {
         msg = 'Ya realizaste el pago de este ciclo. El próximo pago estará disponible el siguiente mes.';
       }
       await present({ message: msg, duration: 4000, color: 'danger' });
     }
   };
-
-  const formatUsdt = (value: bigint): string =>
-    blockchainService.formatUnits(value, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
 
   if (loading) {
     return (
@@ -248,7 +246,7 @@ const PaymentPage: React.FC = () => {
               <IonIcon icon={checkmarkCircleOutline} className="payment-success-icon" />
               <p className="payment-success-title">¡Pago realizado!</p>
               <p className="payment-success-subtitle">
-                Tu cuota fue registrada en blockchain exitosamente.
+                Tu cuota fue registrada correctamente.
               </p>
               <a
                 href={getBlockExplorerTxUrl(txHash)}
@@ -256,7 +254,7 @@ const PaymentPage: React.FC = () => {
                 rel="noopener noreferrer"
                 className="payment-tx-link"
               >
-                Ver transacción <IonIcon icon={openOutline} />
+                Ver comprobante <IonIcon icon={openOutline} />
               </a>
             </div>
             <div className="payment-actions">
@@ -295,17 +293,11 @@ const PaymentPage: React.FC = () => {
                 })} {currency}
               </span>
             </div>
-            {monthlyContribution > BigInt(0) && (
-              <div className="payment-detail-row">
-                <span className="payment-detail-label">En USDT</span>
-                <span className="payment-detail-value">{formatUsdt(monthlyContribution)} USDT</span>
-              </div>
-            )}
             {account && (
               <div className="payment-detail-row">
                 <span className="payment-detail-label">Tu saldo</span>
                 <span className={`payment-detail-value${!hasEnoughBalance ? ' payment-detail-value--error' : ''}`}>
-                  {formatUsdt(usdtBalance)} USDT
+                  {formatUsdcRawAsCop(usdtBalance)}
                 </span>
               </div>
             )}
@@ -313,7 +305,7 @@ const PaymentPage: React.FC = () => {
 
           {!project.contract_address && !project.natillera_address && (
             <div className="payment-notice payment-notice--warning">
-              Este proyecto aún no está desplegado en blockchain. El pago estará disponible una vez publicado.
+              Este proyecto aún no está publicado. El pago estará disponible una vez publicado.
             </div>
           )}
 
@@ -325,7 +317,7 @@ const PaymentPage: React.FC = () => {
 
           {!account && (
             <div className="payment-connect-wallet">
-              <p className="payment-connect-label">Conecta tu wallet para pagar</p>
+              <p className="payment-connect-label">Entra a tu cuenta para pagar</p>
               <ConnectButton
                 client={thirdwebClient}
                 chain={CHAIN}
@@ -338,7 +330,7 @@ const PaymentPage: React.FC = () => {
           {account && !hasEnoughBalance && monthlyContribution > BigInt(0) && (
             <div className="payment-connect-wallet">
               <p className="payment-connect-label">
-                Saldo insuficiente. Necesitas {formatUsdt(monthlyContribution)} USDT. Agrega fondos a tu wallet:
+                Saldo insuficiente. Necesitas {formatUsdcRawAsCop(monthlyContribution)}. Agrega dinero a tu cuenta:
               </p>
               <ConnectButton
                 client={thirdwebClient}
@@ -352,7 +344,7 @@ const PaymentPage: React.FC = () => {
                 disabled={fundingUsdc}
                 style={{ marginTop: '8px', width: '100%' }}
               >
-                {fundingUsdc ? 'Enviando fondos...' : 'Obtener 10 USDT de prueba'}
+                {fundingUsdc ? 'Enviando fondos...' : 'Obtener saldo de prueba'}
               </button>
             </div>
           )}
@@ -388,10 +380,10 @@ const PaymentPage: React.FC = () => {
               {payStep === 'preparing'
                 ? 'Preparando...'
                 : payStep === 'approving'
-                  ? 'Aprobando USDT...'
+                  ? 'Paso 1 de 2: autorizando el pago...'
                   : payStep === 'depositing'
-                    ? 'Procesando pago...'
-                    : 'Pagar con cripto'}
+                    ? 'Paso 2 de 2: confirmando el pago...'
+                    : 'Pagar'}
             </button>
           </div>
         </div>

@@ -178,7 +178,7 @@ const CrearPropuestaPage: React.FC = () => {
             />
             {vaultBalance !== null && (
               <span className="form-hint">
-                Disponible en la natillera: ~{(Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE) - 1).toLocaleString('es-CO')} COP ({vaultBalance.toLocaleString('es-CO')} USDC)
+                Disponible en la natillera: ~$ {(Math.floor(vaultBalance * BLOCKCHAIN_CONFIG.COP_TO_USDT_RATE) - 1).toLocaleString('es-CO')}
               </span>
             )}
           </div>

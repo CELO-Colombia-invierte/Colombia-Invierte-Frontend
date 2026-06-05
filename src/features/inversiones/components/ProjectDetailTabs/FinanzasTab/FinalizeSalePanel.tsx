@@ -18,17 +18,18 @@ export const FinalizeSalePanel: React.FC<FinalizeSalePanelProps> = ({
   onFinalize,
 }) => (
   <div className="rev-deposit-panel">
-    <h4 className="rev-deposit-title">Finalizar venta</h4>
+    <h4 className="rev-deposit-title">Cerrar la etapa de inversión</h4>
     <p className="rev-deposit-help">
-      Cierra la venta y cobra el 30% de comisión al treasury. El neto queda retenido en el vault
-      y se libera por hitos aprobados en gobernanza. No envía fondos a ninguna otra wallet.
+      Termina la recaudación. Se cobra la comisión de la plataforma (30%) y el resto queda guardado en
+      el fondo del proyecto, para entregarlo por etapas aprobadas por el grupo. Esta acción no se puede
+      deshacer.
     </p>
     {finalizeError && <p className="invest-error">{finalizeError}</p>}
     {vaultFrozen && (
-      <VaultFrozenBanner message="La bóveda está congelada por una disputa. No se puede finalizar la venta hasta que se descongele en gobernanza." />
+      <VaultFrozenBanner message="El fondo del proyecto está en pausa por un reclamo. No se puede cerrar la etapa de inversión hasta que el grupo lo reactive." />
     )}
     <button className="invest-btn" onClick={onFinalize} disabled={finalizing || vaultFrozen}>
-      {finalizing ? 'Finalizando...' : 'Finalizar venta y cobrar comisión'}
+      {finalizing ? 'Procesando...' : 'Cerrar la etapa de inversión'}
     </button>
     {finalizeTxHash && (
       <a
@@ -37,7 +38,7 @@ export const FinalizeSalePanel: React.FC<FinalizeSalePanelProps> = ({
         target="_blank"
         rel="noopener noreferrer"
       >
-        Ver transacción en Celoscan
+        Ver comprobante
       </a>
     )}
   </div>

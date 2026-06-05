@@ -11,40 +11,40 @@ import {
 import GovernanceAbi from '@/contracts/abis/GovernanceModule.json';
 
 const REVENUE_ERROR_MESSAGES_ES: Record<string, string> = {
-  FundingTargetReached: 'El monto excede el cupo restante de la tokenización.',
-  SaleClosed: 'La venta ya está cerrada.',
-  SaleNotEnded: 'La venta todavía no ha terminado. Espera a que se cumpla el plazo.',
-  SaleNotClosed: 'La venta aún está abierta. Cierra la recaudación antes de continuar.',
-  AlreadyFinalized: 'Esta venta ya fue finalizada anteriormente.',
-  DistributionEnded: 'La distribución de rendimientos ya finalizó.',
+  FundingTargetReached: 'El monto supera el cupo restante del proyecto.',
+  SaleClosed: 'La etapa de inversión ya está cerrada.',
+  SaleNotEnded: 'La etapa de inversión todavía no ha terminado. Espera a que se cumpla el plazo.',
+  SaleNotClosed: 'La etapa de inversión aún está abierta. Ciérrala antes de continuar.',
+  AlreadyFinalized: 'La etapa de inversión ya fue cerrada anteriormente.',
+  DistributionEnded: 'La entrega de rendimientos ya finalizó.',
   NothingToClaim: 'No tienes rendimientos disponibles para cobrar.',
   ZeroAmount: 'El monto debe ser mayor a 0.',
   BelowMinimumCap: 'El monto está por debajo del mínimo permitido.',
   InvalidAmount: 'Monto inválido.',
-  InsufficientBalance: 'El vault no tiene fondos suficientes para esta operación.',
-  Unauthorized: 'Tu wallet no tiene permiso para hacer esta acción. Solo el creator del proyecto o la gobernanza pueden ejecutarla.',
-  VaultPaused: 'La bóveda está pausada por una disputa. Pasa una propuesta de "Descongelar bóveda" en gobernanza para reactivarla.',
-  EnforcedPause: 'La bóveda está congelada (probablemente por una disputa aprobada). Para volver a operar, alguien debe proponer "Descongelar bóveda" en gobernanza y que se vote afirmativamente.',
-  ExpectedPause: 'La bóveda no está pausada — esta acción solo aplica cuando está congelada.',
+  InsufficientBalance: 'El fondo del proyecto no tiene dinero suficiente para esta operación.',
+  Unauthorized: 'No tienes permiso para esta acción. Solo el responsable del proyecto o el grupo pueden hacerla.',
+  VaultPaused: 'El fondo del proyecto está en pausa por un reclamo. El grupo debe reactivarlo para continuar.',
+  EnforcedPause: 'El fondo del proyecto está en pausa por un reclamo. Para volver a operar, el grupo debe votar por reactivarlo.',
+  ExpectedPause: 'El fondo del proyecto no está en pausa — esta acción solo aplica cuando lo está.',
   InvalidVaultState: 'El estado actual del proyecto no permite esta operación.',
   InvalidState: 'El proyecto no está en el estado correcto para esta acción.',
-  InvalidDispute: 'La disputa referenciada no existe o ya fue resuelta. Abre una nueva si necesitas reclamar algo.',
-  DisputeAlreadyResolved: 'Esta disputa ya fue resuelta y no se puede modificar.',
-  DisputeNotFrozen: 'La bóveda no está congelada por esta disputa.',
-  MilestoneNotFound: 'El hito referenciado no existe en este proyecto.',
-  MilestoneAlreadyExecuted: 'Este hito ya fue ejecutado previamente.',
-  MilestoneAlreadyCancelled: 'Este hito ya fue cancelado.',
-  ExceedsProjectFunds: 'El monto supera lo disponible en el capital del proyecto (los rendimientos no se cuentan).',
-  AlreadyVoted: 'Ya votaste en esta propuesta.',
-  VotingClosed: 'El período de votación ya cerró para esta propuesta.',
-  VotingStillOpen: 'La votación aún está abierta. Espera a que cierre antes de ejecutar.',
-  QuorumNotReached: 'No se alcanzó el quórum mínimo de votación.',
-  AlreadyExecuted: 'Esta propuesta ya fue ejecutada.',
-  ProposalRejected: 'La propuesta fue rechazada — ganaron los votos en contra.',
-  NoVotingPower: 'Tu wallet no tiene tokens delegados para votar. Activa tu poder de voto primero.',
-  ZeroAddress: 'La dirección no puede ser la dirección cero (0x0000…).',
-  TransferFailed: 'La transferencia de USDC falló. Verifica tu balance y la aprobación.',
-  AllowanceInsufficient: 'Necesitas aprobar más USDC antes de continuar.',
+  InvalidDispute: 'El reclamo ya no existe o fue resuelto. Abre uno nuevo si necesitas reclamar algo.',
+  DisputeAlreadyResolved: 'Este reclamo ya fue resuelto y no se puede modificar.',
+  DisputeNotFrozen: 'El fondo no está en pausa por este reclamo.',
+  MilestoneNotFound: 'La etapa no existe en este proyecto.',
+  MilestoneAlreadyExecuted: 'Esta etapa ya fue pagada.',
+  MilestoneAlreadyCancelled: 'Esta etapa ya fue cancelada.',
+  ExceedsProjectFunds: 'El monto supera el dinero disponible del proyecto.',
+  AlreadyVoted: 'Ya votaste en esta votación.',
+  VotingClosed: 'El tiempo para votar ya cerró.',
+  VotingStillOpen: 'La votación aún está abierta. Espera a que cierre antes de continuar.',
+  QuorumNotReached: 'No se reunieron los votos necesarios.',
+  AlreadyExecuted: 'Esta votación ya se ejecutó.',
+  ProposalRejected: 'La votación fue rechazada — ganaron los votos en contra.',
+  NoVotingPower: 'Activa tu voto antes de votar.',
+  ZeroAddress: 'Faltan datos para esta operación.',
+  TransferFailed: 'El pago no se pudo completar. Verifica tu saldo e intenta de nuevo.',
+  AllowanceInsufficient: 'Falta autorizar el pago antes de continuar.',
 };
 
 const KNOWN_SELECTORS_TO_ERROR_NAME: Record<string, string> = {
@@ -102,7 +102,7 @@ export function decodeContractRevert(err: unknown): string | null {
   if (!data) return null;
   try {
     const decoded = decodeErrorResult({ abi: combinedRevertAbi() as never, data });
-    return REVENUE_ERROR_MESSAGES_ES[decoded.errorName] ?? `La operación falló en la blockchain (${decoded.errorName}). Verifica el estado del proyecto o contacta al equipo.`;
+    return REVENUE_ERROR_MESSAGES_ES[decoded.errorName] ?? 'No se pudo completar la operación. Verifica el estado del proyecto o escribe a soporte.';
   } catch {
     const selector = data.slice(0, 10).toLowerCase();
     const errorName = KNOWN_SELECTORS_TO_ERROR_NAME[selector];

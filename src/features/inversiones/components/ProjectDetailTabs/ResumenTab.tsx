@@ -15,6 +15,7 @@ import { useBlockchain } from '@/hooks/use-blockchain';
 import { blockchainService } from '@/services/blockchain.service';
 import { computeNatilleraContribution, fetchQuotaPaidEvents } from '@/services/natillera-contribution';
 import { projectsService } from '@/services/projects/projects.service';
+import { formatUsdcAsCop } from '@/utils/money';
 import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import './ProjectDetailTabs.css';
 
@@ -201,16 +202,16 @@ export const ResumenTab: React.FC<ResumenTabProps> = ({
             <h3 className="mi-aporte-title">Rentabilidad</h3>
             <div className="mi-aporte-grid">
               <div className="mi-aporte-item">
-                <span className="mi-aporte-label">APY esperado</span>
+                <span className="mi-aporte-label">Rentabilidad esperada (anual)</span>
                 <span className="mi-aporte-value">{rentabilidad.expectedApy.toFixed(2)}%</span>
               </div>
               <div className="mi-aporte-item">
-                <span className="mi-aporte-label">APY real</span>
+                <span className="mi-aporte-label">Rentabilidad real (anual)</span>
                 <span className="mi-aporte-value">{rentabilidad.realApy.toFixed(2)}%</span>
               </div>
               <div className="mi-aporte-item">
                 <span className="mi-aporte-label">Distribuido</span>
-                <span className="mi-aporte-value">{rentabilidad.distributedTotal.toLocaleString('es-CO')} USDC</span>
+                <span className="mi-aporte-value">{formatUsdcAsCop(rentabilidad.distributedTotal)}</span>
               </div>
             </div>
           </div>

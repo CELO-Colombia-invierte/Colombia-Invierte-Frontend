@@ -68,7 +68,7 @@ const PropuestaDetallePage: React.FC = () => {
       let txHash: string | undefined;
       if (propuesta.proposal_chain_id && propuesta.governance_address) {
         await present({
-          message: 'Firma el voto en tu wallet',
+          message: 'Confirma tu voto',
           duration: 2000,
         });
         txHash = await voteOnChain(
@@ -103,7 +103,7 @@ const PropuestaDetallePage: React.FC = () => {
     }
     if (!propuesta.governance_address || !propuesta.proposal_chain_id) {
       await present({
-        message: 'La propuesta no está vinculada on-chain. Contacta al administrador.',
+        message: 'La solicitud no está disponible todavía. Contacta al administrador.',
         duration: 3000,
         color: 'danger',
       });
@@ -297,7 +297,7 @@ const PropuestaDetallePage: React.FC = () => {
               onClick={isApproved ? handleWithdraw : () => setShowWithdrawBlockedModal(true)}
               disabled={withdrawing || isExecuting}
             >
-              {isExecuting ? 'Firmando...' : withdrawing ? 'Retirando...' : 'Retirar dinero'}
+              {isExecuting ? 'Procesando...' : withdrawing ? 'Retirando...' : 'Retirar dinero'}
             </button>
           </div>
         )}

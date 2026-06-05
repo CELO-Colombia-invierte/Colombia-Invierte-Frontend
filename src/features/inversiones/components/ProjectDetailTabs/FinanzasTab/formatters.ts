@@ -1,5 +1,5 @@
 import { formatUnits } from '@/services/blockchain/formatting';
-import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { formatUsdcRawAsCop } from '@/utils/money';
 
 export function formatCurrency(amount: number): string {
   return Number(amount).toLocaleString('es-CO', {
@@ -19,7 +19,7 @@ export function formatDate(dateString: string): string {
 }
 
 export function formatUsdc(value: bigint): string {
-  return formatUnits(value, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS);
+  return formatUsdcRawAsCop(value);
 }
 
 export function formatTokens(value: bigint, projectTokenDecimals: number | null): string {

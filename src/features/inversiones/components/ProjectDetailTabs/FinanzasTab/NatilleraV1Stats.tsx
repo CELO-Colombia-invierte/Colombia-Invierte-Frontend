@@ -10,7 +10,7 @@ interface NatilleraV1StatsProps {
 
 export const NatilleraV1Stats: React.FC<NatilleraV1StatsProps> = ({ state, totalMonths }) => (
   <div className="chain-state-grid">
-    <StatCard label="Total recaudado" value={`${formatUsdc(state.totalCollected)} USDC`} />
+    <StatCard label="Total recaudado" value={`${formatUsdc(state.totalCollected)}`} />
     <StatCard
       label="Ciclo actual"
       value={`${Number(state.currentCycle) + 1}${totalMonths ? ` / ${totalMonths}` : ''}`}

@@ -24,7 +24,7 @@ export const UserPositionPanel: React.FC<UserPositionPanelProps> = ({
       <div className="rev-distribution-grid">
         <div className="rev-stat">
           <span className="rev-stat-label">Tu inversión</span>
-          <span className="rev-stat-value">{formatUsdc(userInv)} USDC</span>
+          <span className="rev-stat-value">{formatUsdc(userInv)}</span>
         </div>
         <div className="rev-stat">
           <span className="rev-stat-label">Tus tokens</span>
@@ -34,15 +34,15 @@ export const UserPositionPanel: React.FC<UserPositionPanelProps> = ({
         </div>
         <div className="rev-stat">
           <span className="rev-stat-label">Pool total de rendimientos</span>
-          <span className="rev-stat-value">{formatUsdc(rendimientosPool)} USDC</span>
+          <span className="rev-stat-value">{formatUsdc(rendimientosPool)}</span>
         </div>
         <div className="rev-stat">
           <span className="rev-stat-label">Tu parte del pool</span>
-          <span className="rev-stat-value">≈ {formatUsdc(shareOfPool)} USDC</span>
+          <span className="rev-stat-value">≈ {formatUsdc(shareOfPool)}</span>
         </div>
         <div className="rev-stat">
           <span className="rev-stat-label">Por cobrar ahora</span>
-          <span className="rev-stat-value">{formatUsdc(rewards)} USDC</span>
+          <span className="rev-stat-value">{formatUsdc(rewards)}</span>
         </div>
         <div className="rev-stat">
           <span className="rev-stat-label">Esperado anual (promesa)</span>

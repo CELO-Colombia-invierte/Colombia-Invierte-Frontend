@@ -91,7 +91,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance }) => {
                       <rect x="2" y="5" width="20" height="14" rx="2" />
                       <path d="M16 12h2" strokeLinecap="round" />
                     </svg>
-                    Mi wallet
+                    Mi cuenta
                   </button>
                 ),
                 displayBalanceToken: {

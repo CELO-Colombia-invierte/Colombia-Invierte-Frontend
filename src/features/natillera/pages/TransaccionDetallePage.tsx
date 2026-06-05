@@ -29,9 +29,6 @@ const TransaccionDetallePage: React.FC = () => {
 
   const {
     txHash,
-    blockNumber,
-    gasUsed,
-    from,
     natilleraName,
     propuestaTitle,
     amountNum,
@@ -44,10 +41,6 @@ const TransaccionDetallePage: React.FC = () => {
     val.toLocaleString('es-CO', { maximumFractionDigits: 0 });
 
   const shortHash = (h: string) => `${h.slice(0, 4)}...${h.slice(-4)}`;
-  const shortAddr = (a: string) => `${a.slice(0, 4)}...${a.slice(-4)}`;
-
-  const gasEther = (BigInt(gasUsed) * 25000000n) / 10n ** 18n;
-  const gasDisplay = `${Number(gasEther).toFixed(3)} cCOP`;
 
   const now = new Date();
   const dateDisplay = now.toLocaleDateString('es-CO', {
@@ -92,7 +85,7 @@ const TransaccionDetallePage: React.FC = () => {
 
           <div className="tx-detalle-card">
             <div className="tx-detalle-row tx-detalle-row--divider">
-              <span className="tx-row-label">Hash transacción:</span>
+              <span className="tx-row-label">Número de comprobante:</span>
               <div className="tx-row-value-copy">
                 <a
                   href={getBlockExplorerTxUrl(txHash)}
@@ -103,19 +96,6 @@ const TransaccionDetallePage: React.FC = () => {
                   {shortHash(txHash)}
                 </a>
                 <button className="tx-copy-btn" onClick={() => copyToClipboard(txHash)}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <div className="tx-detalle-row tx-detalle-row--divider">
-              <span className="tx-row-label">De:</span>
-              <div className="tx-row-value-copy">
-                <span className="tx-row-value">{shortAddr(from)}</span>
-                <button className="tx-copy-btn" onClick={() => copyToClipboard(from)}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -152,23 +132,8 @@ const TransaccionDetallePage: React.FC = () => {
             </div>
 
             <div className="tx-detalle-row">
-              <span className="tx-row-label">Red:</span>
-              <span className="tx-row-value">CELO Network</span>
-            </div>
-
-            <div className="tx-detalle-row">
               <span className="tx-row-label">Fecha y hora:</span>
               <span className="tx-row-value">{dateDisplay}</span>
-            </div>
-
-            <div className="tx-detalle-row">
-              <span className="tx-row-label">Número de bloque:</span>
-              <span className="tx-row-value">{Number(blockNumber).toLocaleString('es-CO')}</span>
-            </div>
-
-            <div className="tx-detalle-row">
-              <span className="tx-row-label">Gas usado:</span>
-              <span className="tx-row-value">{gasDisplay}</span>
             </div>
           </div>
 

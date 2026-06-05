@@ -4,8 +4,8 @@ import { useHistory, useParams } from 'react-router-dom';
 import { projectsService } from '@/services/projects';
 import { apiService } from '@/services/api/api.service';
 import { blockchainService } from '@/services/blockchain.service';
-import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
 import { Project } from '@/models/projects';
+import { formatUsdcRawAsCop } from '@/utils/money';
 import './CuotasPage.css';
 
 interface BlockchainEvent {
@@ -77,11 +77,7 @@ const CuotasPage: React.FC = () => {
 
   const formatAmount = (event: BlockchainEvent) => {
     if (event.event_data.amount) {
-      const usdc = blockchainService.formatUnits(
-        BigInt(event.event_data.amount),
-        BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS,
-      );
-      return `+${Number(usdc).toLocaleString('es-CO')} USDC`;
+      return `+${formatUsdcRawAsCop(BigInt(event.event_data.amount))}`;
     }
     const monthly = project?.natillera_details?.monthly_fee_amount;
     const currency = project?.natillera_details?.monthly_fee_currency ?? 'COP';

@@ -8,7 +8,7 @@ import { useBlockchain } from '@/hooks/use-blockchain';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { projectsService } from '@/services/projects/projects.service';
 import { blockchainService } from '@/services/blockchain.service';
-import { BLOCKCHAIN_CONFIG } from '@/contracts/config';
+import { formatUsdcRawAsCop } from '@/utils/money';
 import { computeNatilleraContribution, fetchQuotaPaidEvents } from '@/services/natillera-contribution';
 import { Position } from '@/models/Portfolio.model';
 import { Project, ProjectVisibility } from '@/models/projects/project.model';
@@ -246,7 +246,7 @@ const PortafolioPage: React.FC = () => {
               >
                 <IonIcon icon={giftOutline} />
                 <span>
-                  Tienes <strong>{blockchainService.formatUnits(pendingRewards.total, BLOCKCHAIN_CONFIG.PAYMENT_TOKEN_DECIMALS)} USDC</strong>
+                  Tienes <strong>{formatUsdcRawAsCop(pendingRewards.total)}</strong>
                   {' '}en rendimientos por cobrar en {pendingRewards.projects.length}{' '}
                   {pendingRewards.projects.length === 1 ? 'proyecto' : 'proyectos'}
                 </span>

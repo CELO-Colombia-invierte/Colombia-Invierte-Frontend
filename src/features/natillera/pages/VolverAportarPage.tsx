@@ -240,7 +240,7 @@ const VolverAportarPage: React.FC = () => {
                 onClick={handleConfirm}
                 disabled={busy}
               >
-                {isSending ? 'Firmando en wallet...' : busy ? 'Procesando...' : 'Confirmar re-aporte'}
+                {isSending ? 'Procesando...' : busy ? 'Procesando...' : 'Confirmar re-aporte'}
               </button>
               <button
                 className="volver-modal-cancel-btn"

@@ -1,8 +1,8 @@
 import React from 'react';
 import { RevenueModuleState } from '@/services/blockchain.service';
 import { StatCard } from './StatCard';
-import { formatUsdc } from './formatters';
 import { RevenueDerived } from './tokenizationMath';
+import { formatUsdcRawAsCop } from '@/utils/money';
 
 interface RevenueStatsGridProps {
   state: RevenueModuleState;
@@ -26,27 +26,27 @@ export const RevenueStatsGrid: React.FC<RevenueStatsGridProps> = ({
   let estadoBadge = state.saleFinalized ? 'Finalizada' : 'Activa';
   let estadoClass = state.saleFinalized ? 'badge-done' : 'badge-active';
   if (vaultStatus?.state === 2) {
-    estadoBadge = 'Bóveda cerrada';
+    estadoBadge = 'Proyecto cerrado';
     estadoClass = 'badge-pending';
   } else if (vaultStatus?.paused) {
-    estadoBadge = 'Bóveda congelada';
+    estadoBadge = 'Fondo en pausa';
     estadoClass = 'badge-frozen';
   }
 
   return (
     <>
       <div className="chain-state-grid">
-        <StatCard label="Total recaudado" value={`${formatUsdc(state.totalRaised)} USDC`} />
-        <StatCard label="Objetivo" value={`${formatUsdc(state.fundingTarget)} USDC`} />
+        <StatCard label="Total recaudado" value={formatUsdcRawAsCop(state.totalRaised)} />
+        <StatCard label="Meta" value={formatUsdcRawAsCop(state.fundingTarget)} />
         <StatCard label="Estado" badge={estadoBadge} badgeClass={estadoClass} />
         {state.saleFinalized && projectFunds !== null && (
           <>
-            <StatCard label="Comisión al treasury" value={`${formatUsdc(derived.treasuryFee)} USDC`} />
-            <StatCard label="Saldo total del vault" value={`${formatUsdc(derived.vaultNow)} USDC`} />
-            <StatCard label="Ya retirado del vault" value={`${formatUsdc(derived.alreadyWithdrawn)} USDC`} />
-            <StatCard label="Comprometido en hitos pendientes" value={`${formatUsdc(derived.committed)} USDC`} />
-            <StatCard label="Disponible para hitos" value={`${formatUsdc(derived.disponibleHitos)} USDC`} />
-            <StatCard label="Rendimientos en pool" value={`${formatUsdc(derived.rendimientosPool)} USDC`} />
+            <StatCard label="Comisión de la plataforma" value={formatUsdcRawAsCop(derived.treasuryFee)} />
+            <StatCard label="Saldo del fondo" value={formatUsdcRawAsCop(derived.vaultNow)} />
+            <StatCard label="Ya retirado" value={formatUsdcRawAsCop(derived.alreadyWithdrawn)} />
+            <StatCard label="Comprometido en etapas pendientes" value={formatUsdcRawAsCop(derived.committed)} />
+            <StatCard label="Disponible para etapas" value={formatUsdcRawAsCop(derived.disponibleHitos)} />
+            <StatCard label="Rendimientos disponibles" value={formatUsdcRawAsCop(derived.rendimientosPool)} />
           </>
         )}
       </div>
@@ -62,11 +62,11 @@ export const RevenueStatsGrid: React.FC<RevenueStatsGridProps> = ({
             fontSize: 13,
           }}
         >
-          <strong>Hitos sobre-comprometidos.</strong> Los hitos pendientes piden{' '}
-          {formatUsdc(derived.committed)} USDC, pero en el vault solo quedan{' '}
-          {formatUsdc(derived.projectFundsRemaining)} USDC. Faltan{' '}
-          <strong>{formatUsdc(shortfall)} USDC</strong>: esos hitos no se podrán ejecutar
-          a menos que entren más fondos al vault.
+          <strong>Etapas sobre-comprometidas.</strong> Las etapas pendientes piden{' '}
+          {formatUsdcRawAsCop(derived.committed)}, pero en el fondo solo quedan{' '}
+          {formatUsdcRawAsCop(derived.projectFundsRemaining)}. Faltan{' '}
+          <strong>{formatUsdcRawAsCop(shortfall)}</strong>: esas etapas no se podrán pagar
+          a menos que entre más dinero al fondo.
         </div>
       )}
     </>
